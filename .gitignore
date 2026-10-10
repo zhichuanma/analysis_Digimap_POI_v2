@@ -1,2 +1,6 @@
 # Local source and generated data are kept outside Git.
 /data/
+/outputs/
+/cities/
+__pycache__/
+*.py[cod]

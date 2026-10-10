@@ -1,0 +1,13 @@
+# Paths are relative to the SPEC data root: ~/work/analysis_Digimap_POI_v2/.
+# This configuration does not claim that real inputs have been prepared.
+radii_m: [500, 1000]
+classification_mode: native
+include_ev_charging: false
+poi_batch_size: 10000
+station_batch_size: 1000
+paths:
+  raw_dir: data/raw
+  source_manifest: data/source_manifest.json
+  cities_dir: cities
+  geography_dir: data/raw/geography
+  output_dir: outputs

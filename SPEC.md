@@ -89,11 +89,26 @@
 
 当前服务器主机为 `3018893001`，代码检出目录是 `/mnt/data/work/mazhichuan/.offloaded-from-system/20261007-full-scan/Projects/analysis_Digimap_POI_v2`。`~/work` 已链接到数据盘 `/mnt/data/work/mazhichuan`（与现有 `~/Work` 指向同处），因此约定的数据根目录实际解析为 `/mnt/data/work/mazhichuan/analysis_Digimap_POI_v2/`。无需另行 SSH；第 02 步仅运行合成测试，使用 `python -B` 避免在代码检出目录生成字节码缓存。
 
+### 第 04 步路径与配置接口
+
+用户已授权按第 04 步方案实现。路线中“所有路径从 `run.py` 所在根解析”的示例按上述数据盘约定调整为两个独立根；不改变统计口径。
+
+- 代码根由 `run.py` 的实际位置确定，数据根由程序按 `~/work/analysis_Digimap_POI_v2/` 定位。二者不能相等或互相包含，且不由 YAML 或命令行指定。现有 `~/work` 链接到数据盘是已确认的部署约定。
+- `project_path(relative_path, *, root, field="path")` 接收原始相对路径字符串和显式绝对根，返回解析后的绝对 `Path`。拒绝空路径、绝对或带盘符的路径、任何 `..` 分量、反斜杠和 NUL 字符；不展开配置路径中的 `~` 或环境变量。
+- 先检查原始路径，再解析符号链接并按路径层级检查归属。内部链接可以通过，指向所属根之外的链接、越界的已有父目录及符号链接循环报错；目标尚不存在也必须通过父目录检查。本步不创建输入或输出目录。
+- `load_config(config_path="config.yaml")` 从代码根读取相对路径配置；绝对配置文件路径即使位于代码根内也拒绝。使用 PyYAML 6.0.3 的安全加载器并额外拒绝重复键；配置须为映射，缺少必填项、未知字段或错误类型明确失败。
+- `validate_config(config)` 返回有效参数和解析后路径，不修改输入配置。`radii_m` 须为有限正数、严格递增且唯一，并且等于现有的 `[500, 1000]`；不自动排序、去重或转换字符串。`classification_mode` 只接受 `native`，`include_ev_charging` 必须是布尔值，示例默认 `false`。
+- `poi_batch_size` 和 `station_batch_size` 必须是正整数，布尔值不视为整数；示例默认分别为 `10000`、`1000`。批次参数供后续处理调整内存与速度，本步不声称已验证分批性能或结果不变性。设施开关会改变分类纳入对象，仍须满足既定的后续空间与清洗条件。
+- `paths` 包含 `raw_dir`、`source_manifest`、`cities_dir`、`geography_dir`、`output_dir`，均相对数据根。解析后的目录分别限制在 `data/raw/`、`cities/`、`data/raw/geography/` 和 `outputs/` 内，可以选择子目录；geography 还须位于所选 raw 目录内。来源清单位置固定为 `data/source_manifest.json`。
+- 输出与项目根、配置中的输入路径及整个保留输入区域不能重叠，检查祖先/子目录关系和符号链接解析后的真实位置。每次实际运行继续使用独立的 `outputs/<run-id>/`；完整运行目录管理与防覆盖调度留待后续步骤。
+- 最小命令是 `python -B run.py --check-config --config config.yaml`，成功输出 JSON 中的 `status=config_valid`、`inputs_verified=false`、有效参数和解析路径，退出码 0；失败指出字段与原因，退出码 2。只读取配置并检查路径，不创建目录、不调用匹配或统计，也不支持完整阶段调度。
+- 真实输入存在性、内容和来源完整性本步不验证；固定离线七参数 pipeline 仍未确认，留到第 08 步核实后再补配置。合成测试、日志与验证输出位于服务器数据根的新 `outputs/<run-id>/` 中，不进入代码检出目录或 Git。
+
 ## 第 00 步的未决问题
 
 以下问题不在第 00 步擅自决定，须在相关步骤前明确并记录：
 
-1. 旧项目 `/home/mazhichuan/Projects/analysis_Digimap_POI` 仅作只读参考；旧 `config.yaml` 和源码不能直接照搬。新项目固定坐标 pipeline 及其验证需要在第 04/08 步独立确认。
+1. 旧项目 `/home/mazhichuan/Projects/analysis_Digimap_POI` 仅作只读参考；旧 `config.yaml` 和源码不能直接照搬。第 04 步未填入未经验证的转换字符串；新项目固定坐标 pipeline 及其验证留到第 08 步独立确认。
 2. PUA 边界来源已确定为新项目 `cities/` 与 `data/raw/geography/` 的联合数据；其字段连接、版本、坐标系以及边界上使用 `covers` 还是其他语义，需要在站点和 POI 准备步骤确认。
 3. 后续 POI 业务筛选的字段、类别清单和排除原因需要在 POI 清洗步骤前明确；在此之前不能声称所有有效点都会被计数。
 4. `UNKNOWN` 是否在最终 group 汇总中作为展开代码，需要在接入真实字典和第 15 步统计前根据旧实现与用户决定固定。
@@ -111,5 +126,6 @@
 - 第 02 步空值和格式异常均归为 `UNKNOWN`，`include_in_count=True`；该标志仅表示通过分类规则，最终仍须满足后续空间和清洗条件。
 - 当前环境就是指定服务器，可以直接在新项目执行测试；运行输出仍放在数据盘的独立 `outputs/<run-id>/` 中。
 - 第 03 步按已说明方案实现：样本 S3 使用 `(100, 500)`，原型采用显式 group 展开清单；真实输入准备、PUA 判断与覆盖几何计算仍在后续对应步骤验证。
+- 第 04 步按已说明方案实现：代码根与数据根分别约束，使用 YAML 读取配置、固定 500/1000 m 和原生分类模式，检查设施开关、正整数批次、符号链接越界及输出重叠；本步只提供配置检查入口。
 
 这些未决问题不改变本轮已记录的基础口径，也不授权提前实现后续步骤。
