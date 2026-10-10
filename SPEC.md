@@ -23,13 +23,23 @@
 
 ## 原生分类
 
-结果保留 Digimap 的 `group / category / class` 三层原生体系。分类码始终按字符串处理，以保留前导零。
+结果保留 Digimap 的 `group / category / class` 三层原生体系。用于格式检查、拆分和字典连接的分类码按字符串处理，以保留已有前导零；`raw_code` 保留原始值及其类型。
 
 - `group_code` 为原生八位码的前 2 位。
 - `category_code` 为原生八位码的前 4 位。
 - `class_code` 为完整八位码。
 - 格式合法但字典未知的八位码仍保留其前缀并进入审计；格式不合法或空值归为 `UNKNOWN`，同时保留原始值和原因。
 - 官方字典的展示名称与代码关联，代码是稳定连接键。真实字典在第 07 步接入；本步骤不读取或推断真实分类频数。
+
+### 第 02 步分类接口与已确认规则
+
+- `classify(raw_code, dictionary, *, include_ev_charging=False)` 每次处理一个分类值；测试字典以完整八位字符串为键，本步只检查键是否存在，不读取正式标签文件。
+- 原始值单独保存在 `raw_code`。非缺失值通过 `str()` 转换后检查是否完整匹配 `[0-9]{8}`；不去除首尾空格、不补零、不猜测或修复编码。整数 `10540832` 转为合法的八位码；整数 `1010006` 转为七位码后仍属格式异常；浮点数 `10540832.0` 不会被修复为整数码。
+- 本步普通 Python 标量接口将 `None`、浮点 `NaN` 和空字符串视为空值；纯空白字符串属于格式异常，字符串 `"nan"`、`"None"` 不作为缺失值猜测。真实文件的其他缺失值表示须在后续输入接入时明确处理。
+- 输出为 `ClassificationResult`，包含 `raw_code`、`group_code`、`category_code`、`class_code`、`classification_status`、`include_in_count` 和 `audit_reasons`。状态分别为 `known`（字典已知）、`unknown_dictionary`（格式合法但字典未知）、`missing`（空值）、`malformed`（格式异常）。
+- 空值和格式异常的三层代码均为 `UNKNOWN`，`include_in_count=True`，审计原因分别为 `missing_code` 和 `malformed_code`。合法未知码保留三层代码，审计原因是 `unknown_dictionary_code`，不会仅因字典未知被排除。
+- `include_ev_charging` 必须为布尔值。仅字符串转换后精确等于 `10540832` 的码受该开关影响：默认 `include_in_count=False`，增加 `charging_facility_excluded` 审计；打开时设为 `True`。设施判断不依赖字典收录情况，分类状态与设施排除原因分别保留。
+- `include_in_count` 只表示通过本步分类规则，最终仍须满足后续空间范围、业务筛选和清洗条件。本步不决定最终 group 汇总是否展开 `UNKNOWN`，也不执行空间计算或正式统计。
 
 ## 输入清洗、覆盖和可观测性
 
@@ -58,9 +68,11 @@
 
 ## 数据和运行边界
 
-真实数据在新项目内独立存放，配套来源说明和 `data/source_manifest.json`；原始数据与运行产物不进 Git。当前工作区只用于文档阶段，不能把本地已有文件或旧项目历史结果当作本轮分析输入。
+真实数据在新项目内独立存放，配套来源说明和 `data/source_manifest.json`；原始数据与运行产物不进 Git。用户已确认当前环境就是服务器，代码和测试可在当前新项目检出目录执行；不能把未经来源核实的已有文件或旧项目历史结果当作本轮真实分析输入。
 
 文档阅读和编辑在当前工作区进行；代码、测试和真实分析默认在服务器新项目执行。服务器项目目录在数据盘 `~/work/analysis_Digimap_POI_v2/` 下自行创建，运行产物写入其 `outputs/<run-id>/`，不写入代码检出目录。每次运行使用新的 `run-id`，并在后续步骤记录输入、配置、代码和产物校验信息。
+
+当前服务器主机为 `3018893001`，代码检出目录是 `/mnt/data/work/mazhichuan/.offloaded-from-system/20261007-full-scan/Projects/analysis_Digimap_POI_v2`。`~/work` 已链接到数据盘 `/mnt/data/work/mazhichuan`（与现有 `~/Work` 指向同处），因此约定的数据根目录实际解析为 `/mnt/data/work/mazhichuan/analysis_Digimap_POI_v2/`。无需另行 SSH；第 02 步仅运行合成测试，使用 `python -B` 避免在代码检出目录生成字节码缓存。
 
 ## 第 00 步的未决问题
 
@@ -71,7 +83,7 @@
 3. 后续 POI 业务筛选的字段、类别清单和排除原因需要在 POI 清洗步骤前明确；在此之前不能声称所有有效点都会被计数。
 4. `UNKNOWN` 是否在最终 group 汇总中作为展开代码，需要在接入真实字典和第 15 步统计前根据旧实现与用户决定固定。
 5. 第 16 步的独立验距应以匹配使用的几何坐标为准，还是同时复现旧实现基于 `feature_easting/northing` 的检查，需要先讨论几何/属性坐标不一致时的取舍。
-6. 真实 `data/raw/`、来源说明和 `data/source_manifest.json` 的准备位置、哈希和服务器执行目录尚未在本项目中建立；在第 05 步前不能声称输入完整性已验证。
+6. 服务器执行地点和数据盘输出目录已在第 02 步确认；真实 `data/raw/`、来源说明及 `data/source_manifest.json` 尚未准备和验证，在第 05 步前不能声称输入完整性已验证。
 
 ## 用户已确认的口径修订
 
@@ -80,5 +92,8 @@
 - PUA 边界使用新项目 `cities/` 与 `data/raw/geography/` 的联合数据；旧项目 `/home/mazhichuan/Projects/analysis_Digimap_POI` 只读参考，不能照搬。
 - 数据盘项目根固定规划为 `~/work/analysis_Digimap_POI_v2/`，输出按 `outputs/<run-id>/` 分目录保存；本轮不创建真实数据目录。
 - POI 需要在后续步骤筛选，不能把源数据中所有 POI 默认视为研究对象。
+- 第 02 步保留原始分类值，另将非缺失值转换成字符串检查；不去空格、不补零、不修复编码，空值与格式异常分别审计。
+- 第 02 步空值和格式异常均归为 `UNKNOWN`，`include_in_count=True`；该标志仅表示通过分类规则，最终仍须满足后续空间和清洗条件。
+- 当前环境就是指定服务器，可以直接在新项目执行测试；运行输出仍放在数据盘的独立 `outputs/<run-id>/` 中。
 
 这些未决问题不改变本轮已记录的基础口径，也不授权提前实现后续步骤。
