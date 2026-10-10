@@ -58,6 +58,21 @@
 
 ## 目标产物的行含义
 
+### 第 03 步手算原型
+
+用户已指示按第 03 步方案实现；本步采用以下样本修订和内存接口：
+
+- 样本 B 的 S3 坐标从路线中的 `(0, 0)` 调整为 `(100, 500)`，与 S1 成为不同坐标的分析实体，避免违反同坐标站点合并口径。S1、S2、S4 及所有 POI 沿用样本 B 的坐标。覆盖标志仍是人工测试条件，不代表真实几何覆盖已验证。
+- `match(stations, pois, dictionary, *, include_ev_charging=False)` 输入为字典记录的可迭代对象。站点包含字符串 `station_key`、`xy`、布尔 `selected` 与 `query_eligible`；POI 包含字符串 `ref_no`、`xy`、`raw_code`，以及显式布尔 `in_pua`、`passes_business_filter`、`passes_cleaning`。这些资格是已准备样本的前提，不由原型读取真实数据判断。
+- 输入站点必须已经按实体合并，POI 的 `ref_no` 必须已经唯一。重复站点键、同坐标的已选择可查询站点、重复 `ref_no` 都会报错；本步不代替后续真实站点合并或重复 POI 清洗。
+- `match()` 复用 `classify()` 和 `naive_neighbors()`，仅为已选择且可查询站点生成 1000 m 内唯一匹配对；返回 `matches`、所有输入 POI 的 `poi_audit` 及实际 `include_ev_charging`。审计分别保留分类纳入标志、分类原因、综合 `eligible_for_matching` 与 `exclusion_reasons`，设施开关不能绕过 PUA、业务或清洗资格。
+- `summarize(stations, matches, *, group_codes)` 要求每个已选择站点提供 `coverage_complete_proxy={500: bool, 1000: bool}`；覆盖完整以可查询为前提，但不由匹配数或另一半径的状态推导。重复匹配对、不可观测站点的匹配、越界距离和遗漏匹配 group 的展开清单会报错，避免静默丢失或重复计数。
+- group 展开域显式输入，基础样本为 `01`、`99`，设施开启样本增加 `10`；异常码用例显式包含 `UNKNOWN`，不据此固定正式 group 汇总的默认展开规则。category/class 只保留正计数。
+- `summarize()` 返回内存列表 `station_radius_totals`、`composition`、`radius_summary`、`group_summary`。总数表只包含已选择站点；`observed_count` 区分可查询零值与不可查询 `None`，`interpretable_count` 仅在当前半径完整覆盖时保留。组成表仅包含可观测站点，`share` 在总数为 0 时为 `None`；覆盖不完整站点仍保留观测组成。
+- 摘要的 `scope` 分为 `all_observable` 和 `complete_coverage`，主统计使用后者。各自记录站点数、正总数站点数、零站点数、匹配次数、唯一 POI 数及包含零站点的计数分布；group 摘要分别保存正总数站点等权份额与合并匹配份额，以及各自分母。
+
+### 后续正式文件
+
 这些是后续步骤的目标语义；第 00 步不生成它们。
 
 - `matches.parquet`：一行代表一个唯一的 `(station_key, ref_no)` 站点—POI 对。这里的 `station_key` 是合并同坐标源记录后的分析站点键，`ref_no` 是通过 PUA、后续业务筛选和清洗的 POI 记录；保存站点标识、源 POI 标识、分类代码和 `distance_m`。单行距离支持两个累计半径，不为两个半径重复存储同一对。
@@ -95,5 +110,6 @@
 - 第 02 步保留原始分类值，另将非缺失值转换成字符串检查；不去空格、不补零、不修复编码，空值与格式异常分别审计。
 - 第 02 步空值和格式异常均归为 `UNKNOWN`，`include_in_count=True`；该标志仅表示通过分类规则，最终仍须满足后续空间和清洗条件。
 - 当前环境就是指定服务器，可以直接在新项目执行测试；运行输出仍放在数据盘的独立 `outputs/<run-id>/` 中。
+- 第 03 步按已说明方案实现：样本 S3 使用 `(100, 500)`，原型采用显式 group 展开清单；真实输入准备、PUA 判断与覆盖几何计算仍在后续对应步骤验证。
 
 这些未决问题不改变本轮已记录的基础口径，也不授权提前实现后续步骤。
