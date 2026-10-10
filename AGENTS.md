@@ -15,6 +15,7 @@
 - 文档阅读和编辑可以在当前工作区进行。
 - 代码执行、测试和真实数据分析默认在服务器的新项目中进行；若执行地点改变，必须在 `PROGRESS.md` 记录原因和实际位置。
 - 真实输入应复制到新项目的 `data/raw/`，并由 `data/source_manifest.json` 和来源说明追溯。运行时不得从旧项目路径导入代码、读取真实数据或复用旧结果。
+- 旧项目 `/home/mazhichuan/Projects/analysis_Digimap_POI` 仅作只读参考，不复制其代码、数据、结果或未验证的实现假设。新项目的 PUA 边界由 `cities/` 与 `data/raw/geography/` 联合确定。
 - 原始数据和运行产物不提交 Git。当前项目用根目录 `.gitignore` 的 `/data/` 规则忽略本地数据。
 - 服务器上的真实输入和所有运行输出放在数据盘 `~/work/analysis_Digimap_POI_v2/` 下自行创建的项目目录；代码检出目录只保存代码和文档。每个运行使用该目录下独立的 `outputs/<run-id>/`。
 
