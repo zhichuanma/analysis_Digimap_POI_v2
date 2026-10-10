@@ -29,7 +29,7 @@
 |03|手算统计原型|用户已验收|[src/spatial.py](src/spatial.py)、[src/analysis.py](src/analysis.py)、[tests/test_analysis.py](tests/test_analysis.py)；共 29 个测试通过，实现提交 `fe7d38e`|
 |04|项目路径和配置|用户已验收|[run.py](run.py)、[src/data.py](src/data.py)、[config.yaml](config.yaml)、[tests/test_config.py](tests/test_config.py)；共 55 项测试通过，实现提交 `15fdbfe`|
 |05|原始文件和来源清单|用户已验收|[src/data.py](src/data.py)、[tests/test_data.py](tests/test_data.py)；86 项测试通过；22 个真实副本核验通过；实现提交 `d23ab52`|
-|06|输入结构和数据质量|用户已正式验收|[src/data.py](src/data.py)、[tests/test_inspection.py](tests/test_inspection.py)；114 项测试通过；真实全源审计与独立对账通过；提交见本文件第 06 步正式验收记录|
+|06|输入结构和数据质量|用户已正式验收|[src/data.py](src/data.py)、[tests/test_inspection.py](tests/test_inspection.py)；114 项测试通过；真实全源审计与独立对账通过；实现与验收提交 `4a33c97`|
 |07|官方字典和标签|待开始|—|
 |08|固定坐标转换|待开始|—|
 |09|覆盖代理和边界距离|待开始|—|
@@ -817,6 +817,8 @@
 
 本轮仅更新验收文档并保存已验证文件，未改分析实现。提交前重新核对 13 个代码/测试/配置文件 SHA-256，全部与第 06 步 `verification.json` 一致，因此未重复运行 114 项测试或真实全源审计。
 
-对应 Git 提交：待本轮保存后记录。
+对应 Git 提交：`4a33c97a8b3febc126fda7bfd170a6bc3a131a45`（第 06 步实现、测试、接口说明、数据盘路径说明与正式验收）；本次提交标识另存为后续文档提交。
+
+提交检查：`git diff --check`、`git diff --cached --check` 均通过；暂存清单仅含本步 9 个代码、测试和文档文件，无原始数据或运行产物。原有未跟踪 `REWRITE_GUIDE.md` 保持原状，未纳入本步提交。
 
 本轮之后：第 06 步已验收，停止；第 07 步保持待开始。
