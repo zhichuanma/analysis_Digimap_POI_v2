@@ -17,7 +17,7 @@
 ## 距离和坐标
 
 - 半径只有 `500 m` 和 `1000 m`，都是累计圆：1000 m 结果包含 500 m 结果。
-- 站点经纬度按 WGS84 解释，使用旧配置中确认的固定、离线七参数 pipeline 转换到 EPSG:27700。转换不确定性按米记录；不能依赖机器上偶然安装的网格或在线下载。
+- 站点经纬度按 WGS84 解释，使用第 08 步固定、离线七参数 pipeline 转换为近似 EPSG:27700 坐标，完整定义见下文第 08 步。转换不确定性按米记录；不能依赖机器上偶然安装的网格或在线下载。
 - 距离使用 POI 几何坐标和站点投影坐标计算平面欧氏距离：`sqrt((x_poi - x_station)^2 + (y_poi - y_station)^2)`。最终纳入条件是 `distance_m <= radius_m`，边界上的点保留，微小越界点排除。
 - 不用经纬度差直接近似米制距离。属性坐标和几何坐标不一致时，匹配仍以经审计的 POI 几何为准，差异单独保留审计信息。
 
@@ -164,11 +164,44 @@
 - 产物为官方三层字典、class 并集、逐原始码匹配审计、源名称频数、三层标签、磁盘名称索引及 `dictionary_validation.json`。消费产物须先检查 `status=completed`、`validation_complete=true` 和输入/产物摘要；代码指纹、实际命令及独立复核记录在该运行的验证证据中。全部产物与测试临时文件位于数据盘新的运行目录，不提交 Git。
 - 频数是全部原始源记录频数，设施码也保留；字典连接或标签生成不改变 `classify()` 的设施开关和最终资格语义。本步不做站点合并、POI 筛选、PUA 判断、坐标转换、空间匹配或后续完整调度。
 
+## 第 08 步固定坐标转换接口与验证口径
+
+用户于 2026-10-10 授权按方案实现第 08 步，并采纳分别检查投影环节与完整转换的建议；随后明确“正式验收”。本节接口、固定 pipeline、坐标假设及验证口径已获用户验收；验收仅限第 08 步，不扩展到后续覆盖或站点准备。
+
+- `transform_coordinates(longitude, latitude, coordinate_operation)` 接收两列等长、已解析的实数序列，顺序为 longitude、latitude，单位度，返回两个 Python 列表 `(easting, northing)`，单位米。支持迭代器和空批次；保留数量、顺序及重复坐标，不四舍五入、不生成站点键或进行筛选。
+- 输入按 WGS84 解释是现有站点来源约定，CSV 没有嵌入坐标基准、历元或高度证据。缺少高度时内部按 WGS84 椭球高 `0 m` 计算，不把该假设当作实测高程或 ODN 高程。
+- 拒绝非序列列参数、文本/布尔/非实数值、非有限值、longitude 超出 `[-180,180]`、latitude 超出 `[-90,90]` 和列长度不等。转换使用 `errcheck=True`；PROJ 失败、非有限或不完整输出均使整个批次明确失败，不删行、不自动修复或交换轴。合法角度范围不能检测所有轴交换，也不能证明 GB/PUA 资格。原始 CSV 解析和异常审计沿用第 06 步；后续站点准备须据审计结果显式处理异常，不把坏行传入转换。
+- `validate_coordinate_operation()` 只允许下列固定 token 序列，可规范化空白；其他参数、操作、CRS 名称、网格或附加步骤均拒绝。`run.py` 的配置 schema 新增必需 `coordinate_operation` 并返回规范字符串；配置检查不初始化 PROJ 或执行转换。
+
+完整固定 pipeline：
+
+```text
++proj=pipeline
++step +proj=unitconvert +xy_in=deg +xy_out=rad
++step +proj=push +v_3
++step +proj=cart +ellps=WGS84
++step +inv +proj=helmert +x=446.448 +y=-125.157 +z=542.06 +rx=0.1502 +ry=0.247 +rz=0.8421 +s=-20.4894 +convention=position_vector
++step +inv +proj=cart +ellps=airy
++step +proj=pop +v_3
++step +proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy
+```
+
+- 单位和方向：度转弧度，WGS84 转地心 XYZ（米），执行逆 Helmert，转 Airy 经纬度，再投影到 BNG x/y（米）。平移为米、旋转为角秒、尺度为 ppm；旧参考参数是 OSGB36→WGS84 方向，`+inv` 使实际执行方向为 WGS84→OSGB36，不能省略。push/pop 保存/恢复第三维；二维输出丢弃了转换后的高度，逆变换只要求近似往返。
+- 不使用自动 CRS operation 选择。运行所需 pipeline 没有网格步骤或在线依赖；必要验证在新进程 `PROJ_NETWORK=OFF`、数据目录仅含 `proj.db`、用户数据目录为空的环境执行。标准 PROJ 数据库和软件仍属于环境依赖；无网格不等于不依赖软件版本。
+- 两类绝对参考分别验证：官方附录 C 的 OSGB36 点 `(1°43′04.5177″ E,52°39′27.2531″ N)`，即 `(1.7179215833333334,52.65757030555555)`，验证投影环节到 `(651409.903,313177.270)`；路线原 WGS84 点 `(1.71605199,52.65797860)` 仍用完整 pipeline 验证同一目标，两轴各容许 1 m。上一轮把路线小数值说成官方 DMS 的舍入形式是错误的，此处明确更正；不更改站点基准，不删除生产七参数步骤，不扩大原容差。
+- 完整转换另对照四个由独立 OS 公式生成并冻结的参考值，公式仅使用 Python 数学函数，不调用生产函数、PROJ 或同一 pipeline 的逆变换生成预期值。独立公式通过官方附录 C 投影和附录 D 地心坐标示例核对。OS 的正向小角度七参数公式与本 pipeline 对反向参数执行逆操作有毫米级差别，使用 1 m 每轴容差覆盖这种数值差别；不将其算作真实观测误差。
+- 正向后逆向的绝对角度容差为每轴 `2e-8°`，不叠加相对容差。逆变换通过仅说明操作近似自洽，必须结合独立绝对参考检查；不能由往返通过单独断言位置正确。
+- OS 对该近似七参数方法说明约 3.5 m（95%）的转换限制，适用于 Britain，不能保证其他区域准确。这是方法限制，不是本批站点实测误差；源坐标定位误差、WGS84 实现/历元未知、默认高度和数值舍入另有影响。站点所属 GB/PUA 与分析资格在后续步骤判定；本步合法角度转换成功不构成资格证据。
+- 坐标验证的 1 m 容差不进入半径筛选。最终条件仍严格为 `distance_m <= 500` 和 `distance_m <= 1000`，微小越界点排除。
+- 本步必要真实验证仅转换数据盘站点 CSV 的前 10 条逻辑记录，保留记录号、StationID、原始经纬度与两种计算的差异。未执行全量站点转换、合并、PUA、覆盖或匹配；证据和日志全部在数据盘新 `outputs/<run-id>/` 中，结果见 `PROGRESS.md`。
+
+参考：[OS 官方坐标指南 V3.6，第 6.6 节及附录 C、D](https://www.ordnancesurvey.co.uk/documents/resources/guide-coordinate-systems-great-britain.pdf)；[PROJ Helmert 方向、约定和参数单位](https://proj.org/en/stable/operations/transformations/helmert.html)；[PROJ pipeline 的单位与逆操作约束](https://proj.org/en/stable/operations/pipeline.html)。这些资料用于设计和独立验证，不在运行时访问。
+
 ## 第 00 步的未决问题
 
 以下问题不在第 00 步擅自决定，须在相关步骤前明确并记录：
 
-1. 旧项目 `/home/mazhichuan/Projects/analysis_Digimap_POI` 仅作只读参考；旧 `config.yaml` 和源码不能直接照搬。第 04 步未填入未经验证的转换字符串；新项目固定坐标 pipeline 及其验证留到第 08 步独立确认。
+1. 旧项目 `/home/mazhichuan/Projects/analysis_Digimap_POI` 仅作只读参考；旧 `config.yaml` 和源码不能直接照搬。第 04 步未填入未经验证的转换字符串；第 08 步已独立实现及验证固定 pipeline，详见上节，用户已正式验收。站点 WGS84 基准、历元和高度的原始证据仍未提供。
 2. PUA 边界来源已确定为新项目 `cities/` 与 `data/raw/geography/` 的联合数据；其字段连接、版本、坐标系以及边界上使用 `covers` 还是其他语义，需要在站点和 POI 准备步骤确认。
 3. 后续 POI 业务筛选的字段、类别清单和排除原因需要在 POI 清洗步骤前明确；在此之前不能声称所有有效点都会被计数。
 4. `UNKNOWN` 是否在最终 group 汇总中作为展开代码，需要在接入真实字典和第 15 步统计前根据旧实现与用户决定固定。

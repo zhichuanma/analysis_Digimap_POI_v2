@@ -6,11 +6,13 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import yaml
 
 from run import CODE_ROOT, DATA_ROOT, load_config, validate_config
 from src.data import project_path
+from src.spatial import FIXED_COORDINATE_OPERATION
 
 
 def sample_config():
@@ -20,6 +22,7 @@ def sample_config():
         "include_ev_charging": False,
         "poi_batch_size": 10000,
         "station_batch_size": 1000,
+        "coordinate_operation": FIXED_COORDINATE_OPERATION,
         "paths": {
             "raw_dir": "data/raw",
             "source_manifest": "data/source_manifest.json",
@@ -70,6 +73,7 @@ class ConfigTests(unittest.TestCase):
         self.assertIs(result["include_ev_charging"], False)
         self.assertEqual(result["poi_batch_size"], 10000)
         self.assertEqual(result["station_batch_size"], 1000)
+        self.assertEqual(result["coordinate_operation"], FIXED_COORDINATE_OPERATION)
         self.assertEqual(result["code_root"], self.code_root)
         self.assertEqual(result["data_root"], self.data_root)
         self.assertEqual(result["paths"], {
@@ -110,6 +114,19 @@ class ConfigTests(unittest.TestCase):
         for value in ("research", "Native", "", None, False, 1, []):
             with self.subTest(mode=value), self.assertRaisesRegex(ValueError, "classification_mode"):
                 self.validate({**self.config, "classification_mode": value})
+
+    def test_coordinate_operation_rejects_other_parameters_operations_and_grids(self):
+        for value in (None, True, 1, [], "", "+proj=longlat", "EPSG:27700",
+                      FIXED_COORDINATE_OPERATION.replace("+x=446.448", "+x=0"),
+                      FIXED_COORDINATE_OPERATION + " +step +proj=hgridshift +grids=@null"):
+            with self.subTest(operation=value), self.assertRaisesRegex(ValueError, "coordinate_operation"):
+                self.validate({**self.config, "coordinate_operation": value})
+
+    def test_coordinate_operation_normalizes_only_whitespace_without_transforming(self):
+        self.config["coordinate_operation"] = "\n  " + FIXED_COORDINATE_OPERATION.replace(" ", "\n  ")
+        with patch("pyproj.Transformer.from_pipeline", side_effect=AssertionError("must not transform")):
+            result = self.validate()
+        self.assertEqual(result["coordinate_operation"], FIXED_COORDINATE_OPERATION)
 
     def test_charging_switch_must_be_bool(self):
         for value in ("false", "true", 0, 1, None, []):

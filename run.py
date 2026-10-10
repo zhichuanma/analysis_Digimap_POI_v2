@@ -13,14 +13,14 @@ from typing import Any
 import yaml
 
 from src.data import project_path
-from src.spatial import RADII_M
+from src.spatial import RADII_M, validate_coordinate_operation
 
 
 CODE_ROOT = Path(__file__).resolve().parent
 DATA_ROOT = (Path.home() / "Work" / "analysis_Digimap_POI_v2").resolve()
 CONFIG_FIELDS = {
     "radii_m", "classification_mode", "include_ev_charging",
-    "poi_batch_size", "station_batch_size", "paths",
+    "poi_batch_size", "station_batch_size", "coordinate_operation", "paths",
 }
 PATH_LAYOUT = {
     "raw_dir": "data/raw",
@@ -77,6 +77,7 @@ def validate_config(
     coordinate transformation and analysis are not checked here.
     """
     _check_fields(config, CONFIG_FIELDS, "config")
+    coordinate_operation = validate_coordinate_operation(config["coordinate_operation"])
     radii = config["radii_m"]
     if not isinstance(radii, list) or not radii:
         raise ValueError("radii_m: must be a non-empty list")
@@ -140,6 +141,7 @@ def validate_config(
         "include_ev_charging": config["include_ev_charging"],
         "poi_batch_size": config["poi_batch_size"],
         "station_batch_size": config["station_batch_size"],
+        "coordinate_operation": coordinate_operation,
         "code_root": code_root,
         "data_root": data_root,
         "paths": paths,

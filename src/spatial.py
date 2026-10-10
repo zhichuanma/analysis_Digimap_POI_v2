@@ -1,15 +1,97 @@
-"""Simple projected-coordinate distance queries for the rewrite samples."""
+"""Fixed offline station conversion and projected-coordinate distance queries."""
 
 from __future__ import annotations
 
 import math
 from collections.abc import Iterable, Mapping
+from numbers import Real
 from typing import Any
 
 from src.classification import classify
 
 
 RADII_M = (500, 1000)
+
+# All steps and parameters are explicit: no CRS-operation selection or grids.
+# Helmert parameters describe OSGB36 -> WGS84; +inv applies the reverse.
+FIXED_COORDINATE_OPERATION = (
+    "+proj=pipeline "
+    "+step +proj=unitconvert +xy_in=deg +xy_out=rad "
+    "+step +proj=push +v_3 "
+    "+step +proj=cart +ellps=WGS84 "
+    "+step +inv +proj=helmert +x=446.448 +y=-125.157 +z=542.06 "
+    "+rx=0.1502 +ry=0.247 +rz=0.8421 +s=-20.4894 +convention=position_vector "
+    "+step +inv +proj=cart +ellps=airy "
+    "+step +proj=pop +v_3 "
+    "+step +proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 "
+    "+x_0=400000 +y_0=-100000 +ellps=airy"
+)
+
+
+def validate_coordinate_operation(operation: str) -> str:
+    """Accept only the SPEC operation; whitespace may vary, tokens may not.
+
+    This is a string check, with no PROJ imports or coordinate execution.
+    """
+    if not isinstance(operation, str) or " ".join(operation.split()) != FIXED_COORDINATE_OPERATION:
+        raise ValueError("coordinate_operation: must be the SPEC fixed offline pipeline")
+    return FIXED_COORDINATE_OPERATION
+
+
+def _angular_column(values: Iterable[float], name: str, limit: float) -> list[float]:
+    if isinstance(values, (str, bytes, Mapping)):
+        raise ValueError(f"{name}: must be a sequence of numeric coordinates")
+    try:
+        iterator = iter(values)
+    except TypeError as exc:
+        raise ValueError(f"{name}: must be a sequence of numeric coordinates") from exc
+    result = []
+    for index, value in enumerate(iterator):
+        if isinstance(value, bool) or not isinstance(value, Real):
+            raise ValueError(f"{name}[{index}]: must be numeric, not bool or text")
+        try:
+            coordinate = float(value)
+        except (ValueError, OverflowError) as exc:
+            raise ValueError(f"{name}[{index}]: must be finite and within [-{limit}, {limit}]") from exc
+        if not math.isfinite(coordinate) or not -limit <= coordinate <= limit:
+            raise ValueError(f"{name}[{index}]: must be finite and within [-{limit}, {limit}]")
+        result.append(coordinate)
+    return result
+
+
+def transform_coordinates(
+    longitude: Iterable[float], latitude: Iterable[float], coordinate_operation: str,
+) -> tuple[list[float], list[float]]:
+    """Convert parsed WGS84 (longitude, latitude) degrees to BNG (x, y) metres.
+
+    Assumes ellipsoid height zero; output is the approximate seven-parameter
+    result, not an OSTN15 survey solution. Applies no selection or cleaning.
+    Preserves count, order and duplicate coordinates; any invalid input or
+    projection failure rejects the batch. Legal global angles alone do not
+    establish GB/PUA eligibility or the operation's geographical accuracy.
+    """
+    operation = validate_coordinate_operation(coordinate_operation)
+    lon = _angular_column(longitude, "longitude", 180)
+    lat = _angular_column(latitude, "latitude", 90)
+    if len(lon) != len(lat):
+        raise ValueError("longitude/latitude: must have equal lengths")
+    if not lon:
+        return [], []
+
+    # Lazy import keeps --check-config independent of PROJ initialization.
+    from pyproj import Transformer
+    from pyproj.exceptions import ProjError
+
+    try:
+        transformer = Transformer.from_pipeline(operation)
+        x, y = transformer.transform(lon, lat, errcheck=True)
+    except ProjError as exc:
+        raise ValueError(f"coordinate transformation failed: {exc}") from exc
+    if len(x) != len(lon) or len(y) != len(lat) or any(
+        not math.isfinite(value) for value in (*x, *y)
+    ):
+        raise ValueError("coordinate transformation failed: non-finite or incomplete output")
+    return list(x), list(y)
 
 
 def _coordinate(value: Iterable[float], name: str) -> tuple[float, float]:
