@@ -4,7 +4,7 @@
 
 第 04 步提供路径和配置检查。服务器使用 Python 3.13.2、PyYAML 6.0.3；本步依赖见 `requirements.txt`。
 
-代码根由 `run.py` 的实际位置确定。`--config` 只接受相对此根的路径，默认 `config.yaml`，与当前 shell 工作目录无关。数据根按 SPEC 固定为 `~/work/analysis_Digimap_POI_v2/`，当前解析到 `/mnt/data/work/mazhichuan/analysis_Digimap_POI_v2/`，不接受 YAML 或命令行更换根目录。
+代码根由 `run.py` 的实际位置确定。`--config` 只接受相对此根的路径，默认 `config.yaml`，与当前 shell 工作目录无关。数据根按 SPEC 固定为 `~/Work/analysis_Digimap_POI_v2/`，当前解析到 `/mnt/data/work/mazhichuan/analysis_Digimap_POI_v2/`，不接受 YAML 或命令行更换根目录。按用户说明，个人工作目录 `~/Work` 位于 18T 硬盘，实际路径为 `/mnt/data/work/<用户名>`，供存放数据集、项目和大文件，只有本人可访问；可通过 `cd ~/Work` 进入。历史小写 `~/work` 在本机指向同处，本步未移动数据、更改权限或验证其他账号的访问权限。
 
 在代码目录检查默认配置：
 
@@ -29,7 +29,7 @@ python -B /mnt/data/work/mazhichuan/.offloaded-from-system/20261007-full-scan/Pr
 实现验证在服务器代码根执行。先在数据盘分配新的运行目录，让日志与临时文件都留在该目录下：
 
 ```bash
-step04_run_dir=$(mktemp -d "$HOME/work/analysis_Digimap_POI_v2/outputs/step04-XXXXXXXX")
+step04_run_dir=$(mktemp -d "$HOME/Work/analysis_Digimap_POI_v2/outputs/step04-XXXXXXXX")
 TMPDIR="$step04_run_dir" python -B -m unittest discover -s tests -v > "$step04_run_dir/unittest.log" 2>&1
 ```
 
@@ -81,3 +81,47 @@ except SourceVerificationError as error:
 来源摘要必须来自真实准备过程，不能拿当前副本的摘要补造历史记录。缺少副本、独立必需列表或来源证据时，真实输入核验保持未完成。哈希一致只说明核验时的字节与所给记录一致，不证明数据内容正确、来源记录可信或后续读取期间永不变化；字段、CRS、几何及真实数据质量在后续步骤验证。
 
 第 05 步验收时，用户确认当前检出目录 `data/` 中 charging 是加工数据，其余均为直接下载数据。已将这 22 个文件按原始字节独立复制到约定的数据盘项目：`data/raw/` 保持相对路径，`data/cities/` 对应目标 `cities/`。来源性质、本次复制摘要与时间记录在数据盘的 `data/source_manifest.json` 和 `data/SOURCES.md`；独立文件列表及 22 项通过的核验报告位置见 `PROGRESS.md`。这些记录不补造原始下载历史或 charging 的加工谱系。
+
+第 06 步提供 `src.data.poi_batches()` 与 `inspect_inputs()`。前者以只读 SQLite 游标返回原始记录字典的批次，保留真实要素主键为 `source_fid`，几何保持 GPKG 字节供逐行审计。后者先核对图层、字段与 EPSG:27700 米制 CRS，再检查原始记录质量、跨批重复 ID、分类及位置精度频数、几何/属性坐标差异和站点关键字段。依赖增加 Shapely 2.1.2、pyproj 3.7.2；不进行坐标转换。
+
+实际输入使用图层 `Points of Interest 2026_09`、源 FID 列 `id`、几何列 `geom`、分类列 `pointx_class`、精度列 `pos_accuracy`；站点字段为 `StationID`、`Latitude`、`Longitude`。文件格式与字段映射记录在报告中。调用前先按第 05 步独立必需列表核验来源，再在新的运行目录中分别执行有限样本与全源审计。例如，以下片段需由调用方传入本次新建的 `run_relative_dir`，以及根据输入精度说明核实的 `accuracy_labels`：
+
+```python
+from src.data import inspect_inputs
+
+arguments = dict(
+    poi_path="data/raw/digimap/poi_6476197.gpkg",
+    station_path="data/raw/charging/UK_OCM_stations_with_connector_summary.csv",
+    data_root=DATA_ROOT,
+    layer="Points of Interest 2026_09",
+    poi_batch_size=10000,
+    station_batch_size=1000,
+    accuracy_labels=accuracy_labels,
+)
+sample = inspect_inputs(**arguments, output_dir=f"{run_relative_dir}/sample", sample_limit=20)
+# 先展示 sample 的有限记录及报告，再执行全源审计。
+full = inspect_inputs(**arguments, output_dir=f"{run_relative_dir}/full")
+```
+
+`output_dir` 相对数据根，必须为 `outputs/` 下尚不存在的子目录；函数拒绝覆盖旧报告。省略 `accuracy_labels` 时只统计原始精度值，不判断是否为未知精度码；真实运行从新项目 `POSITIONAL_ACCURACY_LOOKUP.txt` 读取 1—4 四档描述。该表没有米级误差阈值，本步不按精度档位删除记录。
+
+`input_inspection.json` 是使用产物前的状态入口。`status=completed` 表示声明范围内的审计完成，质量问题另由 `quality_issues_present` 表示；后续消费全源重复清单必须同时检查 `full_source_complete=true`、`duplicate_list_complete=true` 及输入摘要。失败抛出 `InputInspectionError`，其 `.report` 和落盘报告均保留原因；不能使用失败报告旁的部分文件充当完整产物。所有目录应保持与这份报告一起使用。
+
+`sample_limit` 表示按原始 FID 顺序检查前若干条，报告 `scope=sample`，局部重复清单文件名带 `sample_` 前缀。样本不能代表全局频数；即使样本上限大于行数，完成标志仍不会升级为全源。全源输出也保存最多 20 条可追溯样本，样本 JSONL 每条均标明 `scope=sample`。
+
+主要审计文件如下：
+
+|文件|一行的含义|
+|---|---|
+|`classification_frequencies.csv`|一个原始分类值及类型的源记录频数、格式状态、三层代码；字典状态未检查|
+|`native_level_frequencies.csv`|一个层级和代码的全源频数；每层含 UNKNOWN 后独立加总到扫描行数|
+|`positional_accuracy_frequencies.csv`|一个原始精度值及类型的频数和已核实描述|
+|`duplicate_ref_nos.csv`|一个重复的非缺失原始 ID 键及出现次数|
+|`duplicate_ref_rows.csv`|一个重复 ID 的一条源记录，包含首次出现的行、源路径、图层和 FID|
+|`poi_quality_issues.csv`|一条 POI 源记录的一项问题；同一记录可有多项|
+|`coordinate_differences.csv`|一个可比较点的几何/属性坐标、dx、dy 及米制差异|
+|`station_quality_issues.csv`|一条 CSV 逻辑记录的一项关键字段、位置或 ID 冲突问题|
+
+`audit_index.sqlite` 为本次磁盘审计索引；重复检测跨全部批次累计，不将全源几何放进内存。NULL/空串/非有限 ref_no 单列为缺失，其他值保留类型及原值精确比较；不修剪或补零。坐标差异只计算有效非空 Point 与有限属性坐标，无法比较不填 0；点集外接矩形不是数据覆盖边界。
+
+本步频数以全部源行为分母，含重复、几何问题、缺失/异常分类以及充电设施。它们不是 PUA、业务筛选或清洗后的统计。站点同坐标不同 ID 的错误只记录，实际合并留到站点准备步骤；官方字典连接留给第 07 步。运行证据和具体结果见 `PROGRESS.md`，测试通过不表示用户已验收。

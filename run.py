@@ -17,7 +17,7 @@ from src.spatial import RADII_M
 
 
 CODE_ROOT = Path(__file__).resolve().parent
-DATA_ROOT = (Path.home() / "work" / "analysis_Digimap_POI_v2").resolve()
+DATA_ROOT = (Path.home() / "Work" / "analysis_Digimap_POI_v2").resolve()
 CONFIG_FIELDS = {
     "radii_m", "classification_mode", "include_ev_charging",
     "poi_batch_size", "station_batch_size", "paths",

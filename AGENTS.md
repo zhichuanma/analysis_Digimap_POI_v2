@@ -17,7 +17,7 @@
 - 真实输入应复制到新项目的 `data/raw/`，并由 `data/source_manifest.json` 和来源说明追溯。运行时不得从旧项目路径导入代码、读取真实数据或复用旧结果。
 - 旧项目 `/home/mazhichuan/Projects/analysis_Digimap_POI` 仅作只读参考，不复制其代码、数据、结果或未验证的实现假设。新项目的 PUA 边界由 `cities/` 与 `data/raw/geography/` 联合确定。
 - 原始数据和运行产物不提交 Git。当前项目用根目录 `.gitignore` 的 `/data/` 规则忽略本地数据。
-- 服务器上的真实输入和所有运行输出放在数据盘 `~/work/analysis_Digimap_POI_v2/` 下自行创建的项目目录；代码检出目录只保存代码和文档。每个运行使用该目录下独立的 `outputs/<run-id>/`。
+- 服务器上的真实输入和所有运行输出放在个人数据盘工作目录 `~/Work/analysis_Digimap_POI_v2/` 下；按用户说明，`~/Work` 位于 18T 硬盘，通用实际路径为 `/mnt/data/work/<用户名>`，本机为 `/mnt/data/work/mazhichuan`，用于存放数据集、项目和大文件，只有本人可访问。可以通过 `cd ~/Work` 进入。现有小写 `~/work` 指向同处，保留为历史路径别名；代码检出目录只保存代码和文档。每个运行使用数据盘项目下独立的 `outputs/<run-id>/`。
 
 ## 当前步骤边界
 

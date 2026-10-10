@@ -1,4 +1,4 @@
-# Paths are relative to the SPEC data root: ~/work/analysis_Digimap_POI_v2/.
+# Paths are relative to the SPEC data root: ~/Work/analysis_Digimap_POI_v2/.
 # This configuration does not claim that real inputs have been prepared.
 radii_m: [500, 1000]
 classification_mode: native

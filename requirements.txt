@@ -1,1 +1,3 @@
 PyYAML==6.0.3
+Shapely==2.1.2
+pyproj==3.7.2
