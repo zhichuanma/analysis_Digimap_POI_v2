@@ -31,7 +31,7 @@
 |04|项目路径和配置|用户已验收|[run.py](run.py)、[src/data.py](src/data.py)、[config.yaml](config.yaml)、[tests/test_config.py](tests/test_config.py)；共 55 项测试通过，实现提交 `15fdbfe`|
 |05|原始文件和来源清单|用户已验收|[src/data.py](src/data.py)、[tests/test_data.py](tests/test_data.py)；86 项测试通过；22 个真实副本核验通过；实现提交 `d23ab52`|
 |06|输入结构和数据质量|用户已正式验收|[src/data.py](src/data.py)、[tests/test_inspection.py](tests/test_inspection.py)；114 项测试通过；真实全源审计与独立对账通过；实现与验收提交 `4a33c97`|
-|07|官方字典和标签|用户已正式验收|`src/classification.py`、`src/data.py`、`src/analysis.py`、`tests/test_native_dictionary.py`；139 项测试通过；真实三层字典、频数及标签独立对账通过；提交见第 07 步正式验收记录|
+|07|官方字典和标签|用户已正式验收|`src/classification.py`、`src/data.py`、`src/analysis.py`、`tests/test_native_dictionary.py`；139 项测试通过；真实三层字典、频数及标签独立对账通过；实现与验收提交 `874352a`|
 |08|固定坐标转换|待开始|—|
 |09|覆盖代理和边界距离|待开始|—|
 |10|站点状态和半径覆盖|待开始|—|
@@ -972,6 +972,8 @@
 
 本轮仅补写验收文档并保存已验证文件，未改分析实现。提交前重新核对 14 个源码/测试/配置文件 SHA-256，全部与本步 `verification.json` 一致；已有记录为 139 项测试通过及全部标签独立复核通过，因此未重复运行测试或全源处理。
 
-对应 Git 提交：待本轮保存后记录。
+对应 Git 提交：`874352a4663b5349c6c1845fe3a660be506f8b8e`（第 07 步实现、测试、接口说明、规格及正式验收）；本次提交标识另存为后续文档提交。
+
+提交检查：`git diff --check`、`git diff --cached --check` 均通过；暂存清单只含本步 7 个代码、测试和文档文件，无原始数据或运行产物。原有未跟踪 `REWRITE_GUIDE.md` 保持原状，未纳入本步提交。
 
 本轮之后：第 07 步已验收，停止；第 08 步保持待开始。
