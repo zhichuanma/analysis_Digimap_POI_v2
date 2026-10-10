@@ -880,3 +880,250 @@ def inspect_inputs(poi_path, station_path, *, data_root, output_dir, layer=None,
             db.close()
     _json_write(output / "input_inspection.json", report)
     return report
+
+
+class DictionaryValidationError(ValueError):
+    """Failed step-07 report; nearby partial files are not usable results."""
+
+    def __init__(self, report):
+        self.report = report
+        super().__init__("; ".join(report["errors"]))
+
+
+def _artifact_fingerprint(path):
+    digest, size = hashlib.sha256(), 0
+    with _open_regular(path) as stream:
+        before = _file_state(os.fstat(stream.fileno()))
+        while block := stream.read(1048576):
+            digest.update(block)
+            size += len(block)
+        if before != _file_state(os.fstat(stream.fileno())) or before != _file_state(path.stat()):
+            raise ValueError(f"audit artifact changed: {path}")
+    return {"sha256": digest.hexdigest(), "size_bytes": size}
+
+
+def _audit_path(relative, root):
+    path = project_path(relative, root=root)
+    if not Path(relative).is_relative_to("outputs") or not path.is_relative_to(root / "outputs"):
+        raise ValueError("audit artifacts must stay inside outputs/")
+    return path
+
+
+def _read_frequency_csv(path):
+    with _open_regular(path) as stream:
+        text = io.TextIOWrapper(stream, encoding="utf-8-sig", newline="")
+        try:
+            reader = csv.DictReader(text, strict=True)
+            if not reader.fieldnames or len(set(reader.fieldnames)) != len(reader.fieldnames):
+                raise ValueError("invalid frequency header")
+            result = []
+            for row in reader:
+                if None in row or any(v is None for v in row.values()):
+                    raise ValueError("invalid frequency field count")
+                if re.fullmatch(r"[1-9][0-9]*", row["count"]) is None:
+                    raise ValueError("frequency must be a positive integer")
+                row["count"] = int(row["count"])
+                result.append(row)
+            return result
+        finally:
+            text.detach()
+
+
+def _frequency_raw(row):
+    kind, value = row["raw_type"], row["raw_value"]
+    if kind == "text":
+        raw = value
+    elif kind == "null" and value == "":
+        raw = None
+    elif kind == "integer":
+        raw = int(value)
+    elif kind == "real":
+        raw = float(value)
+    elif kind == "blob":
+        raw = bytes.fromhex(value)
+    else:
+        raise ValueError("invalid raw classification representation")
+    if _raw(raw) != (kind, value):
+        raise ValueError("noncanonical raw classification representation")
+    return raw
+
+
+def load_inspection_frequencies(inspection_dir, *, data_root, poi_path, layer):
+    """Require complete step-06 evidence and byte-identical current POI input."""
+    root = project_path(".", root=data_root)
+    directory = _audit_path(inspection_dir, root)
+    evidence_path = _audit_path(str((directory.parent / "verification.json").relative_to(root)), root)
+    with _open_regular(evidence_path) as stream:
+        evidence = json.load(stream, object_pairs_hook=_unique_json_object)
+    if evidence.get("status") != "passed":
+        raise ValueError("prior verification is not passed")
+    fingerprints = {}
+    for name in ("input_inspection.json", "classification_frequencies.csv", "native_level_frequencies.csv"):
+        path = _audit_path(str((directory / name).relative_to(root)), root)
+        actual = _artifact_fingerprint(path)
+        expected = evidence["artifacts"].get(str(path.relative_to(evidence_path.parent)))
+        if actual != expected:
+            raise ValueError(f"prior artifact checksum mismatch: {name}")
+        fingerprints[name] = actual
+    with _open_regular(directory / "input_inspection.json") as stream:
+        report = json.load(stream, object_pairs_hook=_unique_json_object)
+    if (report.get("status") != "completed" or report.get("scope") != "full_source"
+            or any(report.get(flag) is not True for flag in ("scan_complete", "full_source_complete", "duplicate_list_complete", "input_bytes_unchanged"))):
+        raise ValueError("prior audit must be completed full_source, never sample/failed")
+    if report["poi"]["path"] != poi_path or report["poi"]["layer"] != layer:
+        raise ValueError("prior POI path or layer differs")
+    current = _fingerprint(poi_path, root, 1048576)
+    if current != report["input_fingerprints_after"].get(poi_path) or current != report["input_fingerprints_before"].get(poi_path):
+        raise ValueError("current POI fingerprint differs from prior full audit")
+    rows = _read_frequency_csv(directory / "classification_frequencies.csv")
+    levels, raw_seen = {level: Counter() for level in ("group", "category", "class")}, set()
+    for row in rows:
+        key = row["raw_type"], row["raw_value"]
+        if key in raw_seen:
+            raise ValueError("duplicate raw frequency key")
+        raw_seen.add(key)
+        parts = _classification_parts(_frequency_raw(row))
+        if parts != tuple(row[name] for name in ("format_status", "group_code", "category_code", "class_code")):
+            raise ValueError("prior raw classification format or prefixes disagree")
+        for level in levels:
+            levels[level][row[f"{level}_code"]] += row["count"]
+    saved_levels = {level: {} for level in levels}
+    for row in _read_frequency_csv(directory / "native_level_frequencies.csv"):
+        level, code = row["level"], row["code"]
+        if level not in saved_levels or code in saved_levels[level]:
+            raise ValueError("invalid or duplicate level frequency key")
+        saved_levels[level][code] = row["count"]
+    count = report["poi"]["scanned_count"]
+    if type(count) is not int or count < 0 or count != report["poi"]["source_count"]:
+        raise ValueError("prior source counts disagree")
+    if saved_levels != levels or any(sum(values.values()) != count for values in levels.values()):
+        raise ValueError("prior frequency totals disagree")
+    for name, before in fingerprints.items():
+        if before != _artifact_fingerprint(directory / name):
+            raise ValueError("prior artifact changed while reading")
+    return {"rows": rows, "level_counts": levels, "source_count": count,
+            "artifacts": fingerprints, "verification": _artifact_fingerprint(evidence_path),
+            "poi_fingerprint": current}
+
+
+def source_name_frequencies(poi_path, *, data_root, layer, index_path, batch_size=10000, expected_rows, progress=None):
+    """Scan only code and category-name attributes; no geometry decoding."""
+    _positive_integer(batch_size, "batch_size")
+    root = project_path(".", root=data_root)
+    target = _audit_path(index_path, root)
+    if target.exists():
+        raise FileExistsError(target)
+    with sqlite3.connect(target) as index:
+        index.execute("PRAGMA cache_size=-8192")
+        index.execute("CREATE TABLE names (level TEXT, code TEXT, raw_key TEXT, raw_type TEXT, raw_value TEXT, n INTEGER, PRIMARY KEY(level,code,raw_key))")
+        index.execute("CREATE TABLE codes (raw_key TEXT PRIMARY KEY, n INTEGER)")
+        count = 0
+        with _gpkg_connection(poi_path, root) as connection:
+            schema = _gpkg_schema(connection, layer, POI_FIELDS)
+            columns = ("pointx_class", "groupname", "categoryname", "classname")
+            if not set(columns).issubset({row["name"] for row in schema["fields"]}):
+                raise ValueError("POI classification name fields are missing")
+            cursor = connection.execute(f"SELECT {','.join(_quoted(c) for c in columns)} FROM {_quoted(layer)} ORDER BY {_quoted(schema['fid_column'])}")
+            for batch in iter(lambda: cursor.fetchmany(batch_size), []):
+                names, codes = Counter(), Counter()
+                for row in batch:
+                    codes[_raw_key(row[0])] += 1
+                    parts = _classification_parts(row[0])
+                    for i, level in enumerate(("group", "category", "class"), 1):
+                        if row[i] is not None and not isinstance(row[i], str):
+                            raise ValueError("source classification names must be text or NULL")
+                        raw_type, raw_value = _raw(row[i])
+                        names[level, parts[i], _raw_key(row[i]), raw_type, raw_value] += 1
+                index.executemany("INSERT INTO names VALUES (?,?,?,?,?,?) ON CONFLICT(level,code,raw_key) DO UPDATE SET n=n+excluded.n", [(*key, n) for key, n in names.items()])
+                index.executemany("INSERT INTO codes VALUES (?,?) ON CONFLICT(raw_key) DO UPDATE SET n=n+excluded.n", list(codes.items()))
+                index.commit()
+                count += len(batch)
+                if progress:
+                    progress({"stage": "source_names", "scanned_count": count, "source_count": schema["source_count"]})
+            if count != schema["source_count"]:
+                raise ValueError("source-name scan incomplete")
+        expected = {_raw_key(_frequency_raw(row)): row["count"] for row in expected_rows}
+        if dict(index.execute("SELECT raw_key,n FROM codes")) != expected:
+            raise ValueError("source-name scan raw frequencies differ from prior audit")
+        return [{"level": level, "code": code, "raw_type": raw_type, "raw_value": raw_value, "count": n}
+                for level, code, raw_type, raw_value, n in index.execute("SELECT level,code,raw_type,raw_value,n FROM names ORDER BY level,code,raw_key")]
+
+
+def _write_records(path, rows, header):
+    with path.open("x", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=header, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def inspect_dictionary(group_path, category_path, class_path, poi_path, *, data_root,
+                       inspection_dir, output_dir, layer, required_paths,
+                       batch_size=10000, progress=None):
+    """Build step-07 dictionary/labels with source and prior-artifact verification.
+
+    This is an explicitly called step helper, not a full pipeline or CLI.
+    Consumers must require status=completed and validation_complete=true.
+    """
+    from src.classification import native_dictionary, merge_classification_frequencies
+    from src.analysis import category_labels
+
+    _positive_integer(batch_size, "batch_size")
+    root = project_path(".", root=data_root)
+    output = _audit_path(output_dir, root)
+    if output == root / "outputs":
+        raise ValueError("output must be strictly inside outputs/")
+    output.mkdir(parents=True, exist_ok=False)
+    report = {"schema_version": 1, "status": "running", "validation_complete": False,
+              "errors": [], "output_dir": str(output), "batch_size": batch_size,
+              "prior_inspection_dir": inspection_dir, "source_scope": "full_source",
+              "label_rule": "source frequency descending, Unicode name ascending; dictionary then code fallback",
+              "selection_or_cleaning_applied": False}
+    _json_write(output / "dictionary_validation.json", report)
+    try:
+        paths = (group_path, category_path, class_path, poi_path)
+        if not set(paths).issubset(set(required_paths)):
+            raise ValueError("required_paths must include all dictionary and POI inputs")
+        report["sources_before"] = verify_sources(data_root=root, required_paths=required_paths)
+        before = {path: _fingerprint(path, root, 1048576) for path in paths}
+        states = {path: _file_state(_source_path(path, root).stat()) for path in paths}
+        report["input_fingerprints_before"] = before
+        prior = load_inspection_frequencies(inspection_dir, data_root=root, poi_path=poi_path, layer=layer)
+        report["prior_artifacts"] = prior["artifacts"]
+        report["prior_verification"] = prior["verification"]
+        dictionary = native_dictionary(group_path, category_path, class_path, data_root=root)
+        merged = merge_classification_frequencies(dictionary, prior["rows"])
+        names = source_name_frequencies(poi_path, data_root=root, layer=layer,
+                    index_path=str((output / "name_index.sqlite").relative_to(root)),
+                    batch_size=batch_size, expected_rows=prior["rows"], progress=progress)
+        labels = category_labels(dictionary, merged["level_counts"], names)
+        report["source_count"] = merged["source_count"]
+        report["dictionary_counts"] = {level: len(table) for level, table in (("group", dictionary.groups), ("category", dictionary.categories), ("class", dictionary.classes))}
+        report["levels"] = {level: {"source_count": sum(row["source_count"] for row in labels if row["level"] == level),
+                          "matching": dict(Counter(row["dictionary_status"] for row in labels if row["level"] == level)),
+                          "label_sources": dict(Counter(row["label_source"] for row in labels if row["level"] == level)),
+                          "name_conflict_codes": sum(row["source_name_conflict"] for row in labels if row["level"] == level),
+                          "missing_name_rows": sum(row["source_name_missing_count"] for row in labels if row["level"] == level),
+                          "source_dictionary_name_differences": sum(row["source_dictionary_name_difference"] for row in labels if row["level"] == level)}
+                          for level in merged["level_counts"]}
+        report["sources_after"] = verify_sources(data_root=root, required_paths=required_paths)
+        after = {path: _fingerprint(path, root, 1048576) for path in paths}
+        report["input_fingerprints_after"] = after
+        if before != after or any(states[path] != _file_state(_source_path(path, root).stat()) for path in paths):
+            raise ValueError("dictionary or POI input changed during processing")
+        check_prior = load_inspection_frequencies(inspection_dir, data_root=root, poi_path=poi_path, layer=layer)
+        if check_prior != prior:
+            raise ValueError("prior audit artifacts changed during processing")
+        _write_records(output / "native_dictionary.csv", dictionary.rows(), ["level", "code", "parent_code", "local_code", "foreign_key", "dictionary_name", "source_path", "source_record_no", "source_id"])
+        _write_records(output / "classification_dictionary.csv", merged["classes"], ["class_code", "group_code", "category_code", "group_dictionary_name", "category_dictionary_name", "class_dictionary_name", "source_count", "dictionary_status"])
+        _write_records(output / "classification_frequency_audit.csv", merged["raw_audit"], ["raw_type", "raw_value", "format_status", "group_code", "category_code", "class_code", "count", "dictionary_status"])
+        _write_records(output / "source_name_frequencies.csv", names, ["level", "code", "raw_type", "raw_value", "count"])
+        _write_records(output / "category_labels.csv", labels, list(labels[0]) if labels else ["level", "code", "label"])
+        report["artifacts"] = {path.name: _artifact_fingerprint(path) for path in sorted(output.iterdir()) if path.suffix in (".csv", ".sqlite")}
+        report.update(status="completed", validation_complete=True, input_bytes_unchanged=True)
+    except Exception as error:
+        report.update(status="failed", validation_complete=False)
+        report["errors"].append(f"{type(error).__name__}: {error}")
+        _json_write(output / "dictionary_validation.json", report)
+        raise DictionaryValidationError(report) from error
+    _json_write(output / "dictionary_validation.json", report)
+    return report

@@ -145,6 +145,25 @@
 - 产物包括 `input_inspection.json`、有限样本 JSONL、原始分类与三层频数、精度频数、全源重复键/明细、POI 与站点问题明细、逐点坐标差异及磁盘审计索引。索引、日志和全部产物留在数据盘运行目录。点集外接矩形仅为极值范围，不作为覆盖边界。
 - 本步不进行官方字典连接、真实站点合并、POI 清洗、PUA 判断、坐标转换、覆盖计算或匹配；不新增完整阶段 CLI。`--check-config` 仍只检查配置，数据根写法按上述用户补充统一。
 
+### 第 07 步官方字典与分类标签
+
+用户于 2026-10-10 明确“正式验收”第 07 步；本节接口、字典连接与标签口径已获验收。验收限于本步实现和必要验证，未扩展到后续筛选、坐标转换或空间分析。
+
+用户已授权按第 07 步方案实现。本节固定本步采用的接口和规则，测试与真实结果另见 `PROGRESS.md`；实现和测试通过不表示用户已验收。
+
+- 官方输入为数据根 `data/raw/digimap/docs/` 下的 `POI_GROUPS.txt`、`POI_CATEGORIES.txt`、`POI_CLASSIFICATIONS.txt`。实测格式为 UTF-8（读取支持 BOM）、竖线分隔、CSV 双引号规则。编码与表头不猜测，错误明确失败。
+- `native_dictionary(group_path, category_path, class_path, *, data_root)` 返回 `NativeDictionary`，其 `groups / categories / classes` 分别以完整 2/4/8 位字符串为键；`classes` 可直接传给已验收的 `classify()`。原始 `ID`、局部编号、父级外键、源路径与逻辑记录号保留。三个表的 ID 分别要求唯一；不把 ID 当分类码。
+- group 表字段为 `ID / Group Number / Group Description`；category 表另有 `Category Number / Category Description / Group Number Foreign Key`；class 表为 `ID / Class Number / Classification Description / Category Number Foreign Key`。group/category 编号为两位 ASCII 数字，class 局部编号为四位，外键为两位；原始编号已经定宽，读取时不修剪、补零或改写。
+- 类别编号 `Category Number` 是 class 文件的父级引用目标，必须全表唯一；不能在不同 group 下重复该编号后猜测 class 的父级。class 局部编号可以在不同 category 下区分，但同一父级下的完整代码必须唯一。沿外键生成 `category_code=Group Number+Category Number`、`class_code=category_code+Class Number`；空键、重复键、重复完整代码、缺失父级和错误字段均失败。
+- `merge_classification_frequencies(dictionary, frequencies)` 对官方完整 class 代码和全部源代码做并集合并；状态为 `matched / dictionary_only / source_only`。字典独有项源频数为 0；源独有合法码保留完整码和前缀。缺失/异常码以 `UNKNOWN` 汇总，官方匹配记 `not_applicable`，原始值/类型/格式原因仍在独立审计表中；本步不决定第 15 步 UNKNOWN 的展开域。
+- `load_inspection_frequencies()` 要求第 06 步报告 `scope=full_source`、状态及完整性标志通过；核对三份审计产物与前一轮 `verification.json` 中的大小/SHA-256，当前 POI 完整指纹与前一轮读取前后指纹一致，并核对原始格式及三层频数守恒。sample、failed、产物变化或源不一致不能继续使用。
+- `source_name_frequencies()` 全源只读分批读取 `pointx_class / groupname / categoryname / classname`，不读取单个 POI 的 `name` 作为类别名称，不解码几何。磁盘 SQLite 索引保留 `(level, complete_code, raw_name)` 频数，NULL 与字符串原值分别保存。名称必须为文本或 NULL，非文本类型明确失败；代码仍沿用既有严格分类规则。
+- `category_labels(dictionary, level_counts, name_frequencies)` 以 `(level, code)` 为键。名称的 NULL、空串、纯空白视为标签缺失，但原值保留；非空名称不去空格、不改拼写/大小写。优先选择频数最多的非缺失源名称，并列按 Python Unicode 字符串升序选择；源名称缺失时用非缺失官方名称，两者均缺失时显示完整代码并标记 `code_fallback`。输出全部候选频数、同码多名称冲突标志及源/官方名称差异标志，不按名称合并代码。
+- group/category/class 的官方匹配分别判断；合法未知 class 可有已知 group/category。字典独有的父级也保留。每层源频数和名称频数分别对账，不把三层相加当作 POI 数。
+- `inspect_dictionary(..., data_root, inspection_dir, output_dir, layer, required_paths, batch_size=10000)` 是本步显式调用的读写接口。调用方独立确定必需输入范围，须包括三份字典和 POI；函数读取前后用 `verify_sources()` 核验声明副本，核对输入摘要/状态与前一轮审计产物。输出目录只能是 `outputs/` 内尚不存在的子目录，拒绝覆盖与越界。失败保存报告并抛出带 `.report` 的 `DictionaryValidationError`。
+- 产物为官方三层字典、class 并集、逐原始码匹配审计、源名称频数、三层标签、磁盘名称索引及 `dictionary_validation.json`。消费产物须先检查 `status=completed`、`validation_complete=true` 和输入/产物摘要；代码指纹、实际命令及独立复核记录在该运行的验证证据中。全部产物与测试临时文件位于数据盘新的运行目录，不提交 Git。
+- 频数是全部原始源记录频数，设施码也保留；字典连接或标签生成不改变 `classify()` 的设施开关和最终资格语义。本步不做站点合并、POI 筛选、PUA 判断、坐标转换、空间匹配或后续完整调度。
+
 ## 第 00 步的未决问题
 
 以下问题不在第 00 步擅自决定，须在相关步骤前明确并记录：

@@ -125,3 +125,37 @@ full = inspect_inputs(**arguments, output_dir=f"{run_relative_dir}/full")
 `audit_index.sqlite` 为本次磁盘审计索引；重复检测跨全部批次累计，不将全源几何放进内存。NULL/空串/非有限 ref_no 单列为缺失，其他值保留类型及原值精确比较；不修剪或补零。坐标差异只计算有效非空 Point 与有限属性坐标，无法比较不填 0；点集外接矩形不是数据覆盖边界。
 
 本步频数以全部源行为分母，含重复、几何问题、缺失/异常分类以及充电设施。它们不是 PUA、业务筛选或清洗后的统计。站点同坐标不同 ID 的错误只记录，实际合并留到站点准备步骤；官方字典连接留给第 07 步。运行证据和具体结果见 `PROGRESS.md`，测试通过不表示用户已验收。
+
+第 07 步使用 `native_dictionary()` 构建官方三层字典；返回对象的 `classes` 是以完整八位码为键的映射，可传给 `classify()`。TXT 按实际竖线分隔和 UTF-8 编码读取，完整代码沿外键连接，源 POI 编码不补零或修复。类别局部编号是 class 的外键目标，必须唯一；完整统计键分别是 2/4/8 位代码。
+
+本步的显式调用如下，`run_relative_dir` 须是数据根 `outputs/` 下本次运行目录，`required_paths` 须是独立确定的必需列表：
+
+```python
+from run import DATA_ROOT
+from src.data import inspect_dictionary
+
+report = inspect_dictionary(
+    "data/raw/digimap/docs/POI_GROUPS.txt",
+    "data/raw/digimap/docs/POI_CATEGORIES.txt",
+    "data/raw/digimap/docs/POI_CLASSIFICATIONS.txt",
+    "data/raw/digimap/poi_6476197.gpkg",
+    data_root=DATA_ROOT,
+    inspection_dir="outputs/step06-20261010T210932Z-8e6f6702/full",
+    output_dir=f"{run_relative_dir}/full",
+    layer="Points of Interest 2026_09",
+    required_paths=required_paths,
+    batch_size=10000,
+)
+```
+
+函数先核对来源清单及第 06 步审计产物的完整状态、摘要和当前 POI 指纹，再全源分批统计三层分类名称，不解码几何。分类频数对官方与源代码做并集合并：字典独有项为零，源独有项保留，缺失/异常原码留在审计中。`category_labels()` 优先选频数最多的非空源分类名称，并列按 Unicode 字符串升序选；再回退官方名称、完整代码。全部候选和冲突标志保留，同名不同码不合并。
+
+|第 07 步文件|一行含义|
+|---|---|
+|`native_dictionary.csv`|一个官方层级和完整代码、父级、原始局部编号及来源记录|
+|`classification_dictionary.csv`|一个 class 并集项的完整代码、官方三层名称、源频数和匹配状态|
+|`classification_frequency_audit.csv`|一个原始分类值及类型的频数、格式与官方匹配状态|
+|`source_name_frequencies.csv`|一个层级、完整代码与原始源名称的频数，含名称缺失项|
+|`category_labels.csv`|一个层级和代码的最终标签、来源、频数、冲突及名称差异标志|
+
+`dictionary_validation.json` 保存输入、前一轮审计产物及本次产物摘要、对账和质量摘要；`name_index.sqlite` 是本次磁盘索引。消费前须检查 `status=completed`、`validation_complete=true`。失败抛出 `DictionaryValidationError` 并保存原因，附近的部分产物不能视作成功结果。调用与验证继续在指定服务器执行，实际结果和命令见 `PROGRESS.md`；本步不新增完整阶段 CLI。

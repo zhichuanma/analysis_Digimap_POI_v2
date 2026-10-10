@@ -10,6 +10,53 @@ from typing import Any
 from src.spatial import RADII_M, _station_index
 
 
+def category_labels(dictionary, level_counts, name_frequencies):
+    """Choose labels by complete code: source mode, official name, then code.
+
+    Empty/whitespace source names are missing. Ties use Python Unicode string
+    order, without changing the original spelling or spaces. All candidates
+    remain in the separate name-frequency artifact; conflicts are explicit.
+    """
+    names = defaultdict(Counter)
+    name_totals = defaultdict(int)
+    seen = set()
+    for row in name_frequencies:
+        key = row["level"], row["code"]
+        identity = (*key, row["raw_type"], row["raw_value"])
+        count = row["count"]
+        if identity in seen or type(count) is not int or count <= 0:
+            raise ValueError("invalid or duplicate source-name frequency")
+        seen.add(identity)
+        if key[0] not in level_counts or key[1] not in level_counts[key[0]]:
+            raise ValueError("source name has no corresponding source code")
+        name_totals[key] += count
+        if row["raw_type"] == "text" and row["raw_value"].strip():
+            names[key][row["raw_value"]] += count
+        elif row["raw_type"] not in ("text", "null"):
+            raise ValueError("source classification names must be text or NULL")
+    result = []
+    for level, official in (("group", dictionary.groups), ("category", dictionary.categories), ("class", dictionary.classes)):
+        for code in sorted(set(official) | set(level_counts[level])):
+            key = level, code
+            count = level_counts[level].get(code, 0)
+            if name_totals[key] != count:
+                raise ValueError(f"source name counts disagree for {key}")
+            candidates = names[key]
+            source = min(candidates, key=lambda name: (-candidates[name], name)) if candidates else ""
+            name = official.get(code, {}).get("dictionary_name", "")
+            label, origin = (source, "source") if source else (name, "dictionary") if name.strip() else (code, "code_fallback")
+            matched = code in official and code in level_counts[level]
+            status = "not_applicable" if code == "UNKNOWN" else "matched" if matched else "dictionary_only" if code in official else "source_only"
+            result.append({"level": level, "code": code, "source_count": count,
+                           "source_name": source, "dictionary_name": name, "label": label,
+                           "label_source": origin, "dictionary_status": status,
+                           "source_name_conflict": len(candidates) > 1,
+                           "source_name_candidate_count": len(candidates),
+                           "source_name_missing_count": count - sum(candidates.values()),
+                           "source_dictionary_name_difference": bool(source and name.strip() and source != name)})
+    return result
+
+
 def summarize(
     stations: Iterable[Mapping[str, Any]],
     matches: Iterable[Mapping[str, Any]],
