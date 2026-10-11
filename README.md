@@ -2,6 +2,29 @@
 
 项目按 `REWRITE_GUIDE.md` 逐步推进，分析口径见 `SPEC.md`，实际验证与验收状态见 `PROGRESS.md`。
 
+第 00—09 步已获用户验收。第 09 步构建全部 GB 62 个 PUA（不含 Belfast），154 条成员关系连接 154 个 LAD；27,006 条站点源记录中，地理纳入 18,740、范围外 8,266、无法判定 0。190 项测试及 75 项独立对账通过；验收证据与 Git 提交标识见 `PROGRESS.md`。第 10 步待开始。
+
+第 10 步将消费第 09 步结果，使用全源审计处理站点实体合并与 ID 冲突，并实现 GB/NI 代理、边界距离和订单范围覆盖。进入目标 PUA 只表示通过地理筛选，后续仍需满足可查询和覆盖条件；POI 在第 11/13 步按同一目标研究范围筛选。
+
+第 09 步通过 `src/geography.py` 的 `prepare_pua_scope()` 显式调用，尚未串入完整 CLI。它要求目标清单、映射工作表/字段、已审阅 crosswalk 与版本依据、完整第 06 步审计、固定坐标转换和独立必需来源列表。主表为 `GB_mapping`，CSV 核对定义，指标工作簿只辅助核对城市名称；PUA 使用完整 May-2025 LAD 的 union，不声称是 2022 历史边界或精细建成区轮廓。8 项名称差异、Barnsley/Sheffield 两项代码变化及依据详见 `SPEC.md`。
+
+成功目录包含 `scope_definition.json`、映射与问题表、`pua_geometries.csv`、`study_area.wkb`、全源 `station_pua_audit.csv`、候选 `stations_in_target_pua.csv` 和报告。空间判据为 covers；多重命中保留全部候选归属，但每个源行只写一次。CSV 三态字段为 `True`/`False`/空字段，原始字段、坐标、归属列表及全源问题使用 JSON 列。WKB 的 CRS 单独保存为 EPSG:27700；读取大型十六进制 WKB 时注意 CSV 字段长度上限。
+
+运行前检查来源和上游摘要，禁止覆盖既有目录；必须先确认报告 `status=completed` 且自动验证通过，失败目录中的部分文件不可消费。本步依赖新增 `openpyxl==3.1.5`，本次安装仅在数据盘运行目录内；其他环境须按 `requirements.txt` 安装依赖。重跑使用新的运行目录，显式调用示例：
+
+```python
+import json
+from run import DATA_ROOT, load_config
+from src.geography import prepare_pua_scope
+
+# 已核实的目标与对应依据；改变研究选择时先更新并复核这一输入。
+request = json.loads((DATA_ROOT / "outputs/<已复核run-id>/reviewed_request.json").read_text())
+report = prepare_pua_scope(
+    **request, data_root=DATA_ROOT, output_dir="outputs/<新的run-id>",
+    coordinate_operation=load_config()["coordinate_operation"],
+)
+```
+
 第 04 步提供路径和配置检查。服务器使用 Python 3.13.2、PyYAML 6.0.3；本步依赖见 `requirements.txt`。
 
 代码根由 `run.py` 的实际位置确定。`--config` 只接受相对此根的路径，默认 `config.yaml`，与当前 shell 工作目录无关。数据根按 SPEC 固定为 `~/Work/analysis_Digimap_POI_v2/`，当前解析到 `/mnt/data/work/mazhichuan/analysis_Digimap_POI_v2/`，不接受 YAML 或命令行更换根目录。按用户说明，个人工作目录 `~/Work` 位于 18T 硬盘，实际路径为 `/mnt/data/work/<用户名>`，供存放数据集、项目和大文件，只有本人可访问；可通过 `cd ~/Work` 进入。历史小写 `~/work` 在本机指向同处，本步未移动数据、更改权限或验证其他账号的访问权限。

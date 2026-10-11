@@ -18,6 +18,168 @@ import sqlite3
 import struct
 
 
+def read_pua_definitions(relative_path, *, data_root, sheet=None):
+    """Read an explicit CSV/XLSX table without normalizing names or evaluating formulas."""
+    required = {"pua_name", "local_authority"}
+    rows = []
+    with open_source(relative_path, data_root=data_root) as stream:
+        if Path(relative_path).suffix.lower() == ".xlsx":
+            from openpyxl import load_workbook
+            book = load_workbook(stream, read_only=True, data_only=False, keep_links=False)
+            try:
+                if sheet not in book.sheetnames:
+                    raise ValueError(f"explicit PUA sheet required; available: {book.sheetnames}")
+                for cells in book[sheet].iter_rows():
+                    if any(cell.data_type in {"f", "e"} for cell in cells):
+                        raise ValueError("PUA definitions cannot contain formulas or error cells")
+                    rows.append([cell.value for cell in cells])
+            finally:
+                book.close()
+        elif Path(relative_path).suffix.lower() == ".csv" and sheet is None:
+            text = io.TextIOWrapper(stream, encoding="utf-8-sig", newline="")
+            try:
+                rows = list(csv.reader(text, strict=True))
+            finally:
+                text.detach()
+        else:
+            raise ValueError("PUA input requires CSV (no sheet) or XLSX (explicit sheet)")
+    if not rows:
+        raise ValueError("PUA table is empty")
+    header = rows.pop(0)
+    if (any(not isinstance(name, str) or not name for name in header)
+            or len(header) != len(set(header)) or not required <= set(header)):
+        raise ValueError("PUA table requires unique headers and pua_name/local_authority")
+    result = []
+    for number, values in enumerate(rows, 2):
+        if len(values) != len(header):
+            raise ValueError(f"PUA row {number}: wrong field count")
+        raw = dict(zip(header, values))
+        result.append({"source_path": relative_path, "source_sheet": sheet,
+                       "source_row": number, "raw_fields": raw,
+                       "pua_name": raw["pua_name"], "local_authority": raw["local_authority"],
+                       "lad_code": raw.get("lad_code")})
+    return result
+
+
+def read_lad_geometries(relative_path, *, data_root, layer, code_field, name_field):
+    """Read complete, valid, 2D LAD polygons in verified BNG; never repair them."""
+    from shapely import from_wkb, get_coordinates
+    from shapely.validation import explain_validity
+
+    fields = _field_mapping({"code": code_field, "name": name_field}, {"code": "code", "name": "name"})
+    records = []
+    with _gpkg_connection(relative_path, data_root) as connection:
+        # This schema helper checks metadata/CRS/keys, not Point geometry contents.
+        try:
+            schema = _gpkg_schema(connection, layer, fields)
+        except ValueError as error:
+            raise ValueError(str(error).replace("POI", "LAD")) from error
+        declaration = schema["geometry"]
+        declared_type = declaration["geometry_type_name"].upper()
+        if declared_type not in {"POLYGON", "MULTIPOLYGON"} or declaration["z"] != 0 or declaration["m"] != 0:
+            raise ValueError("LAD geometry declaration must be 2D Polygon/MultiPolygon")
+        sql = f"SELECT * FROM {_quoted(layer)} ORDER BY {_quoted(schema['fid_column'])}"
+        for source in connection.execute(sql):
+            row = dict(source)
+            fid = row[schema["fid_column"]]
+            blob = row.pop(declaration["column_name"])
+            try:
+                if not isinstance(blob, bytes) or len(blob) < 8 or blob[:3] != b"GP\x00":
+                    raise ValueError("not a version-0 GeoPackage geometry")
+                flags, envelope = blob[3], (blob[3] >> 1) & 7
+                if flags & 0xE0 or envelope not in (0, 1, 2, 3, 4):
+                    raise ValueError("unsupported GeoPackage flags/envelope")
+                srs = struct.unpack(("<" if flags & 1 else ">") + "i", blob[4:8])[0]
+                if srs != declaration["srs_id"]:
+                    raise ValueError("geometry header CRS differs from layer CRS")
+                geometry = from_wkb(blob[8 + (0, 32, 48, 48, 64)[envelope]:])
+                if bool(flags & 16) != bool(geometry.is_empty):
+                    raise ValueError("GeoPackage empty flag disagrees with WKB")
+                if geometry.geom_type.upper() != declared_type or geometry.has_z or geometry.has_m:
+                    raise ValueError("geometry disagrees with 2D polygon declaration")
+                if (geometry.is_empty or not geometry.is_valid
+                        or any(not math.isfinite(v) for xy in get_coordinates(geometry) for v in xy)):
+                    raise ValueError(f"empty/invalid/nonfinite LAD: {explain_validity(geometry)}")
+            except Exception as error:
+                raise ValueError(f"LAD FID {fid}: {error}") from error
+            records.append({"source_fid": fid, "lad_code": row[code_field],
+                            "lad_name": row[name_field], "raw_fields": row, "geometry": geometry})
+    return records, schema
+
+
+def station_rows(relative_path, *, data_root, fields=None):
+    """Yield every logical CSV record with original values, including malformed rows."""
+    mapping = _field_mapping(fields, STATION_FIELDS)
+    with open_source(relative_path, data_root=data_root) as stream:
+        text, reader, header = _station_reader(stream, mapping)
+        try:
+            for number, values in enumerate(reader, 1):
+                raw = {name: values[i] if i < len(values) else None for i, name in enumerate(header)}
+                yield {"source_record_no": number, "raw_fields": raw, "raw_values": values,
+                       "raw_id": raw[mapping["id"]], "raw_longitude": raw[mapping["longitude"]],
+                       "raw_latitude": raw[mapping["latitude"]],
+                       "coordinate_reasons": ["csv_field_count"] if len(values) != len(header) else []}
+        finally:
+            text.detach()
+
+
+def load_station_inspection(inspection_dir, *, data_root, station_path):
+    """Reuse verified whole-source issues, including conflicts outside the target PUA."""
+    root = project_path(".", root=data_root)
+    directory = _audit_path(inspection_dir, root)
+    evidence_path = _audit_path(str((directory.parent / "verification.json").relative_to(root)), root)
+    evidence_before = _artifact_fingerprint(evidence_path)
+    with _open_regular(evidence_path) as stream:
+        evidence = json.load(stream, object_pairs_hook=_unique_json_object)
+    if evidence.get("status") != "passed":
+        raise ValueError("prior station verification is not passed")
+    fingerprints = {}
+    for name in ("input_inspection.json", "station_quality_issues.csv"):
+        path = _audit_path(str((directory / name).relative_to(root)), root)
+        actual = _artifact_fingerprint(path)
+        if actual != evidence.get("artifacts", {}).get(str(path.relative_to(evidence_path.parent))):
+            raise ValueError(f"prior station artifact checksum mismatch: {name}")
+        fingerprints[name] = actual
+    with _open_regular(directory / "input_inspection.json") as stream:
+        report = json.load(stream, object_pairs_hook=_unique_json_object)
+    if (report.get("status") != "completed" or report.get("scope") != "full_source"
+            or any(report.get(flag) is not True for flag in
+                   ("scan_complete", "full_source_complete", "duplicate_list_complete", "input_bytes_unchanged"))):
+        raise ValueError("prior station audit must be completed full_source")
+    info = report["stations"]
+    current = _fingerprint(station_path, root, 1048576)
+    if (info["path"] != station_path or info["field_mapping"] != STATION_FIELDS
+            or any(current != report[key].get(station_path) for key in
+                   ("input_fingerprints_before", "input_fingerprints_after"))):
+        raise ValueError("current station source differs from prior audit")
+    count = info["source_count"]
+    if type(count) is not int or count < 0 or count != info["scanned_count"]:
+        raise ValueError("prior station source counts disagree")
+    issues, counts = {}, Counter()
+    with _open_regular(directory / "station_quality_issues.csv") as stream:
+        text = io.TextIOWrapper(stream, encoding="utf-8", newline="")
+        try:
+            reader = csv.DictReader(text, strict=True)
+            if reader.fieldnames != ["source_record_no", "StationID", "reason", "detail"]:
+                raise ValueError("invalid prior station issue schema")
+            for row in reader:
+                number = int(row["source_record_no"])
+                if not 1 <= number <= count or not row["reason"] or None in row:
+                    raise ValueError("invalid prior station issue row")
+                issues.setdefault(number, []).append(row)
+                counts[row["reason"]] += 1
+        finally:
+            text.detach()
+    if dict(counts) != info["issue_counts"]:
+        raise ValueError("prior station issue totals disagree")
+    if (any(value != _artifact_fingerprint(directory / name) for name, value in fingerprints.items())
+            or evidence_before != _artifact_fingerprint(evidence_path)):
+        raise ValueError("prior station evidence changed while reading")
+    return {"source_count": count, "issues": issues, "groups": info["groups"],
+            "inspection_dir": inspection_dir, "artifacts": fingerprints,
+            "verification": evidence_before, "station_fingerprint": current}
+
+
 def _resolve(path: Path) -> Path:
     """Resolve existing links, allowing new targets but rejecting link loops."""
     try:
