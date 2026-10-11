@@ -2,9 +2,13 @@
 
 项目按 `REWRITE_GUIDE.md` 逐步推进，分析口径见 `SPEC.md`，实际验证与验收状态见 `PROGRESS.md`。
 
-第 00—09 步已获用户验收。第 09 步构建全部 GB 62 个 PUA（不含 Belfast），154 条成员关系连接 154 个 LAD；27,006 条站点源记录中，地理纳入 18,740、范围外 8,266、无法判定 0。190 项测试及 75 项独立对账通过；验收证据与 Git 提交标识见 `PROGRESS.md`。第 10 步待开始。
+第 00—10 步已获用户验收。第 09 步构建全部 GB 62 个 PUA（不含 Belfast），154 条成员关系连接 154 个 LAD；27,006 条站点源记录中，地理纳入 18,740、范围外 8,266、无法判定 0。第 10 步于 2026-10-11 获用户正式验收：全源合并为 26,918 个实体，其中目标 PUA 内 18,685 个且均可查询；500/1000 m 完整覆盖分别为 16,889/15,060 个。219 项测试与 119 项独立核验通过，证据和验收归档见 `PROGRESS.md`；这些不是 POI 计数。第 11 步及后续未开始。
 
-第 10 步将消费第 09 步结果，使用全源审计处理站点实体合并与 ID 冲突，并实现 GB/NI 代理、边界距离和订单范围覆盖。进入目标 PUA 只表示通过地理筛选，后续仍需满足可查询和覆盖条件；POI 在第 11/13 步按同一目标研究范围筛选。
+第 10 步消费第 09 步结果，使用全源审计处理站点实体合并与 ID 冲突，实现 GB/NI 代理、边界距离和订单范围覆盖。进入目标 PUA 只表示通过地理筛选，后续仍需满足可查询和覆盖条件。按用户 2026-10-11 的最新指令，PUA 仅限制 EVCS；POI 可以来自目标 PUA 外，只要在站点 500/1000 m 累计 buffer 内、处于数据覆盖区域并通过后续筛选。第 11/13 步将消费第 10 步覆盖定义，不按 PUA 裁剪 POI；订单 BNG 矩形为 `(0,0,700000,1300000)`，跨材料 CRS 依据及覆盖限制见 `SPEC.md`。已验收的第 03 步匹配原型仍有旧 `in_pua` 条件，正式匹配接入时须迁移；第 10 步不调用该原型，没有运行真实 POI 清洗/匹配。
+
+第 10 步的显式入口为 `src.data.prepare_station_files()`，尚未接入完整 CLI。`src.spatial.prepare_stations()`/`station_radius_base()` 负责实体与资格，`src.geography.coverage_geometries()`/`boundary_distances()` 负责覆盖计算。文件入口要求完整源、已封存的第 06/09 步证据、固定 pipeline、独立必需来源列表及有出处的订单 review；先核对输入和上游，全部产物写入新的数据盘输出目录，失败文件不能继续消费。Parquet 依赖固定为 `pyarrow==23.0.1`。
+
+成功目录包含 `stations.parquet`、逐源行 `station_audit.csv`、`station_radius_base.parquet`、GB/NI/数据覆盖 WKB、`coverage_definition.json` 和 `station_preparation_report.json`。WKB 必须与定义中的 CRS 一起读取。实体表保留范围外实体用于审计，基础表仅包含 selected 实体；字段含空值、列表和全部原因。完整覆盖标志以半径为单位，基础表没有 POI 数量。当前证据位于数据根 `outputs/step10-20261011T112022Z-dddcfc70/`，其中 `latest_full.json`、`latest_sample.json` 标明成功目录；复现使用保存的 request 和新的 output_dir，不能覆盖这些证据。
 
 第 09 步通过 `src/geography.py` 的 `prepare_pua_scope()` 显式调用，尚未串入完整 CLI。它要求目标清单、映射工作表/字段、已审阅 crosswalk 与版本依据、完整第 06 步审计、固定坐标转换和独立必需来源列表。主表为 `GB_mapping`，CSV 核对定义，指标工作簿只辅助核对城市名称；PUA 使用完整 May-2025 LAD 的 union，不声称是 2022 历史边界或精细建成区轮廓。8 项名称差异、Barnsley/Sheffield 两项代码变化及依据详见 `SPEC.md`。
 

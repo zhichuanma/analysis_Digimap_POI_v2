@@ -421,5 +421,59 @@ class GeographyFileTests(unittest.TestCase):
         self.failure(coordinate_operation="EPSG:27700")
 
 
+class CoverageTests(unittest.TestCase):
+    def coverage(self, shapes=None, bounds=(-10000, -10000, 10000, 10000), crs=27700):
+        from src.geography import coverage_geometries
+        if shapes is None:
+            shapes = [lad("E00000001", box(0, 0, 2000, 4000)), lad("S00000001", box(2000, 0, 4000, 4000)),
+                      lad("N00000001", box(-4000, 0, -2000, 2000))]
+        return coverage_geometries(shapes, crs=crs, order_bounds=bounds)
+
+    def test_all_gb_lads_union_and_internal_line_distance(self):
+        from src.geography import boundary_distances
+        cov = self.coverage()
+        self.assertTrue(cov["gb"].equals(box(0, 0, 4000, 4000)))
+        self.assertEqual(cov["members"], {"gb": ["E00000001", "S00000001"], "ni": ["N00000001"]})
+        self.assertEqual(boundary_distances([(700, 2000), (2000, 2000), (0, 2000), (-100, 2000), None], cov["gb"]),
+                         [700, 2000, 0, 100, None])
+
+    def test_hole_rings_and_multipart_gap(self):
+        from src.geography import boundary_distances
+        shape = Polygon([(0, 0), (4000, 0), (4000, 4000), (0, 4000)],
+                        [[(1500, 1500), (2500, 1500), (2500, 2500), (1500, 2500)]])
+        geometry = MultiPolygon([shape, box(6000, 0, 8000, 2000)])
+        positions = [(2000, 2000), (1500, 2000), (1000, 2000), (5000, 1000), (7000, 1000)]
+        values = boundary_distances(positions, geometry)
+        self.assertEqual(values, [500, 0, 500, 1000, 1000])
+        self.assertEqual(values, [Point(p).distance(geometry.boundary) for p in positions])
+        self.assertFalse(geometry.covers(Point(2000, 2000)))
+
+    def test_order_intersection_and_empty_ni_or_coverage(self):
+        cov = self.coverage([lad("W00000001", box(0, 0, 4000, 4000))], bounds=(1000, 1000, 6000, 6000))
+        self.assertTrue(cov["data_coverage"].equals(box(1000, 1000, 4000, 4000)))
+        self.assertTrue(cov["ni"].is_empty)
+        self.assertTrue(self.coverage(bounds=(7000, 7000, 8000, 8000))["data_coverage"].is_empty)
+
+    def test_invalid_codes_duplicate_crs_and_geometry_fail(self):
+        for shapes in ([], [lad("X00000001", box(0, 0, 1, 1))], [lad("E1", box(0, 0, 1, 1))],
+                       [lad("E00000001", Point(0, 0))], [lad("E00000001", Polygon())],
+                       [lad("E00000001", box(0, 0, 1, 1))] * 2):
+            with self.subTest(shapes=shapes), self.assertRaises(ValueError):
+                self.coverage(shapes)
+        for crs in (None, 4326, 2263):
+            with self.subTest(crs=crs), self.assertRaises(ValueError):
+                self.coverage(crs=crs)
+
+    def test_bounds_and_coordinate_errors(self):
+        from src.geography import boundary_distances
+        for bounds in ((0, 0, 0, 1), (1, 0, 0, 1), (0, 0, float("inf"), 1), (False, 0, 1, 1), (0, 1), "0,0,1,1"):
+            with self.subTest(bounds=bounds), self.assertRaises(ValueError):
+                self.coverage(bounds=bounds)
+        for xy in ([(1, float("nan"))], [(1, 2, 3)], [(True, 1)]):
+            with self.assertRaises(ValueError):
+                boundary_distances(xy, box(0, 0, 1, 1))
+        self.assertEqual(boundary_distances([], box(0, 0, 1, 1)), [])
+
+
 if __name__ == "__main__":
     unittest.main()

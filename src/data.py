@@ -180,6 +180,338 @@ def load_station_inspection(inspection_dir, *, data_root, station_path):
             "verification": evidence_before, "station_fingerprint": current}
 
 
+def _read_json(path):
+    with _open_regular(path) as stream:
+        return json.load(stream, object_pairs_hook=_unique_json_object, parse_constant=_reject_json_constant)
+
+
+def load_station_scope(scope_dir, *, data_root, station_path, coordinate_operation):
+    """Read sealed, successful step-09 output and reconcile every raw station row."""
+    from shapely import from_wkb
+    from src.geography import _polygon, _project_rows
+    from src.spatial import validate_coordinate_operation
+
+    root = project_path(".", root=data_root)
+    directory = _audit_path(scope_dir, root)
+    evidence_path = _audit_path(str((directory.parent / "verification.json").relative_to(root)), root)
+    evidence_fp = _artifact_fingerprint(evidence_path)
+    evidence = _read_json(evidence_path)
+    if evidence.get("status") != "passed":
+        raise ValueError("step09 verification must be passed")
+    names = ("pua_scope_report.json", "scope_definition.json", "study_area.wkb",
+             "station_pua_audit.csv", "stations_in_target_pua.csv")
+    fingerprints = {}
+    for name in names:
+        path = _audit_path(str((directory / name).relative_to(root)), root)
+        actual = _artifact_fingerprint(path)
+        if actual != evidence.get("artifacts", {}).get(str(path.relative_to(evidence_path.parent))):
+            raise ValueError(f"step09 artifact checksum mismatch: {name}")
+        fingerprints[name] = actual
+    report = _read_json(directory / names[0])
+    if report.get("status") != "completed" or any(report.get(k) is not True for k in
+            ("mapping_complete", "scope_complete", "scan_complete", "validation_complete", "input_bytes_unchanged")):
+        raise ValueError("step09 scope must be completed and validated")
+    for name in names[1:]:
+        if fingerprints[name] != report.get("artifacts", {}).get(name):
+            raise ValueError(f"step09 report artifact mismatch: {name}")
+    definition = _read_json(directory / "scope_definition.json")
+    if (definition.get("predicate") != "covers" or definition.get("crs") != "EPSG:27700"
+            or definition.get("coordinate_operation") != validate_coordinate_operation(coordinate_operation)
+            or definition.get("target_puas") != report.get("target_puas")):
+        raise ValueError("step09 scope definition/CRS/pipeline/targets mismatch")
+    input_fp = definition["input_fingerprints"]
+    if station_path not in input_fp or input_fp != report.get("input_fingerprints_before") or input_fp != report.get("input_fingerprints_after"):
+        raise ValueError("step09 source fingerprints disagree")
+    for path, fp in input_fp.items():
+        if _fingerprint(path, root, 1048576) != fp:
+            raise ValueError(f"step09 source has changed: {path}")
+    with _open_regular(directory / "study_area.wkb") as stream:
+        study = _polygon(from_wkb(stream.read()), "step09 study area")
+    tables = []
+    for name in ("station_pua_audit.csv", "stations_in_target_pua.csv"):
+        with _open_regular(directory / name) as stream:
+            text = io.TextIOWrapper(stream, encoding="utf-8", newline="")
+            try:
+                reader = csv.DictReader(text, strict=True)
+                expected = ["source_record_no", "raw_id", "raw_longitude", "raw_latitude", "raw_fields", "raw_values",
+                            "xy", "lad_codes", "pua_names", "target_pua_names", "in_target_pua", "audit_reasons",
+                            "prior_station_issues", "transformation_error"]
+                if reader.fieldnames != expected:
+                    raise ValueError("invalid step09 station audit schema")
+                table = list(reader)
+                if any(None in r or any(v is None for v in r.values()) for r in table):
+                    raise ValueError("malformed step09 station audit row")
+                tables.append(table)
+            finally:
+                text.detach()
+    audit, candidates = tables
+    if (len(audit) != report.get("source_record_count") or len(candidates) != report.get("candidate_count")
+            or candidates != [r for r in audit if r["in_target_pua"] == "True"]):
+        raise ValueError("step09 source/candidate rowsets disagree")
+    projected = list(_project_rows(station_rows(station_path, data_root=root), coordinate_operation, definition["station_batch_size"]))
+    if len(projected) != len(audit):
+        raise ValueError("step09 audit is not the entire current station source")
+    rows = []
+    for source, saved in zip(projected, audit, strict=True):
+        if saved["source_record_no"] != str(source["source_record_no"]):
+            raise ValueError("step09 audit logical row sequence disagrees")
+        row = {"source_record_no": source["source_record_no"]}
+        for name in ("raw_fields", "raw_values", "lad_codes", "pua_names", "target_pua_names", "audit_reasons", "prior_station_issues"):
+            row[name] = json.loads(saved[name], object_pairs_hook=_unique_json_object, parse_constant=_reject_json_constant)
+        for name in ("raw_fields", "raw_values"):
+            if row[name] != source[name]:
+                raise ValueError(f"step09 raw values mismatch: {name}")
+        for name in ("raw_id", "raw_longitude", "raw_latitude"):
+            if saved[name] != ("" if source[name] is None else source[name]):
+                raise ValueError(f"step09 raw column mismatch: {name}")
+            row[name] = source[name]
+        row["xy"] = json.loads(saved["xy"]) if saved["xy"] else None
+        xy = list(source["xy"]) if source["xy"] is not None else None
+        if row["xy"] != xy:
+            raise ValueError("step09 projected coordinates differ from fixed pipeline")
+        if saved["in_target_pua"] not in ("True", "False", ""):
+            raise ValueError("invalid step09 geography tri-state")
+        row["in_target_pua"] = {"True": True, "False": False, "": None}[saved["in_target_pua"]]
+        if xy is not None:
+            from shapely.geometry import Point
+            if study.covers(Point(xy)) != row["in_target_pua"]:
+                raise ValueError("step09 position/study membership mismatch")
+        elif row["in_target_pua"] is not None:
+            raise ValueError("unlocated step09 row has known membership")
+        row["coordinate_reasons"] = source["coordinate_reasons"]
+        row["transformation_error"] = saved["transformation_error"] or None
+        rows.append(row)
+    if (any(fp != _artifact_fingerprint(directory / name) for name, fp in fingerprints.items())
+            or evidence_fp != _artifact_fingerprint(evidence_path)):
+        raise ValueError("step09 evidence changed while reading")
+    return {"rows": rows, "study_area": study, "definition": definition,
+            "provenance": {"scope_dir": scope_dir, "artifacts": fingerprints, "verification": evidence_fp,
+                           "input_fingerprints": input_fp, "candidate_count": len(candidates)}}
+
+
+def read_order_extent(order_path, poi_path, *, data_root, poi_layer, review):
+    """Read one identified delivery rectangle; never infer extent from POI points.
+
+    The catalogue lacks a CRS label. A required, saved review connects product
+    National Grid documentation to the identified GPKG's verified metre CRS.
+    Multiple folders/chunks, malformed or disagreeing extents fail explicitly.
+    """
+    if (not isinstance(review, dict) or review.get("crs") != "EPSG:27700" or review.get("units") != "metre"
+            or review.get("axis_order") != ["easting", "northing"] or not review.get("references")):
+        raise ValueError("explicit order CRS/units/axis review required")
+    for reference in review["references"]:
+        if not all(isinstance(reference.get(k), str) and reference[k].strip() for k in ("source_path", "locator", "quote")):
+            raise ValueError("order review requires source path, locator and quote")
+    with open_source(order_path, data_root=data_root) as stream:
+        text = stream.read().decode("utf-8-sig")
+    entries = {}
+    for line_number, line in enumerate(text.splitlines(), 1):
+        match = re.fullmatch(r"\s*(Folder|Filename|Extent|Product|Version|Format|Date Ordered|Area):\s*(.*?)\s*", line)
+        if match:
+            entries.setdefault(match[1], []).append({"line": line_number, "text": line, "value": match[2]})
+    filename = Path(poi_path).name
+    folder = Path(filename).stem
+    required = {"Folder": folder, "Filename": f"{folder}/{filename}", "Product": "Points of Interest", "Format": "GeoPackage"}
+    for field, expected in required.items():
+        if len(entries.get(field, [])) != 1 or entries[field][0]["value"] != expected:
+            raise ValueError(f"order delivery identity is ambiguous or mismatched: {field}")
+    if any(len(entries.get(field, [])) != 1 for field in ("Version", "Date Ordered", "Area")) or len(entries.get("Extent", [])) != 2:
+        raise ValueError("order requires one folder and one chunk with two matching extents")
+    numeric = r"[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
+    pattern = rf"({numeric})\s*,\s*({numeric})\s*-\s*({numeric})\s*,\s*({numeric})"
+    rectangles = []
+    for extent in entries["Extent"]:
+        match = re.fullmatch(pattern, extent["value"])
+        if match is None:
+            raise ValueError("malformed order Extent")
+        bounds = [float(v) for v in match.groups()]
+        if any(not math.isfinite(v) for v in bounds) or bounds[0] >= bounds[2] or bounds[1] >= bounds[3]:
+            raise ValueError("invalid order extent values")
+        rectangles.append(bounds)
+    if rectangles[0] != rectangles[1]:
+        raise ValueError("folder/chunk order extents disagree")
+    bounds = rectangles[0]
+    area = re.fullmatch(rf"({numeric}) square kilometres", entries["Area"][0]["value"])
+    if area is None or float(area[1]) != (bounds[2] - bounds[0]) * (bounds[3] - bounds[1]) / 1e6:
+        raise ValueError("order area does not agree with metre rectangle")
+    with _gpkg_connection(poi_path, data_root) as connection:
+        metadata = _gpkg_schema(connection, poi_layer, POI_FIELDS)
+    return {"bounds": bounds, "crs": "EPSG:27700", "units": "metre", "axis_order": ["easting", "northing"],
+            "source_path": order_path, "poi_path": poi_path, "poi_layer": poi_layer,
+            "catalogue_entries": entries, "review": review, "poi_metadata": metadata,
+            "limitation": "catalogue has no CRS label; National Grid product review plus identified delivery CRS; coverage is a proxy"}
+
+
+def station_parquet_schemas():
+    """Explicit schema also applies to empty/all-null station preparations."""
+    import pyarrow as pa
+    text, number, flag = pa.string(), pa.float64(), pa.bool_()
+    # Parquet's compliant list encoding names its child "element". Declare it
+    # explicitly so metadata-aware equality also holds after file round-trip.
+    strings, integers = pa.list_(pa.field("element", text)), pa.list_(pa.field("element", pa.int64()))
+    station = pa.schema([
+        ("station_key", text), ("source_record_nos", integers), ("raw_ids", strings), ("normalized_ids", strings),
+        ("source_row_count", pa.int64()), ("entity_resolved", flag), ("longitude", number), ("latitude", number),
+        ("xy", pa.list_(pa.field("element", number))), ("lad_codes", strings), ("pua_names", strings), ("target_pua_names", strings),
+        ("in_target_pua", flag), ("selected", flag), ("identity_eligible", flag), ("identity_reasons", strings),
+        ("audit_reasons", strings), ("within_gb_proxy", flag), ("within_ni_proxy", flag), ("within_order", flag),
+        ("gb_boundary_distance_m", number), ("order_clearance_m", number), ("spatial_status", text),
+        ("query_eligible", flag), ("main_status", text), ("query_blockers", strings),
+    ], metadata={b"schema_version": b"1", b"crs": b"EPSG:27700", b"step": b"10"})
+    radius = pa.schema([
+        ("station_key", text), ("radius_m", pa.int64()), ("selected", flag), ("query_eligible", flag),
+        ("main_status", text), ("within_gb_proxy", flag), ("gb_boundary_distance_m", number),
+        ("order_clearance_m", number), ("coverage_complete_proxy", flag), ("coverage_reasons", strings),
+    ], metadata={b"schema_version": b"1", b"distance_units": b"metre", b"step": b"10"})
+    return station, radius
+
+
+def _write_parquet(path, rows, schema):
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+    if any(set(row) != set(schema.names) for row in rows):
+        raise ValueError("Parquet record fields disagree with explicit schema")
+    table = pa.Table.from_pylist(rows, schema=schema)
+    with path.open("xb") as stream:
+        pq.write_table(table, stream)
+    restored = pq.read_table(path)
+    if not restored.schema.equals(schema, check_metadata=True) or restored.to_pylist() != rows:
+        raise ValueError(f"Parquet read-back differs: {path.name}")
+
+
+class StationPreparationError(ValueError):
+    """Partial files beside a failed report are diagnostic, not valid outputs."""
+
+    def __init__(self, report):
+        self.report = report
+        super().__init__("; ".join(report["errors"]))
+
+
+def prepare_station_files(station_path, lad_path, order_path, poi_path, *, data_root, output_dir,
+                          scope_dir, inspection_dir, coordinate_operation, required_paths,
+                          order_review, poi_layer, sample_size=None, random_seed=None):
+    """Run only step 10, always checking full source before any entity sampling."""
+    from shapely import from_wkb
+    from src.geography import _cell, _write_table, coverage_geometries
+    from src.spatial import prepare_stations, station_radius_base, validate_coordinate_operation
+
+    root = project_path(".", root=data_root)
+    output = project_path(output_dir, root=root)
+    if (not Path(output_dir).is_relative_to("outputs") or output == root / "outputs"
+            or not output.is_relative_to(root / "outputs")):
+        raise ValueError("output_dir must be a new directory strictly inside outputs/")
+    output.mkdir(parents=True, exist_ok=False)
+    report = {"schema_version": 1, "status": "running", "errors": [], "output_dir": str(output),
+              "scope": "sample" if sample_size is not None else "full_source", "sample_size": sample_size,
+              "random_seed": random_seed, "validation_complete": False, "poi_matching_performed": False}
+    _json_write(output / "station_preparation_report.json", report)
+    try:
+        operation = validate_coordinate_operation(coordinate_operation)
+        paths = list(required_paths)
+        references = {r["source_path"] for r in order_review.get("references", [])}
+        if not {station_path, lad_path, order_path, poi_path} | references <= set(paths):
+            raise ValueError("required_paths must include all consumed sources and order references")
+        report["sources_before"] = verify_sources(data_root=root, required_paths=paths)
+        before = {p: _fingerprint(p, root, 1048576) for p in paths}
+        report["input_fingerprints_before"] = before
+        upstream = load_station_scope(scope_dir, data_root=root, station_path=station_path, coordinate_operation=operation)
+        definition = upstream["definition"]
+        if not set(definition["required_paths"]) <= set(paths) or definition["lad_path"] != lad_path:
+            raise ValueError("required_paths/LAD must include the verified step09 sources")
+        prior = load_station_inspection(inspection_dir, data_root=root, station_path=station_path)
+        if prior["source_count"] != len(upstream["rows"]):
+            raise ValueError("full source count differs from step06")
+        for row in upstream["rows"]:
+            if row["prior_station_issues"] != prior["issues"].get(row["source_record_no"], []):
+                raise ValueError("step09 row issues differ from full-source step06 evidence")
+        report["upstream_scope"] = upstream["provenance"]
+        report["prior_station_audit"] = {k: v for k, v in prior.items() if k != "issues"}
+        lads, lad_metadata = read_lad_geometries(lad_path, data_root=root, layer=definition["lad_layer"],
+                                                code_field=definition["lad_code_field"], name_field=definition["lad_name_field"])
+        order = read_order_extent(order_path, poi_path, data_root=root, poi_layer=poi_layer, review=order_review)
+        coverage = coverage_geometries(lads, crs=lad_metadata["crs"]["definition"], order_bounds=order["bounds"])
+        if not coverage["gb"].covers(upstream["study_area"]):
+            raise ValueError("step09 study area is not contained in full GB proxy")
+        prepared = prepare_stations(upstream["rows"], coverage, target_puas=definition["target_puas"],
+                                    sample_size=sample_size, random_seed=random_seed)
+        stations, audit = prepared["stations"], prepared["audit"]
+        base = station_radius_base(stations)
+        station_schema, radius_schema = station_parquet_schemas()
+        _write_parquet(output / "stations.parquet", stations, station_schema)
+        _write_parquet(output / "station_radius_base.parquet", base, radius_schema)
+        fields = ["source_record_no", "raw_id", "raw_longitude", "raw_latitude", "raw_fields", "raw_values", "xy",
+                  "lad_codes", "pua_names", "target_pua_names", "in_target_pua", "coordinate_reasons", "audit_reasons",
+                  "prior_station_issues", "transformation_error", "normalized_id", "identity_reasons", "station_key",
+                  "id_source_record_nos", "merge_action", "selected", "query_eligible", "main_status",
+                  "entity_query_blockers", "entity_audit_reasons"]
+        _write_table(output / "station_audit.csv", audit, fields)
+        with (output / "station_audit.csv").open(encoding="utf-8", newline="") as stream:
+            restored = list(csv.DictReader(stream, strict=True))
+        expected = [{k: "" if r.get(k) is None else str(_cell(r[k])) for k in fields} for r in audit]
+        if restored != expected:
+            raise ValueError("station audit CSV read-back differs")
+        for key, name in (("gb", "gb_proxy.wkb"), ("ni", "ni_proxy.wkb"), ("data_coverage", "data_coverage_proxy.wkb")):
+            with (output / name).open("xb") as stream:
+                stream.write(coverage[key].wkb)
+            if not from_wkb((output / name).read_bytes()).equals(coverage[key]):
+                raise ValueError("coverage WKB read-back differs")
+        coverage_definition = {"schema_version": 1, "crs": coverage["crs"], "predicate": "covers", "units": "metre",
+                               "gb_lad_codes": coverage["members"]["gb"], "ni_lad_codes": coverage["members"]["ni"],
+                               "lad_metadata": lad_metadata, "order": order, "coordinate_operation": operation,
+                               "target_puas": definition["target_puas"], "upstream_scope": upstream["provenance"],
+                               "input_fingerprints": before, "station_scope": "target PUA covers EVCS only",
+                               "poi_scope": "GB/order coverage covers POI and distance <= radius; no PUA clipping; cleaning deferred",
+                               "coverage_rule": "query_eligible and within_gb_proxy and gb_distance >= r and order_clearance >= r",
+                               "identity_rule": "strip IDs preserving leading zeros; exact parsed WGS84 co-location; entire location blocked by missing/duplicate/conflicting ID",
+                               "sample_keys": prepared["sample_keys"], "radii_m": [500, 1000],
+                               "limitations": ["GB LAD proxy: generalised boundaries, holes retained; not proof of POI completeness",
+                                               "fixed approximate seven-parameter station conversion; no radius tolerance",
+                                               order["limitation"]]}
+        _json_write(output / "coverage_definition.json", coverage_definition)
+        if _read_json(output / "coverage_definition.json") != coverage_definition:
+            raise ValueError("coverage definition read-back differs")
+        source_keys = sorted(n for s in stations for n in s["source_record_nos"])
+        if source_keys != list(range(1, len(audit) + 1)) or len(base) != 2 * sum(s["selected"] for s in stations):
+            raise ValueError("source/entity/radius conservation failed")
+        if len({(r["station_key"], r["radius_m"]) for r in base}) != len(base):
+            raise ValueError("duplicate station/radius pair")
+        report["sources_after"] = verify_sources(data_root=root, required_paths=paths)
+        after = {p: _fingerprint(p, root, 1048576) for p in paths}
+        check_scope = load_station_scope(scope_dir, data_root=root, station_path=station_path, coordinate_operation=operation)
+        if (after != before or check_scope["provenance"] != upstream["provenance"]
+                or load_station_inspection(inspection_dir, data_root=root, station_path=station_path) != prior):
+            raise ValueError("input or upstream evidence changed during station preparation")
+        selected = [s for s in stations if s["selected"]]
+        report.update(status="completed", validation_complete=True, input_bytes_unchanged=True,
+                      full_source_identity_checked=True, input_fingerprints_after=after,
+                      source_record_count=len(audit), entity_record_count=len(stations),
+                      resolved_entity_count=sum(s["entity_resolved"] for s in stations),
+                      unresolved_record_count=sum(not s["entity_resolved"] for s in stations),
+                      merged_location_count=sum(s["source_row_count"] > 1 for s in stations),
+                      merged_excess_rows=len(audit) - len(stations),
+                      target_source_rows=sum(r["in_target_pua"] is True for r in audit),
+                      target_entity_count=sum(s["in_target_pua"] is True for s in stations),
+                      selected_entity_count=len(selected), query_eligible_count=sum(s["query_eligible"] for s in selected),
+                      nonqueryable_selected_count=sum(not s["query_eligible"] for s in selected), radius_row_count=len(base),
+                      main_status_counts=dict(Counter(s["main_status"] for s in stations)),
+                      spatial_status_counts=dict(Counter(s["spatial_status"] for s in stations)),
+                      identity_reason_counts=dict(Counter(reason for r in audit for reason in r["identity_reasons"])),
+                      selected_query_blocker_counts=dict(Counter(reason for s in selected for reason in s["query_blockers"])),
+                      target_puas=definition["target_puas"],
+                      pua_entity_counts={p: sum(s["in_target_pua"] is True and p in s["target_pua_names"] for s in stations) for p in definition["target_puas"]},
+                      coverage_counts={str(r): {"complete": sum(b["coverage_complete_proxy"] for b in base if b["radius_m"] == r),
+                                                 "incomplete": sum(not b["coverage_complete_proxy"] for b in base if b["radius_m"] == r)} for r in (500, 1000)},
+                      gb_lad_count=len(coverage["members"]["gb"]), ni_lad_count=len(coverage["members"]["ni"]))
+        report["artifacts"] = {p.name: _artifact_fingerprint(p) for p in sorted(output.iterdir()) if p.name != "station_preparation_report.json"}
+    except Exception as error:
+        report.update(status="failed", validation_complete=False)
+        report["errors"].append(f"{type(error).__name__}: {error}")
+        _json_write(output / "station_preparation_report.json", report)
+        raise StationPreparationError(report) from error
+    _json_write(output / "station_preparation_report.json", report)
+    return report
+
+
 def _resolve(path: Path) -> Path:
     """Resolve existing links, allowing new targets but rejecting link loops."""
     try:

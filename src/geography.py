@@ -1,17 +1,15 @@
-"""Step 09: explicit PUA/LAD scope and lossless source-row geography selection.
-
-No entity merging, coverage, POI cleaning or radius matching is performed here.
-"""
+"""PUA/LAD selection and separate GB/order coverage geometries (steps 09/10)."""
 
 from collections import Counter, defaultdict
 from itertools import islice
 import csv
 import json
 import math
+import re
 from pathlib import Path
 
-from shapely import STRtree, from_wkb, get_coordinates, prepare, union_all
-from shapely.geometry import Point
+from shapely import STRtree, distance, from_wkb, get_coordinates, get_parts, linestrings, points, prepare, union_all
+from shapely.geometry import Point, Polygon, box
 from shapely.validation import explain_validity
 from pyproj import CRS
 from pyproj.exceptions import CRSError
@@ -151,6 +149,84 @@ def _polygon(geometry, label):
         detail = explain_validity(geometry) if geometry is not None else "missing"
         raise ValueError(f"{label}: requires nonempty valid finite 2D polygon ({detail})")
     return geometry
+
+
+def coverage_geometries(lads, *, crs, order_bounds):
+    """Whole-GB LAD union, separate NI, and GB intersection with a verified order.
+
+    Bounds are (min easting, min northing, max easting, max northing), metres.
+    This computes a conservative coverage proxy, not a census of real features.
+    Empty NI (no supplied N rows) and empty order intersection are explicit.
+    """
+    try:
+        parsed = CRS.from_user_input(crs)
+    except CRSError as error:
+        raise ValueError("coverage CRS is missing or invalid") from error
+    if not parsed.equals(CRS.from_epsg(27700)) or any(a.unit_conversion_factor != 1 for a in parsed.axis_info):
+        raise ValueError("coverage CRS must be EPSG:27700 with metre units")
+    if (not isinstance(order_bounds, (list, tuple)) or len(order_bounds) != 4
+            or any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) for v in order_bounds)):
+        raise ValueError("order_bounds must contain four finite numbers")
+    minx, miny, maxx, maxy = order_bounds
+    if minx >= maxx or miny >= maxy:
+        raise ValueError("order_bounds must be strictly ordered")
+    by_code = {}
+    for row in lads:
+        code = row["lad_code"]
+        if not isinstance(code, str) or re.fullmatch(r"[ESWN][0-9]{8}", code) is None:
+            raise ValueError(f"invalid or unknown LAD code: {code!r}")
+        if code in by_code:
+            raise ValueError(f"duplicate LAD code: {code}")
+        by_code[code] = _polygon(row["geometry"], code)
+    members = {"gb": sorted(c for c in by_code if c[0] in "ESW"),
+               "ni": sorted(c for c in by_code if c[0] == "N")}
+    gb = _polygon(union_all([by_code[c] for c in members["gb"]]), "GB union")
+    ni = _polygon(union_all([by_code[c] for c in members["ni"]]), "NI union") if members["ni"] else Polygon()
+    if not ni.is_empty and gb.intersection(ni).area > 0:
+        raise ValueError("GB and NI proxy interiors overlap")
+    order = box(minx, miny, maxx, maxy)
+    covered = gb.intersection(order)
+    if covered.is_empty:
+        covered = Polygon()
+    else:
+        _polygon(covered, "data coverage intersection")
+    return {"gb": gb, "ni": ni, "order": order, "data_coverage": covered,
+            "order_bounds": list(order_bounds), "members": members, "crs": "EPSG:27700",
+            "predicate": "covers"}
+
+
+def boundary_distances(xy, geometry):
+    """Exact shortest distance to every union boundary ring, including holes.
+
+    Index individual straight segments to avoid testing the whole coastline for
+    every station. No buffer approximation, rounding or radius tolerance is used.
+    None positions retain None; all other positions must be finite 2D numbers.
+    Outside positions also have positive distances: membership is a separate test.
+    """
+    _polygon(geometry, "distance geometry")
+    positions, indexes, result = [], [], []
+    for value in xy:
+        result.append(None)
+        if value is not None:
+            if (not isinstance(value, (list, tuple)) or len(value) != 2
+                    or any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) for v in value)):
+                raise ValueError("boundary distance positions require finite numeric xy or None")
+            indexes.append(len(result) - 1)
+            positions.append(value)
+    if not positions:
+        return result
+    segments = []
+    for ring in get_parts(geometry.boundary):
+        coords = get_coordinates(ring)
+        segments.extend((a, b) for a, b in zip(coords[:-1], coords[1:]) if (a != b).any())
+    tree = STRtree(linestrings(segments))
+    query = points(positions)
+    values = distance(query, tree.geometries.take(tree.nearest(query)))
+    for index, value in zip(indexes, values, strict=True):
+        if not math.isfinite(value):
+            raise ValueError("nonfinite GB boundary distance")
+        result[index] = float(value)
+    return result
 
 
 def build_pua_scope(mapping, lads, *, crs):
