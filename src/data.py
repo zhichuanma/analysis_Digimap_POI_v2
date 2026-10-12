@@ -2911,3 +2911,299 @@ def match_files(preparation_dir, *, data_root, code_root, output_dir, station_ba
         checkpoint("failed", notify=False)
         raise MatchingError(report) from error
     return report
+
+
+class SummaryError(ValueError):
+    """Failed step-15 run, with retained evidence and no consumable outputs."""
+
+    def __init__(self, report):
+        self.report = report
+        super().__init__("; ".join(report["errors"]))
+
+
+def _load_summary_inputs(matching_dir, *, data_root, code_root):
+    import pyarrow.parquet as pq
+    from src.spatial import station_radius_base
+
+    root = project_path(".", root=data_root)
+    names = ("matching_report.json", "validation_report.json", "matches.parquet")
+    directory, evidence = _sealed_step(matching_dir, names, root)
+    report = _read_json(directory / names[0])
+    _completed_evidence(report, "step14 matching")
+    if (report.get("schema_version") != 1 or report.get("output_dir") != str(directory)
+            or report.get("radii_m") != [500, 1000] or report.get("max_radius_m") != 1000
+            or report.get("composition_mode") != "native_group"
+            or report.get("functional_group_role") != "audit_only"
+            or report.get("poi_scope") != "full_source_prepared_candidates"):
+        raise ValueError("unsupported matching contract/scope/output binding")
+    for name in names[1:]:
+        if report["artifacts"].get(name) != evidence["artifacts"][name]:
+            raise ValueError("matching artifact fingerprint mismatch")
+    validation = _read_json(directory / "validation_report.json")
+    flags = ("pairs_unique", "full_readback", "schema_fields_distances_verified", "candidate_union_conserved",
+             "query_keys_processed_once", "input_bytes_unchanged", "upstream_rules_code_unchanged")
+    if (validation.get("status") != "passed" or any(validation.get(k) is not True for k in flags)
+            or validation.get("counts") != report.get("counts")):
+        raise ValueError("matching validation incomplete")
+    inputs = _load_matching_inputs(report["preparation_dir"], data_root=root, code_root=code_root)
+    if (report["preparation"] != inputs["evidence"] or report["stations"] != inputs["stations"]
+            or report["station_scope"] != inputs["stations"]["scope"]
+            or report["classification_rule_version"] != inputs["rules"].version
+            or report["upstream"] != inputs["preparation"]["upstream"]
+            or report["input_fingerprints_before"] != inputs["watched"]
+            or report["input_fingerprints_after"] != inputs["watched"]):
+        raise ValueError("matching preparation/station/source binding changed")
+    watched = dict(inputs["watched"])
+    watched[str(directory.parent / "verification.json")] = evidence["verification"]
+    watched.update({str(directory / name): fp for name, fp in evidence["artifacts"].items()})
+    with pq.ParquetFile(directory / "matches.parquet") as source:
+        if not source.schema_arrow.equals(matching_parquet_schema(inputs["rules"].version), check_metadata=True):
+            raise ValueError("matching Parquet schema/CRS mismatch")
+    station_dir = inputs["stations"]["provenance"]["directory"]
+    station_path, station_evidence = _sealed_step(station_dir,
+        ("station_preparation_report.json", "station_radius_base.parquet"), root)
+    prior = _read_json(station_path / "station_preparation_report.json")
+    if prior["artifacts"].get("station_radius_base.parquet") != station_evidence["artifacts"]["station_radius_base.parquet"]:
+        raise ValueError("station radius base is not bound to station report")
+    base = pq.read_table(station_path / "station_radius_base.parquet")
+    if not base.schema.equals(station_parquet_schemas()[1], check_metadata=True):
+        raise ValueError("station radius base schema mismatch")
+    stations = pq.read_table(station_path / "stations.parquet").to_pylist()
+    actual = sorted(base.to_pylist(), key=lambda r: (r["station_key"], r["radius_m"]))
+    if actual != station_radius_base(stations):
+        raise ValueError("station radius base disagrees with sealed entity coverage")
+    watched.update({str(station_path / name): fp for name, fp in station_evidence["artifacts"].items()})
+    groups = set(inputs["dictionary"].groups)
+    dictionary_dir = root / inputs["preparation"]["upstream"]["upstream"]["step07"]["directory"]
+    with (dictionary_dir / "classification_dictionary.csv").open(encoding="utf-8", newline="") as stream:
+        for row in csv.DictReader(stream, strict=True):
+            if re.fullmatch(r"[0-9]{8}", row["class_code"]):
+                if row["group_code"] != row["class_code"][:2]:
+                    raise ValueError("full-source group prefix mismatch")
+                groups.add(row["group_code"])
+    labels = [{"level": level, "code": code, "dictionary_name": item["dictionary_name"] or None}
+              for level, table in (("group", inputs["dictionary"].groups),
+                                   ("category", inputs["dictionary"].categories), ("class", inputs["dictionary"].classes))
+              for code, item in sorted(table.items())]
+    return dict(inputs, matching_directory=directory, matching=report, matching_evidence=evidence,
+                base=base, group_codes=sorted(groups), labels=labels, watched=watched)
+
+
+def _verify_summary_matching(con, inputs):
+    """Bind each matched row to the sealed candidate and queried station."""
+    import pyarrow as pa
+    from src.analysis import _require_empty
+    from src.spatial import MATCH_POI_FIELDS
+
+    con.from_parquet(str(inputs["directory"] / "processed/pois.parquet")).create_view("candidates")
+    queries = inputs["stations"]["queries"]
+    con.register("query_stations", pa.Table.from_pylist([
+        dict(station_key=q["station_key"], station_x=q["xy"][0], station_y=q["xy"][1]) for q in queries],
+        schema=pa.schema([("station_key", pa.string()), ("station_x", pa.float64()), ("station_y", pa.float64())])))
+    _require_empty(con, """SELECT ref_no_type,ref_no_value FROM candidates GROUP BY ALL
+        HAVING count(*)<>1 LIMIT 1""", "duplicate candidate identity")
+    differences = " OR ".join(f'm."{field}" IS DISTINCT FROM c."{field}"' for field in MATCH_POI_FIELDS)
+    _require_empty(con, f"""SELECT m.station_key FROM matches m LEFT JOIN candidates c
+        USING(ref_no_type,ref_no_value) LEFT JOIN query_stations q USING(station_key)
+        WHERE c.source_fid IS NULL OR q.station_key IS NULL OR {differences}
+        OR m.station_x IS DISTINCT FROM q.station_x OR m.station_y IS DISTINCT FROM q.station_y LIMIT 1""",
+        "matching row differs from sealed candidate/station")
+    rules = inputs["rules"]
+    con.register("included_classes", pa.table({"class_code": pa.array(
+        [code for code, row in rules.rows.items() if row["decision"] == "include"], type=pa.string())}))
+    _require_empty(con, """SELECT m.class_code FROM matches m LEFT JOIN included_classes r USING(class_code)
+        WHERE r.class_code IS NULL OR m.class_code='10540832' OR m.base_eligible IS NOT TRUE
+        OR m.analysis_include IS NOT TRUE OR m.research_decision IS DISTINCT FROM 'include'
+        OR m.classification_status IS DISTINCT FROM 'known' OR m.classification_review IS NOT FALSE LIMIT 1""",
+        "formal statistics require v3 research qualification")
+    values = con.execute("""SELECT count(*),count(*) FILTER (WHERE distance_m<=500),
+        count(*) FILTER (WHERE distance_m<=1000),count(DISTINCT (ref_no_type,ref_no_value)) FROM matches""").fetchone()
+    counts = dict(zip(("match_count", "within_500_count", "within_1000_count", "unique_matched_candidate_count"), values))
+    counts.update(candidate_count=con.execute("SELECT count(*) FROM candidates").fetchone()[0],
+                  query_count=len(queries), processed_query_count=len(queries))
+    processed = inputs["matching"]["processed_stations"]
+    actual = dict(con.execute("SELECT station_key,count(*) FROM matches GROUP BY station_key").fetchall())
+    expected = {q["station_key"]: actual.get(q["station_key"], 0) for q in queries}
+    if (counts != inputs["matching"]["counts"] or counts["unique_matched_candidate_count"] != counts["candidate_count"]
+            or len(processed) != len(expected) or any(r.get("processed") is not True for r in processed)
+            or {r["station_key"]: r["match_count"] for r in processed} != expected):
+        raise ValueError("matching/query/candidate counts disagree")
+    return counts
+
+
+SUMMARY_ORDER = {
+    "station_radius_totals": "station_key,radius_m", "composition": "station_key,radius_m,level,code",
+    "radius_summary": "radius_m,scope", "group_summary": "radius_m,scope,group_code",
+}
+
+
+def _write_summary_tables(con, output, *, batch_size):
+    """Stream SQL results to temporary files, retaining logical content hashes."""
+    import pyarrow.parquet as pq
+    from src.analysis import summary_schemas
+    results = {}
+    for name, schema in summary_schemas().items():
+        suffix = ".parquet" if name == "composition" else ".csv"
+        path = output / (name + suffix + ".tmp")
+        reader = con.execute(f"SELECT * FROM {name} ORDER BY {SUMMARY_ORDER[name]}").fetch_record_batch(batch_size)
+        digest, count = hashlib.sha256(), 0
+        with ExitStack() as stack:
+            if suffix == ".parquet":
+                writer = stack.enter_context(pq.ParquetWriter(path, schema, compression="zstd"))
+            else:
+                writer = csv.DictWriter(stack.enter_context(path.open("x", encoding="utf-8", newline="")),
+                                        fieldnames=schema.names)
+                writer.writeheader()
+            for batch in reader:
+                batch = batch.cast(schema)
+                if suffix == ".parquet":
+                    writer.write_batch(batch)
+                for row in batch.to_pylist():
+                    _preparation_digest(digest, row)
+                    count += 1
+                    if suffix == ".csv":
+                        writer.writerow({k: json.dumps(v, ensure_ascii=False, separators=(",", ":"))
+                            if isinstance(v, list) else v for k, v in row.items()})
+        results[name + suffix] = {"row_count": count, "logical_sha256": digest.hexdigest()}
+    return results
+
+
+def _summary_csv_rows(path, schema):
+    import pyarrow as pa
+    with path.open(encoding="utf-8", newline="") as stream:
+        reader = csv.DictReader(stream, strict=True)
+        if reader.fieldnames != schema.names:
+            raise ValueError("summary CSV header mismatch")
+        for raw in reader:
+            if None in raw or any(v is None for v in raw.values()):
+                raise ValueError("summary CSV row width mismatch")
+            row = {}
+            for field in schema:
+                value = raw[field.name]
+                if value == "":
+                    result = None
+                elif pa.types.is_boolean(field.type):
+                    if value not in ("True", "False"):
+                        raise ValueError("summary CSV invalid boolean")
+                    result = value == "True"
+                elif pa.types.is_integer(field.type):
+                    result = int(value)
+                elif pa.types.is_floating(field.type):
+                    result = float(value)
+                elif pa.types.is_list(field.type):
+                    result = json.loads(value)
+                else:
+                    result = value
+                row[field.name] = result
+            yield row
+
+
+def _verify_summary_tables(output, expected, *, batch_size):
+    from src.analysis import summary_schemas
+    schemas = summary_schemas()
+    for filename, values in expected.items():
+        name = filename.rsplit(".", 1)[0]
+        path, schema = output / (filename + ".tmp"), schemas[name]
+        rows = (_parquet_rows(path, schema, batch_size) if filename.endswith(".parquet")
+                else _summary_csv_rows(path, schema))
+        digest, count = hashlib.sha256(), 0
+        for row in rows:
+            _preparation_digest(digest, row)
+            count += 1
+        if {"row_count": count, "logical_sha256": digest.hexdigest()} != values:
+            raise ValueError(f"summary complete readback mismatch: {filename}")
+    return dict(status="passed", full_readback=True, schema_and_content_verified=True, tables=expected)
+
+
+def summarize_files(matching_dir, *, data_root, code_root, output_dir, memory_limit="512MB", threads=1,
+                    write_batch_size=10000, progress=None):
+    """Step 15 only: summarize a sealed match run and its original station scope."""
+    import resource
+    import duckdb
+    from src.analysis import connection, summarize
+    _positive_integer(write_batch_size, "write_batch_size")
+    _positive_integer(threads, "threads")
+    if progress is not None and not callable(progress):
+        raise ValueError("progress must be callable")
+    root = project_path(".", root=data_root)
+    matching_path, output = _audit_path(matching_dir, root), _audit_path(output_dir, root)
+    if (output == root / "outputs" or output.is_relative_to(matching_path)
+            or matching_path.is_relative_to(output)):
+        raise ValueError("summary output must be independent of matching input")
+    if output.exists():
+        raise FileExistsError(output)
+    markers = ("summary_report.json", "matching_report.json", "preparation_report.json", "station_preparation_report.json",
+               "pua_scope_report.json", "input_inspection.json", "dictionary_validation.json")
+    for parent in output.parents:
+        if parent == root / "outputs":
+            break
+        if any((parent / name).exists() for name in markers):
+            raise ValueError("summary output must not be nested in an upstream/output directory")
+    output.mkdir(parents=True, exist_ok=False)
+    started = last_time = time.monotonic()
+    report = dict(schema_version=1, status="running", validation_complete=False, errors=[], output_dir=str(output),
+                  matching_dir=str(matching_path.relative_to(root)), stage="starting", stage_seconds={},
+                  radii_m=[500, 1000], composition_mode="native_group", functional_group_role="audit_only",
+                  unknown_policy="expand_if_matched", memory_limit=memory_limit, threads=threads,
+                  write_batch_size=write_batch_size, duckdb_version=duckdb.__version__, user_accepted=False,
+                  started_at=datetime.now().astimezone().isoformat())
+    report_path = output / "summary_report.json"
+
+    def checkpoint(stage, notify=True):
+        nonlocal last_time
+        now = time.monotonic()
+        previous = report["stage"]
+        report["stage_seconds"][previous] = report["stage_seconds"].get(previous, 0) + now - last_time
+        report.update(stage=stage, elapsed_seconds=now-started,
+                      peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+                      peak_rss_scope="process_lifetime_linux_kib")
+        last_time = now
+        _json_write(report_path, report)
+        if notify and progress:
+            progress({k: report[k] for k in ("stage", "elapsed_seconds", "peak_rss_kib")})
+
+    try:
+        checkpoint("verifying_inputs")
+        code_paths = sorted(Path(__file__).parent.glob("*.py")) + [Path(__file__).parent.parent / name
+                     for name in ("run.py", "requirements.txt")]
+        report["code_fingerprints"] = {str(p): _artifact_fingerprint(p) for p in code_paths}
+        inputs = _load_summary_inputs(matching_dir, data_root=root, code_root=code_root)
+        report.update(matching=inputs["matching_evidence"], stations=inputs["stations"],
+                      station_scope=inputs["stations"]["scope"], input_fingerprints_before=inputs["watched"],
+                      classification_rule_version=inputs["rules"].version, group_domain_source="official_and_full_source",
+                      labels_source="official_dictionary")
+        with connection(matching_path / "matches.parquet", temp_directory=output / "duckdb_tmp",
+                        memory_limit=memory_limit, threads=threads) as con:
+            report["match_counts"] = _verify_summary_matching(con, inputs)
+            checkpoint("aggregating")
+            result = summarize(con, inputs["base"], group_codes=inputs["group_codes"],
+                               labels=inputs["labels"], progress=checkpoint)
+            report.update(result)
+            checkpoint("writing_tables")
+            expected = _write_summary_tables(con, output, batch_size=write_batch_size)
+            if any(values["row_count"] != result["row_counts"][filename.rsplit(".", 1)[0]]
+                   for filename, values in expected.items()):
+                raise ValueError("written summary row counts differ from SQL tables")
+        checkpoint("readback")
+        validation = _verify_summary_tables(output, expected, batch_size=write_batch_size)
+        checkpoint("rechecking_inputs")
+        after = {p: _artifact_fingerprint(Path(p)) for p in inputs["watched"]}
+        if (after != inputs["watched"]
+                or {str(p): _artifact_fingerprint(p) for p in code_paths} != report["code_fingerprints"]):
+            raise ValueError("summary inputs/upstream/rules/code changed during run")
+        report["input_fingerprints_after"] = after
+        validation.update(counts_and_shares_conserved=True, input_bytes_unchanged=True, upstream_rules_code_unchanged=True)
+        _json_write(output / "validation_report.json", validation)
+        for filename in expected:
+            (output / (filename + ".tmp")).replace(output / filename)
+        report["artifacts"] = {name: _artifact_fingerprint(output / name)
+                               for name in (*expected, "validation_report.json")}
+        report.update(status="completed", validation_complete=True, input_bytes_unchanged=True,
+                      finished_at=datetime.now().astimezone().isoformat())
+        checkpoint("completed")
+    except Exception as error:
+        report.update(status="failed", validation_complete=False)
+        report["errors"].append(f"{type(error).__name__}: {error}")
+        checkpoint("failed", notify=False)
+        raise SummaryError(report) from error
+    return report

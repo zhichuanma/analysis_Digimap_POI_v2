@@ -1,7 +1,7 @@
 import math
 import unittest
 
-from src.analysis import summarize
+from src.analysis import summarize_synthetic as summarize
 from src.spatial import match_synthetic as match
 
 
