@@ -2535,3 +2535,379 @@ def prepare(poi_path, *, station_dir, data_root, code_root, output_dir, context_
         _json_write(report_path, report)
         raise PreparationError(report) from error
     return report
+
+
+class MatchingError(ValueError):
+    """A retained failed matching report; partial files are not consumable."""
+
+    def __init__(self, report):
+        self.report = report
+        super().__init__("; ".join(report["errors"]))
+
+
+def matching_parquet_schema(rule_version):
+    import pyarrow as pa
+    from src.spatial import MATCH_POI_FIELDS
+    candidates = poi_parquet_schema(rule_version)
+    return pa.schema(
+        [("station_key", pa.string()), ("station_x", pa.float64()), ("station_y", pa.float64()),
+         *[candidates.field(name) for name in MATCH_POI_FIELDS], ("distance_m", pa.float64())],
+        metadata={**candidates.metadata, b"schema_version": b"1", b"table": b"station_poi_matches",
+                  b"max_radius_m": b"1000", b"pair_identity": b"station_key,ref_no_type,ref_no_value"},
+    )
+
+
+def _load_matching_inputs(preparation_dir, *, data_root, code_root):
+    """Reuse sealed qualification and station evidence without cleaning raw POIs."""
+    from types import SimpleNamespace
+    from shapely import from_wkb, prepare as prepare_geometry
+    from shapely.geometry import box
+    from src.classification import NativeDictionary
+    from src.poi_research import load_research_rules
+
+    root = project_path(".", root=data_root)
+    names = ("preparation_report.json", "validation_report.json", "processed/pois.parquet",
+             "processed/poi_issues.parquet", "research_rules_snapshot.yaml",
+             "research_rules_snapshot.csv", "rule_coverage.json")
+    directory, evidence = _sealed_step(preparation_dir, names, root)
+    report = _read_json(directory / names[0])
+    _completed_evidence(report, "step13 preparation")
+    if (report.get("schema_version") != 1 or report.get("poi_scope") != "full_source"
+            or report.get("full_source_cleaning_run") is not True
+            or report.get("poi_matching_performed") is not False
+            or report.get("radii_m") != [500, 1000] or report.get("max_radius_m") != 1000
+            or report.get("composition_mode") != "native_group"
+            or report.get("functional_group_role") != "audit_only"
+            or report.get("output_dir") != str(directory)):
+        raise ValueError("unsupported preparation contract/scope/output binding")
+    for name in names[1:]:
+        if report["artifacts"].get(name) != evidence["artifacts"][name]:
+            raise ValueError("preparation report/artifact fingerprint mismatch")
+    validation = _read_json(directory / "validation_report.json")
+    flags = ("counts_conserved", "audit_one_per_source_record", "parquet_schema_and_rows_verified",
+             "candidate_ids_unique", "native_groups_sum_verified", "input_bytes_unchanged", "upstream_and_rules_unchanged")
+    if validation.get("status") != "passed" or any(validation.get(k) is not True for k in flags):
+        raise ValueError("preparation validation incomplete")
+    counts = report["counts"]
+    states = counts["preparation_status_counts"]
+    if (set(states) != {"ineligible", "eligible_not_neighbor", "saved"}
+            or any(type(v) is not int or v < 0 for v in states.values())
+            or counts["input_count"] != sum(states.values())
+            or counts["analysis_included_count"] != states["eligible_not_neighbor"] + states["saved"]
+            or counts["candidate_count"] != states["saved"]
+            or counts["audit_count"] != counts["input_count"]
+            or validation["source_count"] != counts["input_count"]
+            or report["input_schema"]["source_count"] != counts["input_count"]):
+        raise ValueError("preparation count conservation failed")
+
+    # Watch every consumed input and seal, including the complete audit bytes.
+    watched = {}
+
+    def watch(path, expected=None):
+        actual = _artifact_fingerprint(path)
+        if expected is not None and actual != expected:
+            raise ValueError(f"matching input fingerprint mismatch: {path}")
+        watched[str(path)] = actual
+
+    def watch_seal(item):
+        folder, checked = _sealed_step(item["directory"], tuple(item["artifacts"]), root)
+        if checked != item:
+            raise ValueError("matching upstream seal changed")
+        watch(folder.parent / "verification.json", item["verification"])
+        for name, expected in item["artifacts"].items():
+            watch(_audit_path(str((folder / name).relative_to(root)), root), expected)
+        return folder
+
+    watch_seal(evidence)
+    provenance = report["upstream"]
+    watch(root / "data/source_manifest.json", provenance["manifest"])
+    current = provenance["input_fingerprints"]
+    sources = verify_sources(data_root=root, required_paths=list(current))
+    actual = {r["path"]: {"resolved_path": r["resolved_path"], "size_bytes": r["actual_size_bytes"],
+                         "sha256": r["actual_sha256"]} for r in sources["files"]}
+    if actual != current:
+        raise ValueError("current sources differ from prepared sources")
+    for name, expected in current.items():
+        watch(project_path(name, root=root), {k: expected[k] for k in ("sha256", "size_bytes")})
+    upstream = provenance["upstream"]
+    if set(upstream) != {"step06", "step07", "step09", "step10"}:
+        raise ValueError("preparation lacks complete upstream binding")
+    folders = {key: watch_seal(item) for key, item in upstream.items()}
+    inspection = _read_json(folders["step06"] / "input_inspection.json")
+    if (inspection.get("status") != "completed" or inspection.get("scope") != "full_source"
+            or inspection.get("sample_limit") is not None
+            or any(inspection.get(k) is not True for k in
+                   ("scan_complete", "full_source_complete", "duplicate_list_complete", "input_bytes_unchanged"))):
+        raise ValueError("matching requires complete source inspection evidence")
+    _check_prior_inputs(inspection["input_fingerprints_before"], inspection["input_fingerprints_after"], current, "step06")
+    for step, name in (("step07", "dictionary_validation.json"), ("step09", "pua_scope_report.json"),
+                       ("step10", "station_preparation_report.json")):
+        prior = _read_json(folders[step] / name)
+        _completed_evidence(prior, step, full=step == "step10")
+        _check_prior_inputs(prior["input_fingerprints_before"], prior["input_fingerprints_after"], current, step)
+    definition = _read_json(folders["step10"] / "coverage_definition.json")
+    _check_prior_inputs(definition["input_fingerprints"], definition["input_fingerprints"], current, "coverage")
+    if (definition != provenance["coverage_definition"]
+            or definition["order"]["poi_metadata"] != report["input_schema"]
+            or definition["crs"] != "EPSG:27700" or definition["units"] != "metre"
+            or definition["predicate"] != "covers" or definition["radii_m"] != [500, 1000]):
+        raise ValueError("matching coverage/source/CRS binding mismatch")
+    coverage, gb, study = (from_wkb(path.read_bytes()) for path in (
+        folders["step10"] / "data_coverage_proxy.wkb", folders["step10"] / "gb_proxy.wkb",
+        folders["step09"] / "study_area.wkb"))
+    for geometry in (coverage, gb, study):
+        if (geometry.geom_type not in ("Polygon", "MultiPolygon") or not geometry.is_valid
+                or geometry.has_z or geometry.has_m):
+            raise ValueError("invalid sealed matching coverage geometry")
+    if not gb.covers(study) or not coverage.equals(gb.intersection(box(*definition["order"]["bounds"]))):
+        raise ValueError("matching coverage is not GB/order intersection")
+    prepare_geometry(coverage)
+    tables = {name: {} for name in ("group", "category", "class")}
+    with (folders["step07"] / "native_dictionary.csv").open(encoding="utf-8", newline="") as stream:
+        for row in csv.DictReader(stream, strict=True):
+            table = tables[row["level"]]
+            if row["code"] in table:
+                raise ValueError("duplicate sealed dictionary code")
+            table[row["code"]] = row
+    dictionary = NativeDictionary(tables["group"], tables["category"], tables["class"])
+    rule_info = provenance["rules"]
+    rules = load_research_rules(rule_info["config_path"], code_root=code_root,
+                               dictionary=dictionary, dictionary_inputs=rule_info["dictionary_inputs"])
+    if (rules.provenance != rule_info or rules.version != report["classification_rule_version"]
+            or rules.coverage != report["rule_coverage"]
+            or rules.coverage != _read_json(directory / "rule_coverage.json")):
+        raise ValueError("current research rules differ from preparation")
+    for key, fingerprint, snapshot in (("config_path", "config_fingerprint", "research_rules_snapshot.yaml"),
+                                       ("rules_file", "rules_fingerprint", "research_rules_snapshot.csv")):
+        watch(project_path(rule_info[key], root=code_root), rule_info[fingerprint])
+        if evidence["artifacts"][snapshot] != rule_info[fingerprint]:
+            raise ValueError("prepared rule snapshot mismatch")
+    for name, expected in rule_info["dictionary_inputs"].items():
+        if expected != {k: current[name][k] for k in ("sha256", "size_bytes")}:
+            raise ValueError("research dictionary input binding mismatch")
+    context = SimpleNamespace(provenance=provenance, coverage=coverage)
+    station_dir = report["stations"]["provenance"]["directory"]
+    stations = load_prepared_stations(station_dir, data_root=root, context=context)
+    if stations != report["stations"] or stations["scope"] != report["station_scope"]:
+        raise ValueError("prepared station query keys/XY/scope changed")
+    watch_seal(stations["provenance"])
+    return dict(directory=directory, evidence=evidence, preparation=report, validation=validation,
+                rules=rules, dictionary=dictionary, coverage=coverage, stations=stations, watched=watched)
+
+
+def _matching_candidates(inputs, batch_size):
+    """Validate every prepared row and retain just the fields needed for matches."""
+    from shapely import from_wkb
+    from shapely.geometry import Point
+    from src.spatial import MATCH_POI_FIELDS, prepared_poi_identity
+    report, rules = inputs["preparation"], inputs["rules"]
+    order = report["upstream"]["coverage_definition"]["order"]
+    digest, previous, identities, groups, result = hashlib.sha256(), None, set(), Counter(), []
+    for row in _parquet_rows(inputs["directory"] / "processed/pois.parquet", poi_parquet_schema(rules.version), batch_size):
+        _preparation_digest(digest, row)
+        fid = row["source_fid"]
+        identity = prepared_poi_identity(row)
+        if (type(fid) is not int or previous is not None and fid <= previous
+                or identity in identities or row["source_path"] != order["poi_path"]
+                or row["source_layer"] != order["poi_layer"]):
+            raise ValueError("candidate source/FID order/identity mismatch")
+        previous = fid
+        identities.add(identity)
+        xy = (row["x"], row["y"])
+        if any(v is None or not math.isfinite(v) for v in xy):
+            raise ValueError("candidate coordinates must be finite")
+        point = from_wkb(row["geometry_wkb"])
+        geo = _geometry_check(row["geometry_gpkg"], report["input_schema"]["geometry"]["srs_id"])
+        if (point.geom_type != "Point" or point.has_z or point.has_m or point.is_empty
+                or tuple(point.coords[0]) != xy or geo["status"] != "valid_point" or tuple(geo["xy"]) != xy
+                or not inputs["coverage"].covers(Point(xy))):
+            raise ValueError("candidate geometry/XY/coverage mismatch")
+        rule = rules.rows.get(row["class_code"])
+        if rule is None or rule["decision"] != "include":
+            raise ValueError("candidate Class is not included in sealed rules")
+        expected = dict(group_dictionary_name=rule["group_name"], category_dictionary_name=rule["category_name"],
+                        class_dictionary_name=rule["class_name"], classification_reason=rule["decision_reason"],
+                        poi_function_group=rule["poi_function_group"] or None, classification_rule_version=rules.version)
+        if any(row[k] != value for k, value in expected.items()):
+            raise ValueError("candidate fields differ from sealed classification")
+        groups[row["group_code"]] += 1
+        result.append({name: row[name] for name in MATCH_POI_FIELDS})
+    expected_groups = report["counts"]["candidate_native_group_counts"]
+    if (len(result) != report["counts"]["candidate_count"]
+            or {g: groups[g] for g in expected_groups} != expected_groups
+            or set(groups) - set(expected_groups)
+            or digest.hexdigest() != inputs["validation"]["logical_content_sha256"][0]):
+        raise ValueError("candidate complete count/Group/content digest mismatch")
+    return result
+
+
+def _verify_matching_file(path, *, schema, candidates, stations, expected_counts, expected_digest,
+                          station_counts, batch_size, index_path):
+    """Complete readback with independent hypot arithmetic and disk pair keys."""
+    by_poi = {(r["ref_no_type"], r["ref_no_value"]): r for r in candidates}
+    by_station = {r["station_key"]: r["xy"] for r in stations}
+    counts, matched, per_station, digest, previous = Counter(), set(), Counter(), hashlib.sha256(), None
+    with closing(sqlite3.connect(index_path)) as db, db:
+        db.execute("PRAGMA cache_size=-8192")
+        db.execute("CREATE TABLE pairs (station TEXT, kind TEXT, value TEXT, PRIMARY KEY(station,kind,value)) WITHOUT ROWID")
+        for row in _parquet_rows(path, schema, batch_size):
+            key, identity = row["station_key"], (row["ref_no_type"], row["ref_no_value"])
+            if key not in by_station or identity not in by_poi:
+                raise ValueError("match references unknown station/POI")
+            poi, xy = by_poi[identity], by_station[key]
+            distance = math.hypot(poi["x"] - xy[0], poi["y"] - xy[1])
+            expected = dict(station_key=key, station_x=xy[0], station_y=xy[1], **poi, distance_m=distance)
+            if row != expected or not math.isfinite(distance) or not 0 <= distance <= 1000:
+                raise ValueError("match field/distance/radius readback mismatch")
+            sort_key = (key, poi["source_path"], poi["source_layer"], poi["source_fid"])
+            if previous is not None and sort_key <= previous:
+                raise ValueError("duplicate/out-of-order match pair")
+            previous = sort_key
+            db.execute("INSERT INTO pairs VALUES (?, ?, ?)", (key, *identity))
+            counts["match_count"] += 1
+            counts["within_500_count"] += distance <= 500
+            per_station[key] += 1
+            matched.add(identity)
+            _preparation_digest(digest, row)
+        pair_count = db.execute("SELECT COUNT(*) FROM pairs").fetchone()[0]
+    actual = dict(candidate_count=len(candidates), query_count=len(stations),
+                  processed_query_count=len(station_counts), match_count=counts["match_count"],
+                  within_500_count=counts["within_500_count"], within_1000_count=counts["match_count"],
+                  unique_matched_candidate_count=len(matched))
+    if (set(station_counts) != set(by_station) or dict(per_station) != {k: n for k, n in station_counts.items() if n}
+            or pair_count != counts["match_count"] or sum(station_counts.values()) != pair_count
+            or len(matched) != len(candidates) or actual != expected_counts
+            or digest.hexdigest() != expected_digest):
+        raise ValueError("match readback conservation/content mismatch")
+    return dict(status="passed", counts=actual, pairs_unique=True, full_readback=True,
+                schema_fields_distances_verified=True, candidate_union_conserved=True,
+                query_keys_processed_once=True, logical_content_sha256=digest.hexdigest())
+
+
+def match_files(preparation_dir, *, data_root, code_root, output_dir, station_batch_size=1000,
+                write_batch_size=10000, progress=None):
+    """Step 14: write the matches for exactly the prepared station/candidate scope."""
+    import resource
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+    from src.spatial import match
+    for value, label in ((station_batch_size, "station_batch_size"), (write_batch_size, "write_batch_size")):
+        _positive_integer(value, label)
+    if progress is not None and not callable(progress):
+        raise ValueError("progress must be callable")
+    root = project_path(".", root=data_root)
+    preparation_path, output = _audit_path(preparation_dir, root), _audit_path(output_dir, root)
+    if (output == root / "outputs" or output.is_relative_to(preparation_path)
+            or preparation_path.is_relative_to(output)):
+        raise ValueError("matching output must be independent of preparation")
+    if output.exists():
+        raise FileExistsError(output)
+    markers = ("preparation_report.json", "station_preparation_report.json", "pua_scope_report.json",
+               "matching_report.json", "input_inspection.json", "dictionary_validation.json")
+    for parent in output.parents:
+        if parent == root / "outputs":
+            break
+        if any((parent / name).exists() for name in markers):
+            raise ValueError("matching output must not be nested in an upstream/output directory")
+    output.mkdir(parents=True, exist_ok=False)
+    started = last_time = time.monotonic()
+    report = dict(schema_version=1, status="running", validation_complete=False, errors=[],
+                  output_dir=str(output), preparation_dir=str(preparation_path.relative_to(root)),
+                  started_at=datetime.now().astimezone().isoformat(), stage="starting", stage_seconds={},
+                  radii_m=[500, 1000], max_radius_m=1000, station_batch_size=station_batch_size,
+                  write_batch_size=write_batch_size, batches_written=0, processed_stations=[],
+                  poi_scope="full_source_prepared_candidates", statistics_performed=False)
+    report_path = output / "matching_report.json"
+
+    def checkpoint(stage, notify=True):
+        nonlocal last_time
+        now = time.monotonic()
+        previous = report["stage"]
+        report["stage_seconds"][previous] = report["stage_seconds"].get(previous, 0) + now - last_time
+        report.update(stage=stage, elapsed_seconds=now-started,
+                      peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+                      peak_rss_scope="process_lifetime_linux_kib")
+        last_time = now
+        _json_write(report_path, report)
+        if notify and progress is not None:
+            progress({k: report[k] for k in ("stage", "elapsed_seconds", "peak_rss_kib", "batches_written")}
+                     | {"counts": report.get("counts")})
+
+    try:
+        checkpoint("verifying_inputs")
+        code_paths = sorted(Path(__file__).parent.glob("*.py")) + [Path(__file__).parent.parent / "run.py"]
+        report["code_fingerprints"] = {str(p): _artifact_fingerprint(p) for p in code_paths}
+        inputs = _load_matching_inputs(preparation_dir, data_root=root, code_root=code_root)
+        report.update(preparation=inputs["evidence"], stations=inputs["stations"],
+                      station_scope=inputs["stations"]["scope"], upstream=inputs["preparation"]["upstream"],
+                      classification_rule_version=inputs["rules"].version, composition_mode="native_group",
+                      functional_group_role="audit_only", rule_coverage=inputs["rules"].coverage,
+                      input_fingerprints_before=inputs["watched"])
+        checkpoint("reading_candidates")
+        candidates = _matching_candidates(inputs, write_batch_size)
+        queries = [dict(row, selected=True, query_eligible=True, in_target_pua=True)
+                   for row in inputs["stations"]["queries"]]
+        counts = dict(candidate_count=len(candidates), query_count=len(queries), processed_query_count=0,
+                      match_count=0, within_500_count=0, within_1000_count=0, unique_matched_candidate_count=0)
+        report["counts"] = counts
+        station_counts, matched, buffer, digest = {}, set(), [], hashlib.sha256()
+        schema = matching_parquet_schema(inputs["rules"].version)
+        temporary = output / "matches.parquet.tmp"
+
+        def query_progress(event):
+            if event["stage"] == "indexed":
+                checkpoint("matching")
+                return
+            key = event["station_key"]
+            if key in station_counts:
+                raise ValueError("query station processed more than once")
+            station_counts[key] = event["match_count"]
+            report["processed_stations"].append(dict(station_key=key, processed=True, match_count=event["match_count"]))
+            counts["processed_query_count"] += 1
+            if len(station_counts) % station_batch_size == 0:
+                checkpoint("matching")
+
+        checkpoint("building_index")
+        with pq.ParquetWriter(temporary, schema, compression="zstd") as writer:
+            for row in match(queries, candidates, station_batch_size=station_batch_size, progress=query_progress):
+                buffer.append(row)
+                counts["match_count"] += 1
+                counts["within_1000_count"] += 1
+                counts["within_500_count"] += row["distance_m"] <= 500
+                matched.add((row["ref_no_type"], row["ref_no_value"]))
+                counts["unique_matched_candidate_count"] = len(matched)
+                _preparation_digest(digest, row)
+                if len(buffer) == write_batch_size:
+                    writer.write_table(pa.Table.from_pylist(buffer, schema=schema))
+                    buffer.clear()
+                    report["batches_written"] += 1
+            if buffer:
+                writer.write_table(pa.Table.from_pylist(buffer, schema=schema))
+                buffer.clear()
+                report["batches_written"] += 1
+        if len(matched) != len(candidates) or len(station_counts) != len(queries):
+            raise ValueError("prepared candidate union/query processing not conserved")
+        checkpoint("readback")
+        validation = _verify_matching_file(temporary, schema=schema, candidates=candidates, stations=queries,
+                         expected_counts=counts, expected_digest=digest.hexdigest(), station_counts=station_counts,
+                         batch_size=write_batch_size, index_path=output / "matching_pair_check.sqlite")
+        checkpoint("rechecking_inputs")
+        after = {p: _artifact_fingerprint(Path(p)) for p in inputs["watched"]}
+        if (after != inputs["watched"]
+                or {str(p): _artifact_fingerprint(p) for p in code_paths} != report["code_fingerprints"]):
+            raise ValueError("matching inputs/upstream/rules/code changed during run")
+        report["input_fingerprints_after"] = after
+        validation.update(input_bytes_unchanged=True, upstream_rules_code_unchanged=True)
+        _json_write(output / "validation_report.json", validation)
+        temporary.replace(output / "matches.parquet")
+        report["artifacts"] = {name: _artifact_fingerprint(output / name)
+                               for name in ("matches.parquet", "validation_report.json")}
+        report.update(status="completed", validation_complete=True, input_bytes_unchanged=True,
+                      finished_at=datetime.now().astimezone().isoformat())
+        checkpoint("completed")
+    except Exception as error:
+        report.update(status="failed", validation_complete=False)
+        report["errors"].append(f"{type(error).__name__}: {error}")
+        checkpoint("failed", notify=False)
+        raise MatchingError(report) from error
+    return report

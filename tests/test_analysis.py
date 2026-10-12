@@ -2,7 +2,7 @@ import math
 import unittest
 
 from src.analysis import summarize
-from src.spatial import match
+from src.spatial import match_synthetic as match
 
 
 TEST_DICTIONARY = {"01010006": "sample class A", "01020013": "sample class B"}
@@ -180,11 +180,11 @@ class AnalysisTests(unittest.TestCase):
             poi("kept", (100, 0), "99999999"),
         ]
         for enabled in (False, True):
-            result = analyze_sample([self.stations[0]], pois, include_ev_charging=enabled)
-            self.assertEqual([r["ref_no"] for r in result["matches"]], ["kept"])
-            self.assertEqual(result["matches"][0]["distance_m"], 100.0)
+            result = analyze_sample([self.stations[0]], pois, groups=("01", "99", "10"), include_ev_charging=enabled)
+            self.assertEqual([r["ref_no"] for r in result["matches"]], ["outside", "kept"] if enabled else ["kept"])
+            self.assertEqual(result["matches"][-1]["distance_m"], 100.0)
             audit = {r["ref_no"]: r for r in result["poi_audit"]}
-            self.assertIn("outside_pua", audit["outside"]["exclusion_reasons"])
+            self.assertNotIn("outside_pua", audit["outside"]["exclusion_reasons"])
             self.assertEqual(audit["business"]["exclusion_reasons"], ("business_filter_excluded",))
             self.assertEqual(audit["invalid"]["exclusion_reasons"], ("cleaning_excluded",))
 

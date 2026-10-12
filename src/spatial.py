@@ -437,17 +437,17 @@ def _station_index(stations: Iterable[Mapping[str, Any]]) -> dict[str, Mapping[s
     return indexed
 
 
-def match(
+def match_synthetic(
     stations: Iterable[Mapping[str, Any]],
     pois: Iterable[Mapping[str, Any]],
     dictionary: Mapping[str, object],
     *,
     include_ev_charging: bool = False,
 ) -> dict[str, Any]:
-    """Match prepared synthetic records within the fixed maximum radius.
+    """Historical hand-calculation adapter; never used by the file pipeline.
 
     Stations provide station_key, xy, selected and query_eligible. POIs provide
-    ref_no (a string), xy, raw_code and explicit in_pua, passes_business_filter,
+    ref_no (a string), xy, raw_code and explicit passes_business_filter,
     passes_cleaning booleans. These flags are supplied, not inferred from data.
     Stations must already be merged and POI identifiers must already be unique;
     contract violations raise rather than inventing source-cleaning decisions.
@@ -480,7 +480,6 @@ def match(
         }
         exclusions = []
         for flag, reason in (
-            ("in_pua", "outside_pua"),
             ("passes_business_filter", "business_filter_excluded"),
             ("passes_cleaning", "cleaning_excluded"),
         ):
@@ -523,3 +522,106 @@ def match(
         "poi_audit": poi_audit,
         "include_ev_charging": include_ev_charging,
     }
+
+
+MATCH_POI_FIELDS = (
+    "source_path", "source_layer", "source_fid", "ref_no_type", "ref_no_value",
+    "raw_classification_type", "raw_classification_value", "x", "y",
+    "group_code", "category_code", "category_number", "class_code",
+    "group_dictionary_name", "category_dictionary_name", "class_dictionary_name",
+    "classification_status", "research_decision", "classification_reason",
+    "base_eligible", "analysis_include", "poi_function_group", "functional_group_pending",
+    "classification_review", "analysis_exclusion_reason_json", "classification_rule_version",
+)
+
+
+def prepared_poi_identity(poi: Mapping[str, Any]) -> tuple[str, str]:
+    """Validate lossless prepared IDs, retaining whitespace and numeric types."""
+    kind, value = poi["ref_no_type"], poi["ref_no_value"]
+    if kind not in ("text", "integer", "real") or not isinstance(value, str):
+        raise ValueError("invalid prepared POI identity type/value")
+    try:
+        if kind == "text":
+            valid = bool(value.strip())
+        elif kind == "integer":
+            valid = str(int(value)) == value
+        else:
+            number = float(value)
+            valid = math.isfinite(number) and repr(number) == value
+    except (ValueError, OverflowError):
+        valid = False
+    if not valid:
+        raise ValueError("invalid prepared POI identity value")
+    return kind, value
+
+
+def match(stations, pois, *, station_batch_size=1000, progress=None):
+    """Yield prepared station–POI pairs once; eligibility is never reclassified.
+
+    The file caller verifies CRS, provenance, rules and candidate-union scope.
+    All POI metadata/coordinates and one tree stay in memory. Only a station's
+    neighbour list and the caller's output buffer hold generated matches.
+    Optional progress records index readiness and every queried station,
+    including stations yielding zero pairs.
+    """
+    if type(station_batch_size) is not int or station_batch_size <= 0:
+        raise ValueError("station_batch_size must be a positive integer, not a bool")
+    if progress is not None and not callable(progress):
+        raise ValueError("progress must be callable")
+    indexed = _station_index(stations)
+    queries, seen_xy = [], set()
+    for key in sorted(indexed):
+        station = indexed[key]
+        if station["query_eligible"] and not station["selected"]:
+            raise ValueError("unselected station cannot be query eligible")
+        if not (station["selected"] and station["query_eligible"]):
+            continue
+        if station.get("in_target_pua") is not True:
+            raise ValueError("query station must be in verified target PUA")
+        xy = _coordinate(station["xy"], f"Station {key}")
+        if xy in seen_xy:
+            raise ValueError("Queryable station coordinates must already be merged")
+        seen_xy.add(xy)
+        queries.append((key, xy))
+
+    prepared, identities, sources = [], set(), set()
+    for original in pois:
+        row = {name: original[name] for name in MATCH_POI_FIELDS}
+        identity = prepared_poi_identity(row)
+        source = (row["source_path"], row["source_layer"], row["source_fid"])
+        if (any(not isinstance(v, str) or not v for v in source[:2])
+                or type(source[2]) is not int):
+            raise ValueError("invalid prepared POI source identity")
+        if identity in identities or source in sources:
+            raise ValueError("duplicate prepared POI identity/source")
+        identities.add(identity)
+        sources.add(source)
+        if (row["base_eligible"] is not True or row["analysis_include"] is not True
+                or row["research_decision"] != "include" or row["classification_review"] is not False
+                or row["classification_status"] != "known"
+                or row["analysis_exclusion_reason_json"] != "[]"):
+            raise ValueError("prepared POI is not research eligible")
+        code = row["class_code"]
+        if (not isinstance(code, str) or len(code) != 8 or not code.isascii() or not code.isdigit()
+                or code == "10540832" or row["raw_classification_type"] not in ("text", "integer")
+                or row["raw_classification_value"] != code
+                or (row["group_code"], row["category_code"], row["category_number"])
+                   != (code[:2], code[:4], code[2:4])
+                or not isinstance(row["classification_rule_version"], str) or not row["classification_rule_version"]
+                or type(row["functional_group_pending"]) is not bool
+                or row["functional_group_pending"] != (row["poi_function_group"] is None)):
+            raise ValueError("prepared POI classification fields disagree")
+        row["x"], row["y"] = _coordinate((row["x"], row["y"]), f"POI {identity}")
+        prepared.append(row)
+    prepared.sort(key=lambda row: (row["source_path"], row["source_layer"], row["source_fid"]))
+    index = build_neighbor_index((row["x"], row["y"]) for row in prepared)
+    if progress is not None:
+        progress({"stage": "indexed", "candidate_count": len(prepared), "query_count": len(queries)})
+    for start in range(0, len(queries), station_batch_size):
+        for key, xy in queries[start:start + station_batch_size]:
+            neighbors = exact_neighbors(xy, index, max(RADII_M))
+            for position, distance in neighbors:
+                yield {"station_key": key, "station_x": xy[0], "station_y": xy[1],
+                       **prepared[position], "distance_m": distance}
+            if progress is not None:
+                progress({"stage": "station_done", "station_key": key, "match_count": len(neighbors)})
