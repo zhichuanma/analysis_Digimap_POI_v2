@@ -3,3 +3,5 @@ Shapely==2.1.2
 pyproj==3.7.2
 openpyxl==3.1.5
 pyarrow==23.0.1
+numpy==2.4.4
+scipy==1.17.1

@@ -7,6 +7,7 @@ import hashlib
 import random
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
+from dataclasses import dataclass, field
 from numbers import Real
 from typing import Any
 
@@ -140,6 +141,86 @@ def naive_neighbors(
         distance_m = math.hypot(poi_x - station_x, poi_y - station_y)
         if distance_m <= radius:
             neighbors.append((poi_index, distance_m))
+    return neighbors
+
+
+@dataclass(frozen=True, slots=True)
+class NeighborIndex:
+    """Coordinate snapshot built by build_neighbor_index; positions are row keys.
+
+    Coordinates are immutable and the internal tree owns its data. This is a
+    geometric index only: eligibility, CRS verification and ID handling belong
+    to the caller. Equal coordinates keep distinct input positions.
+    """
+
+    coordinates: tuple[tuple[float, float], ...] = field(repr=False)
+    _tree: Any = field(repr=False, compare=False)
+
+    def __len__(self) -> int:
+        return len(self.coordinates)
+
+
+def build_neighbor_index(poi_xy: Iterable[Iterable[float]]) -> NeighborIndex:
+    """Validate and copy all projected XYs once for repeated radius queries."""
+    try:
+        iterator = iter(poi_xy)
+    except TypeError as exc:
+        raise ValueError("poi_xy must be an iterable of two-dimensional coordinates") from exc
+    try:
+        coordinates = tuple(_coordinate(poi, f"poi_xy[{i}]") for i, poi in enumerate(iterator))
+    except OverflowError as exc:
+        raise ValueError("poi_xy must contain finite coordinates representable as floats") from exc
+    if not coordinates:
+        return NeighborIndex((), None)
+
+    # Lazy import leaves unrelated operations (including config checks) alone.
+    from scipy.spatial import cKDTree
+
+    tree = cKDTree(coordinates, copy_data=True)
+    tree.data.setflags(write=False)
+    return NeighborIndex(coordinates, tree)
+
+
+def exact_neighbors(
+    station_xy: Iterable[float], index: NeighborIndex, radius_m: float,
+) -> list[tuple[int, float]]:
+    """Return (original position, hypot distance) with distance <= radius.
+
+    The tree only supplies candidates. One outward float step protects boundary
+    candidates; no tolerance is applied to the final radius. Results follow
+    input order, independently of the tree's traversal order.
+    """
+    if not isinstance(index, NeighborIndex):
+        raise ValueError("index must be built by build_neighbor_index")
+    try:
+        radius = float(radius_m)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError("radius_m must be a finite positive number") from exc
+    if not math.isfinite(radius) or radius <= 0:
+        raise ValueError("radius_m must be a finite positive number")
+    try:
+        station_x, station_y = _coordinate(station_xy, "station_xy")
+    except OverflowError as exc:
+        raise ValueError("station_xy must contain finite coordinates representable as floats") from exc
+    if not index.coordinates:
+        return []
+
+    try:
+        candidates = index._tree.query_ball_point(
+            (station_x, station_y), math.nextafter(radius, math.inf), p=2, eps=0,
+        )
+    except ValueError as exc:
+        if "floating point overflow" not in str(exc):
+            raise
+        # Squared-distance traversal can overflow for finite extreme inputs.
+        # Keep hypot's semantics by scanning the snapshot in this rare case.
+        candidates = range(len(index))
+    neighbors = []
+    for poi_index in sorted(candidates):
+        poi_x, poi_y = index.coordinates[poi_index]
+        distance = math.hypot(poi_x - station_x, poi_y - station_y)
+        if distance <= radius:
+            neighbors.append((poi_index, distance))
     return neighbors
 
 
