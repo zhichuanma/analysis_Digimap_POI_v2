@@ -1,0 +1,20 @@
+class_code,class_name,decision,old_poi_function_group,v2_poi_function_group,issue_type,suggested_group_for_confirmation,group_issue_reason,blocks_inclusion
+02030779,BUILDING AND COMPONENT SUPPLIERS,include,office_services,office_services,group_boundary,retail,建筑和构件供应具有商品供应属性，原 office_services 不足以表达销售；需按供货销售与配套服务的主要功能核对，不影响 include。,false
+02100180,TATTOOING AND PIERCING SERVICES,include,retail,retail,clear_conflict,office_services,纹身与穿孔以提供个人服务为主，不能因有门店而归 retail；本轮按要求单列，暂保留原组。,false
+02100182,TROPHIES AND ENGRAVING SERVICES,include,retail,retail,group_boundary,retail / office_services,类别同时涵盖奖杯商品供应和雕刻定制服务，均应 include；以商品销售还是定制服务为主关系到功能组，现有类别不宜强行拆分。,false
+02100183,VEHICLE CLEANING SERVICES,include,retail,retail,clear_conflict,office_services,洗车提供清洗服务，应与车辆商品销售区分；原 retail 单列修正建议，暂保留。,false
+02100776,TAILORING AND CLOTHING ALTERATION,include,retail,retail,clear_conflict,office_services,裁缝和衣物修改主要提供定制修整服务，建议由 retail 改为 office_services，本轮未擅自改组。,false
+02100826,PRINTING ON GARMENTS,include,retail,retail,clear_conflict,office_services,服装印花提供定制加工服务，不因交付衣物就按零售，建议 office_services。,false
+02130206,HOUSEHOLD REPAIRS AND RESTORATION,include,retail,retail,clear_conflict,office_services,家居维修修复以维修服务为主，原 retail 与明确的零售/服务边界冲突。,false
+02130210,SPORTS AND LEISURE EQUIPMENT REPAIR,include,retail,retail,clear_conflict,office_services,体育休闲器材维修提供维修服务，应与器材销售区分，建议 office_services。,false
+02130212,"VEHICLE REPAIR, TESTING AND SERVICING",include,retail,retail,clear_conflict,office_services,车辆维修、检测和保养提供服务，不能仅因有接待门店归 retail。,false
+02130793,SHOE REPAIRS,include,retail,retail,clear_conflict,office_services,修鞋是生活维修服务，原 retail 与用户规定的服务边界冲突。,false
+02150218,AIRLINES AND AIRLINE SERVICES,include,office_services,office_services,group_boundary,transport_parking,航空公司及航空服务以运输运营为核心，原 office_services 是否仅表达办公室需核对；include 已确定。,false
+02150224,FERRY AND CRUISE COMPANIES,include,office_services,office_services,group_boundary,transport_parking / leisure_tourism,渡轮与邮轮公司明确具有运输或旅游运营功能，原 office_services 需核对；仅功能组边界不形成 review。,false
+02150227,RAILWAY RELATED SERVICES,include,office_services,office_services,group_boundary,office_services / transport_parking / industry_logistics,铁路相关服务的运营、商务支持和物流均在纳入范围内，需核对分组侧重而不是排除类别。,false
+02600097,BOAT HIRING SERVICES,include,office_services,office_services,group_boundary,office_services / transport_parking / leisure_tourism,船舶租赁有租赁服务、交通与游憩属性，原组保留；归类边界不改变 include。,false
+05260316,ANIMAL CLIPPING AND GROOMING,include,retail,retail,clear_conflict,office_services,宠物修剪美容以生活服务为主，应与宠物或用品销售区分，原 retail 单列修正建议。,false
+06340802,WIFI HOTSPOTS,include,,,unassigned_included,office_services / education_health_public,WiFi 热点的上网服务功能明确，include；通信服务与公共便民服务两种分组边界待核对，v2 保留原空组而不把该行变为 review。,false
+09480691,"PETS, SUPPLIES AND SERVICES",include,retail,retail,group_boundary,retail / office_services,宠物、用品和服务混合了销售与生活服务，均应纳入；原 retail 暂保留，不能因功能组不唯一排除。,false
+09480694,TRAVEL AGENCIES,include,retail,retail,clear_conflict,office_services,旅行社以旅行咨询预订服务为主，用户标准明确属于办公与服务；按本次交付要求单列原 retail 冲突而未擅自扩展明确改组清单。,false
+10560753,MOORINGS AND UNLOADING FACILITIES,include,,transport_parking,group_boundary,transport_parking / industry_logistics,系泊与装卸都是明确服务，新增纳入暂归 transport_parking；货运装卸也可归物流，分组侧重需核对但不影响 include。,false

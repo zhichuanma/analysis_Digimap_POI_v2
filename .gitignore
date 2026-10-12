@@ -4,3 +4,6 @@
 /cities/
 __pycache__/
 *.py[cod]
+# Generated rule-validation reports are archived on the data disk.
+/config/poi_research_rules_v2_validation.json
+/config/poi_research_rules_v3_validation.json

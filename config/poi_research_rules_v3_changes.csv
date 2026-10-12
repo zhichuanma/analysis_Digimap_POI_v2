@@ -1,0 +1,9 @@
+class_code,class_name,v2_decision,v3_decision,adjustment_reason
+02030047,CONSTRUCTION PLANT,exclude,include,依据用户最新人工复核，由原判断调整为纳入（v2：exclude；v3：include）。本次纳入决定覆盖此前要求排除 CONSTRUCTION PLANT 的人工指示。
+03190257,DESIGNATED SCENIC FEATURES,review,exclude,依据用户最新人工复核，由原判断调整为排除（v2：review；v3：exclude）。
+06340433,ELECTRICAL FEATURES,review,include,依据用户最新人工复核，由原判断调整为纳入（v2：review；v3：include）。
+06340437,GAS FEATURES,review,include,依据用户最新人工复核，由原判断调整为纳入（v2：review；v3：include）。
+06340438,METEOROLOGICAL FEATURES,review,include,依据用户最新人工复核，由原判断调整为纳入（v2：review；v3：include）。
+06340443,TELECOMMUNICATIONS FEATURES,review,include,依据用户最新人工复核，由原判断调整为纳入（v2：review；v3：include）。
+10560754,RIVERS AND CANAL ORGANISATIONS AND INFRASTRUCTURE,review,include,依据用户最新人工复核，由原判断调整为纳入（v2：review；v3：include）。
+10570738,"RAILWAY STATIONS, JUNCTIONS AND HALTS",review,include,依据用户最新人工复核，由原判断调整为纳入（v2：review；v3：include）。

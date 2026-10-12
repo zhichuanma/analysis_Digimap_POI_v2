@@ -1,0 +1,35 @@
+schema_version: 1
+rule_version: poi-research-v1.0.0
+rules_file: config/poi_research_rules_v1.csv
+rules_fingerprint:
+  sha256: 2b097171084c895204e49d3185b7c064c25987e6e76b3a07cd6fde45aa21d465
+  size_bytes: 167809
+dictionary_inputs:
+  data/raw/digimap/docs/POI_GROUPS.txt:
+    sha256: 295c49cbe583c935201c17c1e7c3f49a6030274a58ccbc65b44a195e543d8f67
+    size_bytes: 311
+  data/raw/digimap/docs/POI_CATEGORIES.txt:
+    sha256: f6ca576d784c1fd5940236477504f9710680fbf1bce54eed170d27175ad392ed
+    size_bytes: 2049
+  data/raw/digimap/docs/POI_CLASSIFICATIONS.txt:
+    sha256: 7aa7197e37f1f07d4bc2ddf82bc4b57de1394d63b8958d1a582387c65ff8ea5f
+    size_bytes: 26729
+dictionary_class_count: 601
+policy_exception_codes:
+- '10540832'
+functional_groups:
+  accommodation: Actual overnight accommodation establishment.
+  food_beverage: Food/drink venue or catering workplace.
+  retail: Retail trading or shop/customer service premises; not merely the goods or
+    ancillary equipment.
+  leisure_tourism: Identifiable recreation, cultural, sport or visitor venue.
+  office_services: Business, professional or personal-service workplace; public access
+    is not required.
+  education_health_public: Education, health, government or community-service premises.
+  industry_logistics: Identifiable producer, farming, industrial, storage or logistics
+    workplace; public access is not required.
+  transport_parking: Identifiable parking, fuel or passenger/mobility service premises.
+subtype_policy: 'No qualifier/name keyword inference: qualifier type/data has no verified
+  exhaustive subtype or lifecycle vocabulary. Mixed classes remain review.'
+time_policy: supply_date is release date; topo_toid_version is topographic version,
+  neither proves historical existence or current operation.

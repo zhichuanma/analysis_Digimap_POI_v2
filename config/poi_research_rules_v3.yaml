@@ -1,0 +1,34 @@
+schema_version: 2
+rule_version: poi-research-v3.0.0
+rules_file: config/poi_research_rules_v3.csv
+rules_fingerprint:
+  sha256: 269a02db649d07290f6b2c587430d60214fb7e94eeddd6a6412be2a4a86d0a55
+  size_bytes: 146131
+composition_mode: native_group
+# A missing rule is an audit condition, never a fabricated Class decision.
+unmatched_class_policy: review
+dictionary_inputs:
+  data/raw/digimap/docs/POI_GROUPS.txt:
+    sha256: 295c49cbe583c935201c17c1e7c3f49a6030274a58ccbc65b44a195e543d8f67
+    size_bytes: 311
+  data/raw/digimap/docs/POI_CATEGORIES.txt:
+    sha256: f6ca576d784c1fd5940236477504f9710680fbf1bce54eed170d27175ad392ed
+    size_bytes: 2049
+  data/raw/digimap/docs/POI_CLASSIFICATIONS.txt:
+    sha256: 7aa7197e37f1f07d4bc2ddf82bc4b57de1394d63b8958d1a582387c65ff8ea5f
+    size_bytes: 26729
+dictionary_class_count: 601
+policy_exception_codes:
+- '10540832'
+# Preserved table annotations only; neither eligibility nor main composition uses them.
+functional_groups:
+  accommodation: 住宿（沿用审查表标签，仅供审计）。
+  food_beverage: 餐饮（沿用审查表标签，仅供审计）。
+  retail: 零售（沿用审查表标签，仅供审计）。
+  leisure_tourism: 休闲旅游（沿用审查表标签，仅供审计）。
+  office_services: 办公与服务（沿用审查表标签，仅供审计）。
+  education_health_public: 教育医疗公共服务（沿用审查表标签，仅供审计）。
+  industry_logistics: 工业与物流（沿用审查表标签，仅供审计）。
+  transport_parking: 交通与停车（沿用审查表标签，仅供审计）。
+subtype_policy: 严格执行 v3 完整 Class 码决定；不按名称、限定词或缺少功能组推翻人工纳入，也不推断记录子型。
+time_policy: supply_date 表示交付日期，topo_toid_version 表示地形版本；不据此推断 POI 历史存在或当前营业状态。

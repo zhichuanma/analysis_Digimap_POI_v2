@@ -3,6 +3,7 @@
 from contextlib import contextmanager
 from contextlib import ExitStack
 from collections import Counter
+from dataclasses import dataclass
 import csv
 from datetime import datetime
 import hashlib
@@ -16,6 +17,7 @@ import re
 import stat
 import sqlite3
 import struct
+from types import MappingProxyType
 
 
 def read_pua_definitions(relative_path, *, data_root, sheet=None):
@@ -1620,4 +1622,527 @@ def inspect_dictionary(group_path, category_path, class_path, poi_path, *, data_
         _json_write(output / "dictionary_validation.json", report)
         raise DictionaryValidationError(report) from error
     _json_write(output / "dictionary_validation.json", report)
+    return report
+
+
+# Step 11: no station-neighbour queries and no real full-source cleaning here.
+@dataclass(frozen=True)
+class POICleaningContext:
+    source_path: str
+    layer: str
+    schema: dict
+    duplicate_keys: object
+    duplicate_rows: object
+    coverage: object
+    dictionary: object
+    rules: object
+    accuracy_labels: object
+    provenance: dict
+
+
+def _sealed_step(directory, names, root):
+    """Bind each consumed artifact to the parent run's passed verification."""
+    directory = _audit_path(directory, root)
+    evidence_path = directory.parent / "verification.json"
+    evidence = _read_json(evidence_path)
+    if evidence.get("status") != "passed":
+        raise ValueError(f"upstream verification is not passed: {evidence_path}")
+    files = {}
+    for name in names:
+        path = _audit_path(str((directory / name).relative_to(root)), root)
+        actual = _artifact_fingerprint(path)
+        if actual != evidence.get("artifacts", {}).get(str(path.relative_to(directory.parent))):
+            raise ValueError(f"upstream artifact checksum mismatch: {path}")
+        files[name] = actual
+    return directory, {"directory": str(directory.relative_to(root)), "artifacts": files,
+                       "verification": _artifact_fingerprint(evidence_path)}
+
+
+def _completed_evidence(report, label, *, full=False):
+    if (report.get("status") != "completed" or report.get("validation_complete") is not True
+            or report.get("input_bytes_unchanged") is not True
+            or (full and report.get("scope") != "full_source")):
+        raise ValueError(f"{label} must be completed, validated and byte-stable")
+
+
+def _check_prior_inputs(before, after, current, label):
+    if not before or before != after:
+        raise ValueError(f"{label} missing/inconsistent before/after fingerprints")
+    for name, fingerprint in before.items():
+        if current.get(name) != fingerprint:
+            raise ValueError(f"{label} current input fingerprint mismatch: {name}")
+
+
+def _read_duplicate_evidence(directory, report, source, layer):
+    keys, rows, observed = {}, {}, Counter()
+    with (directory / "duplicate_ref_nos.csv").open(encoding="utf-8", newline="") as stream:
+        reader = csv.DictReader(stream, strict=True)
+        if reader.fieldnames != ["raw_type", "raw_value", "count"]:
+            raise ValueError("full-source duplicate key header mismatch")
+        for row in reader:
+            raw = _frequency_raw(row)
+            if _missing_kind(raw) in ("null", "empty_string", "nonfinite"):
+                raise ValueError("duplicate evidence contains missing ID")
+            key = _raw_key(raw)
+            if row.keys() != {"raw_type", "raw_value", "count"} or not re.fullmatch(r"[1-9][0-9]*", row["count"]) or int(row["count"]) < 2 or key in keys:
+                raise ValueError("invalid/duplicate full-source duplicate key")
+            keys[key] = int(row["count"])
+    with (directory / "duplicate_ref_rows.csv").open(encoding="utf-8", newline="") as stream:
+        reader = csv.DictReader(stream, strict=True)
+        header = ["source_path", "source_layer", "source_fid", "raw_type", "raw_value", "count"]
+        if reader.fieldnames != header:
+            raise ValueError("full-source duplicate row header mismatch")
+        for row in reader:
+            if row.keys() != set(header) or any(v is None for v in row.values()):
+                raise ValueError("malformed full-source duplicate row")
+            if row["source_path"] != source or row["source_layer"] != layer:
+                raise ValueError("duplicate evidence source/layer mismatch")
+            fid, key = int(row["source_fid"]), _raw_key(_frequency_raw(row))
+            if fid in rows or key not in keys or int(row["count"]) != keys[key]:
+                raise ValueError("full-source duplicate row/key/count mismatch")
+            rows[fid] = key
+            observed[key] += 1
+    if observed != keys:
+        raise ValueError("full-source duplicate evidence omits conflict records")
+    counts = report["poi"]["ref_no"]
+    n = report["poi"]["source_count"]
+    expected = {"duplicate_key_count": len(keys), "duplicate_row_count": len(rows),
+                "excess_row_count": len(rows) - len(keys), "source_fid_count": n}
+    if (any(counts.get(k) != v for k, v in expected.items())
+            or counts["missing_count"] + counts["unique_nonmissing_count"] + len(rows) - len(keys) != n):
+        raise ValueError("full-source duplicate evidence totals disagree")
+    return MappingProxyType(keys), MappingProxyType(rows)
+
+
+def load_poi_cleaning_context(poi_path, *, data_root, code_root, layer,
+                              inspection_dir, dictionary_dir, coverage_dir, scope_dir,
+                              group_path, category_path, class_path, accuracy_path,
+                              rules_config="config/poi_research_rules_v3.yaml", required_paths):
+    """Load verified step 06/07/09/10 evidence, without scanning POI geometries.
+
+    Manifest verification hashes all declared input bytes; this is not POI
+    cleaning. The complete source conflict list must correspond to this exact
+    POI file, regardless of which subset is later passed to clean_poi_batch.
+    """
+    from pyproj import CRS
+    from shapely import from_wkb, prepare
+    from shapely.geometry import box
+    from src.classification import native_dictionary
+    from src.poi_research import load_research_rules
+
+    root = project_path(".", root=data_root)
+    direct = {poi_path, group_path, category_path, class_path, accuracy_path}
+    if not direct.issubset(set(required_paths)):
+        raise ValueError("required_paths must independently include POI/dictionaries/accuracy")
+    manifest_path = root / "data/source_manifest.json"
+    manifest_fp = _artifact_fingerprint(manifest_path)
+    sources = verify_sources(data_root=root, required_paths=required_paths)
+    current = {r["path"]: {"resolved_path": r["resolved_path"], "size_bytes": r["actual_size_bytes"], "sha256": r["actual_sha256"]} for r in sources["files"]}
+    six, evidence6 = _sealed_step(inspection_dir, ("input_inspection.json", "duplicate_ref_nos.csv", "duplicate_ref_rows.csv"), root)
+    report6 = _read_json(six / "input_inspection.json")
+    if (report6.get("status") != "completed" or report6.get("scope") != "full_source"
+            or report6.get("sample_limit") is not None
+            or any(report6.get(k) is not True for k in ("scan_complete", "full_source_complete", "duplicate_list_complete", "input_bytes_unchanged"))):
+        raise ValueError("step06 duplicate evidence must be complete full_source, never sample")
+    poi = report6["poi"]
+    if poi["path"] != poi_path or poi["layer"] != layer or poi["scanned_count"] != poi["source_count"]:
+        raise ValueError("step06 POI source/layer/count mismatch")
+    _check_prior_inputs(report6["input_fingerprints_before"], report6["input_fingerprints_after"], current, "step06")
+    duplicate_keys, duplicate_rows = _read_duplicate_evidence(six, report6, poi_path, layer)
+    with _gpkg_connection(poi_path, root) as connection:
+        schema = _gpkg_schema(connection, layer, poi["field_mapping"])
+    if schema != {k: poi[k] for k in schema}:
+        raise ValueError("POI current schema differs from complete step06 evidence")
+    seven, evidence7 = _sealed_step(dictionary_dir, ("dictionary_validation.json", "native_dictionary.csv", "classification_dictionary.csv"), root)
+    report7 = _read_json(seven / "dictionary_validation.json")
+    _completed_evidence(report7, "step07")
+    if report7.get("source_scope") != "full_source" or report7.get("prior_inspection_dir") != inspection_dir or report7["source_count"] != poi["source_count"]:
+        raise ValueError("step07 dictionary must bind complete step06 source evidence")
+    _check_prior_inputs(report7["input_fingerprints_before"], report7["input_fingerprints_after"], current, "step07")
+    dictionary = native_dictionary(group_path, category_path, class_path, data_root=root)
+    with (seven / "native_dictionary.csv").open(encoding="utf-8", newline="") as stream:
+        saved = list(csv.DictReader(stream, strict=True))
+    expected = [{k: str(r[k]) for k in saved[0]} for r in dictionary.rows()] if saved else []
+    if saved != expected or report7["dictionary_counts"] != {"group": len(dictionary.groups), "category": len(dictionary.categories), "class": len(dictionary.classes)}:
+        raise ValueError("step07 dictionary rows/counts differ from current official dictionary")
+    nine, evidence9 = _sealed_step(scope_dir, ("pua_scope_report.json", "scope_definition.json", "study_area.wkb"), root)
+    report9 = _read_json(nine / "pua_scope_report.json")
+    _completed_evidence(report9, "step09")
+    if report9.get("scope_complete") is not True:
+        raise ValueError("step09 PUA scope is incomplete")
+    scope = _read_json(nine / "scope_definition.json")
+    _check_prior_inputs(report9["input_fingerprints_before"], report9["input_fingerprints_after"], current, "step09")
+    ten, evidence10 = _sealed_step(coverage_dir, ("station_preparation_report.json", "coverage_definition.json", "data_coverage_proxy.wkb", "gb_proxy.wkb"), root)
+    report10 = _read_json(ten / "station_preparation_report.json")
+    _completed_evidence(report10, "step10", full=True)
+    if report10.get("full_source_identity_checked") is not True:
+        raise ValueError("step10 lacks full-source identity verification")
+    _check_prior_inputs(report10["input_fingerprints_before"], report10["input_fingerprints_after"], current, "step10")
+    definition = _read_json(ten / "coverage_definition.json")
+    if (definition["input_fingerprints"] != report10["input_fingerprints_before"]
+            or definition["target_puas"] != scope["target_puas"]
+            or definition["upstream_scope"]["scope_dir"] != scope_dir
+            or definition["upstream_scope"]["verification"] != evidence9["verification"]
+            or any(definition["upstream_scope"]["artifacts"].get(k) != v for k, v in evidence9["artifacts"].items())):
+        raise ValueError("step10 coverage differs from bound step09/source evidence")
+    if (definition["predicate"] != "covers" or definition["units"] != "metre"
+            or not CRS.from_user_input(definition["crs"]).equals(CRS.from_epsg(27700))):
+        raise ValueError("coverage requires EPSG:27700 metre CRS and covers")
+    order = definition["order"]
+    if order["poi_path"] != poi_path or order["poi_layer"] != layer or order["poi_metadata"] != schema:
+        raise ValueError("coverage order POI source/layer/schema mismatch")
+    if not set(definition["input_fingerprints"]).issubset(set(required_paths)):
+        raise ValueError("required_paths must include all verified coverage inputs")
+    coverage, gb, study = (from_wkb(p.read_bytes()) for p in (ten / "data_coverage_proxy.wkb", ten / "gb_proxy.wkb", nine / "study_area.wkb"))
+    for label, geom in (("coverage", coverage), ("GB", gb), ("PUA", study)):
+        if geom.geom_type not in ("Polygon", "MultiPolygon") or not geom.is_valid or geom.has_z or geom.has_m:
+            raise ValueError(f"{label} must be valid 2D Polygon/MultiPolygon")
+    if not gb.covers(study) or not coverage.equals(gb.intersection(box(*order["bounds"]))):
+        raise ValueError("coverage WKB is not the verified GB/order intersection")
+    prepare(coverage)
+    with open_source(accuracy_path, data_root=root) as stream:
+        text = io.TextIOWrapper(stream, encoding="utf-8-sig", newline="")
+        try:
+            reader = csv.reader(text, delimiter="|", strict=True)
+            if next(reader) != ["Positional Accuracy Code", "Description"]:
+                raise ValueError("accuracy lookup header mismatch")
+            labels = {}
+            for values in reader:
+                if len(values) != 2 or values[0] not in ("1", "2", "3", "4") or values[0] in labels or not values[1]:
+                    raise ValueError("accuracy lookup invalid/duplicate row")
+                labels[values[0]] = values[1]
+            if set(labels) != {"1", "2", "3", "4"}:
+                raise ValueError("accuracy lookup incomplete")
+        finally:
+            text.detach()
+    dict_inputs = {p: current[p] for p in (group_path, category_path, class_path)}
+    rules = load_research_rules(rules_config, code_root=code_root, dictionary=dictionary, dictionary_inputs=dict_inputs)
+    evidence = {"step06": evidence6, "step07": evidence7, "step09": evidence9, "step10": evidence10}
+    # Rehash small consumed artifacts, and verify every raw input before returning.
+    for item in evidence.values():
+        _, checked = _sealed_step(item["directory"], tuple(item["artifacts"]), root)
+        if checked != item:
+            raise ValueError("upstream evidence changed during context loading")
+    if manifest_fp != _artifact_fingerprint(manifest_path):
+        raise ValueError("manifest changed during context loading")
+    after = verify_sources(data_root=root, required_paths=required_paths)
+    if after != sources:
+        raise ValueError("sources changed during context loading")
+    return POICleaningContext(poi_path, layer, schema, duplicate_keys, duplicate_rows,
+                             coverage, dictionary, rules, MappingProxyType(labels),
+                             {"upstream": evidence, "input_fingerprints": current, "manifest": manifest_fp,
+                              "sources": sources, "coverage_definition": definition, "scope_definition": scope,
+                              "rules": rules.provenance})
+
+
+def _poi_typed(value):
+    # bool cannot occur as a distinct SQLite scalar, but is auditable in hand cases.
+    if type(value) is bool:
+        return {"type": "boolean", "value": "true" if value else "false"}
+    kind, raw = _raw(value)
+    return {"type": kind, "value": raw}
+
+
+def clean_poi_batch(records, *, context, include_ev_charging=False):
+    """One audit per raw record, all checks independent; input is never mutated.
+
+    Returns base_pois, analysis_pois, audit and summary. No PUA filter, neighbour
+    query, spatial deduplication or geometry repair is performed.
+    """
+    from pyproj import CRS
+    from pyproj.exceptions import CRSError
+    from shapely.geometry import Point
+    from src.classification import classify
+    from src.poi_research import research_classification
+
+    if not isinstance(context, POICleaningContext) or type(include_ev_charging) is not bool:
+        raise ValueError("verified POICleaningContext and boolean facility switch required")
+    schema = context.schema
+    crs = CRS.from_wkt(schema["crs"]["definition"])
+    if not crs.equals(CRS.from_epsg(27700)) or schema["coordinate_units"] != "metre":
+        raise ValueError("POI context CRS must be EPSG:27700 in metres")
+    coverage = context.coverage
+    if coverage.geom_type not in ("Polygon", "MultiPolygon") or not coverage.is_valid or coverage.has_z or coverage.has_m:
+        raise ValueError("POI coverage must be a valid 2D Polygon/MultiPolygon")
+    fields, geom_col = schema["field_mapping"], schema["geometry"]["column_name"]
+    if set(context.rules.rows) - {"10540832"} != set(context.dictionary.classes) - {"10540832"}:
+        raise ValueError("research rule coverage incomplete")
+    audit, seen = [], set()
+    for original in records:
+        if not isinstance(original, dict) or {"source_fid", geom_col, *fields.values()} - set(original):
+            raise ValueError("POI record missing required fields")
+        fid = original["source_fid"]
+        if type(fid) is not int or fid in seen:
+            raise ValueError(f"invalid/duplicate source_fid in batch: {fid!r}")
+        seen.add(fid)
+        reasons, exclusions = [], []
+
+        def reason(code, action, detail=""):
+            reasons.append({"reason": code, "action": action, "detail": detail})
+            if action == "exclude":
+                exclusions.append(code)
+
+        identity, raw_code = original[fields["ref_no"]], original[fields["raw_code"]]
+        kind = _missing_kind(identity)
+        valid_id = kind == "present" and type(identity) in (str, int, float)
+        if not valid_id:
+            reason("invalid_ref_no_" + (kind if kind != "present" else type(identity).__name__), "exclude")
+        elif isinstance(identity, str) and identity != identity.strip():
+            reason("ref_no_surrounding_whitespace_preserved", "review")
+        key = _raw_key(identity) if type(identity) is not bool else None
+        duplicate = key in context.duplicate_keys
+        if fid in context.duplicate_rows and context.duplicate_rows[fid] != key:
+            raise ValueError(f"source_fid/ID differs from full-source duplicate evidence: {fid}")
+        if duplicate:
+            if context.duplicate_rows.get(fid) != key:
+                raise ValueError(f"duplicate ID row absent from complete conflict evidence: {fid}")
+            valid_id = False
+            reason("global_duplicate_ref_no", "exclude", str(context.duplicate_keys[key]))
+        geo = _geometry_check(original[geom_col], schema["geometry"]["srs_id"])
+        valid_geometry = geo["status"] == "valid_point"
+        if not valid_geometry:
+            reason("geometry_" + geo["status"], "exclude", geo["detail"])
+        if geo["has_z"] or geo["has_m"]:
+            reason("geometry_extra_dimensions_xy_only", "review")
+        within = bool(context.coverage.covers(Point(geo["xy"]))) if valid_geometry else None
+        if within is False:
+            reason("outside_data_coverage", "exclude")
+        elif within is None:
+            reason("coverage_not_evaluated_invalid_geometry", "not_evaluated")
+        facility = classify(raw_code, context.dictionary.classes, include_ev_charging=include_ev_charging)
+        if not facility.include_in_count:
+            reason("charging_facility_switch_excluded", "exclude")
+        classification = research_classification(raw_code, dictionary=context.dictionary, rules=context.rules)
+        accuracy = original[fields["accuracy"]]
+        accuracy_code = str(accuracy)
+        if accuracy_code in ("3", "4"):
+            reason("low_position_accuracy_" + accuracy_code, "review", context.accuracy_labels[accuracy_code])
+        elif accuracy_code not in context.accuracy_labels:
+            reason("missing_or_unknown_position_accuracy", "review", json.dumps(_poi_typed(accuracy)))
+        x_attr, y_attr = (_number(original[fields[k]]) for k in ("easting", "northing"))
+        dx = dy = delta = None
+        difference_status = "not_comparable"
+        if valid_geometry and x_attr is not None and y_attr is not None:
+            # Both coordinates belong to this verified BNG schema. Never use
+            # deltas when a caller supplies different attribute CRS metadata.
+            attribute_crs = original.get("attribute_crs", schema["crs"]["definition"])
+            try:
+                same_crs = CRS.from_user_input(attribute_crs).equals(crs)
+            except (TypeError, ValueError, CRSError):
+                same_crs = False
+            if same_crs:
+                dx, dy = geo["xy"][0] - x_attr, geo["xy"][1] - y_attr
+                delta = math.hypot(dx, dy)
+                if not all(math.isfinite(v) for v in (dx, dy, delta)):
+                    dx = dy = delta = None
+                    reason("coordinate_difference_overflow", "review")
+                else:
+                    difference_status = "comparable"
+                    if delta != 0:
+                        reason("geometry_attribute_difference", "review", repr(delta))
+            else:
+                reason("attribute_coordinate_crs_mismatch", "review")
+        elif x_attr is None or y_attr is None:
+            reason("invalid_attribute_coordinates", "review")
+        else:
+            reason("coordinate_difference_unavailable_geometry", "not_evaluated")
+        base = valid_geometry and valid_id and within is True and facility.include_in_count
+        included = base and classification["research_classification_include"]
+        analysis_reasons = ["base:" + r for r in exclusions]
+        if not classification["research_classification_include"]:
+            analysis_reasons.append("classification:" + classification["classification_reason"])
+        raw_fields = {name: _poi_typed(value) for name, value in original.items() if name != geom_col}
+        blob = original[geom_col]
+        result = {"source_path": context.source_path, "source_layer": context.layer, "source_fid": fid,
+                  "raw_ref_no": _poi_typed(identity), "raw_classification": _poi_typed(raw_code),
+                  "raw_fields": raw_fields, "raw_geometry": _poi_typed(blob),
+                  "geometry_gpkg_hex": blob.hex() if isinstance(blob, bytes) else None,
+                  "geometry": geo, "x": geo["xy"][0] if valid_geometry else None,
+                  "y": geo["xy"][1] if valid_geometry else None, "crs": "EPSG:27700",
+                  "geometry_valid": valid_geometry, "id_valid": valid_id, "global_duplicate_id": duplicate,
+                  "within_data_coverage": within, "facility_switch_passed": facility.include_in_count,
+                  "raw_position_accuracy": _poi_typed(accuracy), "position_accuracy_review": accuracy_code in ("3", "4"),
+                  "coordinate_difference_status": difference_status, "dx": dx, "dy": dy, "delta_m": delta,
+                  "quality_reasons": reasons, "base_exclusion_reasons": exclusions,
+                  "base_eligible": bool(base), "analysis_include": bool(included), **classification,
+                  "analysis_exclusion_reason": analysis_reasons,
+                  "time_audit": {"supply_date_is_release_date": "supply_date" in original,
+                                 "topo_toid_version_is_not_poi_lifecycle": "topo_toid_version" in original,
+                                 "historical_existence_not_inferred": True,
+                                 "lifecycle_status": "no_verified_lifecycle_field"}}
+        audit.append(result)
+    return {"base_pois": [r for r in audit if r["base_eligible"]],
+            "analysis_pois": [r for r in audit if r["analysis_include"]], "audit": audit,
+            "summary": poi_cleaning_summary(audit, include_ev_charging=include_ev_charging,
+                                            rule_version=context.rules.version, group_dictionary=context.dictionary.groups)}
+
+
+def poi_cleaning_summary(audit, *, include_ev_charging, rule_version, group_dictionary):
+    n = len(audit)
+    bases = sum(r["base_eligible"] for r in audit)
+    includes = sum(r["analysis_include"] for r in audit)
+    reviews = sum(r["classification_review"] for r in audit)
+    anomaly_statuses = ("unknown_dictionary", "missing", "malformed")
+    anomalies = sum(r["classification_status"] in anomaly_statuses for r in audit)
+    native_counts = Counter(r["group_code"] for r in audit if r["analysis_include"])
+    group_codes = sorted(set(group_dictionary) | set(native_counts))
+    return {"schema_version": 2, "composition_mode": "native_group",
+            "input_count": n, "base_eligible_count": bases, "base_excluded_count": n - bases,
+            "analysis_included_count": includes, "analysis_excluded_count": n - includes,
+            "base_eligible_research_excluded_count": bases - includes,
+            "classification_review_count": reviews, "classification_review_proportion": reviews / n if n else None,
+            "classification_anomaly_count": anomalies, "classification_anomaly_proportion": anomalies / n if n else None,
+            "base_eligible_classification_review_count": sum(r["base_eligible"] and r["classification_review"] for r in audit),
+            "base_exclusion_reasons": dict(Counter(x for r in audit for x in r["base_exclusion_reasons"])),
+            "quality_reasons": dict(Counter(x["reason"] for r in audit for x in r["quality_reasons"])),
+            "analysis_exclusion_reasons": dict(Counter(x for r in audit for x in r["analysis_exclusion_reason"])),
+            "classification_status_counts": dict(Counter(r["classification_status"] for r in audit)),
+            "research_decision_counts": dict(Counter(r["research_decision"] for r in audit)),
+            "multiple_base_exclusion_reason_count": sum(len(r["base_exclusion_reasons"]) > 1 for r in audit),
+            "native_group_counts": {g: native_counts[g] for g in group_codes},
+            "native_group_names": {g: group_dictionary.get(g, {}).get("dictionary_name") for g in group_codes},
+            "functional_group_pending_count": sum(r["analysis_include"] and r["functional_group_pending"] for r in audit),
+            "functional_group_role": "audit_only", "unmatched_class_policy": "review",
+            "include_ev_charging": include_ev_charging, "classification_rule_version": rule_version}
+
+
+def poi_parquet_schema(rule_version):
+    import pyarrow as pa
+    fields = [("source_path", pa.string()), ("source_layer", pa.string()), ("source_fid", pa.int64()),
+              ("ref_no_type", pa.string()), ("ref_no_value", pa.string()),
+              ("raw_classification_type", pa.string()), ("raw_classification_value", pa.string()),
+              ("raw_fields_json", pa.string()), ("geometry_gpkg", pa.binary()), ("geometry_wkb", pa.binary()),
+              ("x", pa.float64()), ("y", pa.float64()), ("group_code", pa.string()),
+              ("category_code", pa.string()), ("category_number", pa.string()), ("class_code", pa.string()),
+              ("group_dictionary_name", pa.string()), ("category_dictionary_name", pa.string()),
+              ("class_dictionary_name", pa.string()), ("classification_status", pa.string()),
+              ("research_decision", pa.string()), ("classification_reason", pa.string()),
+              ("base_eligible", pa.bool_()), ("analysis_include", pa.bool_()),
+              ("poi_function_group", pa.string()), ("functional_group_pending", pa.bool_()),
+              ("classification_review", pa.bool_()),
+              ("analysis_exclusion_reason_json", pa.string()), ("classification_rule_version", pa.string())]
+    return pa.schema(fields, metadata={b"crs": b"EPSG:27700", b"schema_version": b"2",
+                                      b"composition_mode": b"native_group", b"functional_group_role": b"audit_only",
+                                      b"classification_rule_version": rule_version.encode()})
+
+
+def _poi_parquet_row(row):
+    from shapely.geometry import Point
+    result = {k: row[k] for k in ("source_path", "source_layer", "source_fid", "x", "y", "group_code", "category_code", "category_number", "class_code", "base_eligible", "analysis_include", "poi_function_group", "classification_review", "classification_rule_version")}
+    result.update({k: row[k] for k in ("group_dictionary_name", "category_dictionary_name", "class_dictionary_name",
+                                      "classification_status", "research_decision", "classification_reason", "functional_group_pending")})
+    result.update(ref_no_type=row["raw_ref_no"]["type"], ref_no_value=row["raw_ref_no"]["value"],
+                  raw_classification_type=row["raw_classification"]["type"], raw_classification_value=row["raw_classification"]["value"],
+                  raw_fields_json=json.dumps(row["raw_fields"], ensure_ascii=False, allow_nan=False, sort_keys=True),
+                  geometry_gpkg=bytes.fromhex(row["geometry_gpkg_hex"]), geometry_wkb=Point(row["x"], row["y"]).wkb,
+                  analysis_exclusion_reason_json=json.dumps(row["analysis_exclusion_reason"], ensure_ascii=False))
+    return result
+
+
+class POICleaningError(ValueError):
+    def __init__(self, report):
+        self.report = report
+        super().__init__("; ".join(report["errors"]))
+
+
+def prepare_poi_sample(poi_path, *, data_root, code_root, output_dir, context_options,
+                       limit=100, batch_size=100, include_ev_charging=False):
+    """Bounded first-FID integration helper. It cannot start a full-source run.
+
+    Generic clean_poi_batch remains reusable for future authorized streaming;
+    this file driver deliberately accepts only limits <= 100 in step 11.
+    """
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+    _positive_integer(limit, "limit")
+    _positive_integer(batch_size, "batch_size")
+    if limit > 100 or type(include_ev_charging) is not bool:
+        raise ValueError("step11 sample driver requires limit <= 100 and a boolean switch; full-source cleaning is not authorized")
+    root = project_path(".", root=data_root)
+    output = _audit_path(output_dir, root)
+    if output == root / "outputs":
+        raise ValueError("output must be strictly inside outputs/")
+    output.mkdir(parents=True, exist_ok=False)
+    report = {"schema_version": 2, "composition_mode": "native_group", "status": "running", "validation_complete": False,
+              "scope": "first_records_sample", "full_source_cleaning_run": False,
+              "limit": limit, "batch_size": batch_size, "include_ev_charging": include_ev_charging,
+              "output_dir": str(output), "errors": []}
+    _json_write(output / "run_manifest.json", report)
+    try:
+        context = load_poi_cleaning_context(poi_path, data_root=root, code_root=code_root, **context_options)
+        report.update(classification_rule_version=context.rules.version, upstream=context.provenance,
+                      input_schema=context.schema, rules=context.rules.provenance)
+        schema = poi_parquet_schema(context.rules.version)
+        base_path, main_path, audit_path = (output / n for n in ("base_eligible_pois.parquet", "research_pois.parquet", "poi_audit.jsonl"))
+        # Publication occurs only after writers close and independent read-back.
+        temporary = [p.with_suffix(p.suffix + ".tmp") for p in (base_path, main_path, audit_path)]
+        seen, all_audit = set(), []  # bounded by limit <= 100, never whole-source memory
+        with ExitStack() as stack:
+            base_writer = stack.enter_context(pq.ParquetWriter(temporary[0], schema))
+            main_writer = stack.enter_context(pq.ParquetWriter(temporary[1], schema))
+            stream = stack.enter_context(temporary[2].open("x", encoding="utf-8"))
+            for batch in poi_batches(poi_path, data_root=root, layer=context.layer, fields=context.schema["field_mapping"], batch_size=batch_size, limit=limit):
+                if len(seen) + len(batch) > limit:
+                    raise ValueError("reader exceeded authorized sample limit")
+                result = clean_poi_batch(batch, context=context, include_ev_charging=include_ev_charging)
+                for row in result["audit"]:
+                    if row["source_fid"] in seen:
+                        raise ValueError("duplicate source_fid across batches")
+                    seen.add(row["source_fid"])
+                    all_audit.append(row)
+                    stream.write(json.dumps(row, ensure_ascii=False, allow_nan=False, sort_keys=True) + "\n")
+                for writer, key in ((base_writer, "base_pois"), (main_writer, "analysis_pois")):
+                    writer.write_table(pa.Table.from_pylist([_poi_parquet_row(r) for r in result[key]], schema=schema))
+        if len(all_audit) != min(limit, context.schema["source_count"]):
+            raise ValueError("sample reader/audit count does not reconcile")
+        restored_audit = [json.loads(line, object_pairs_hook=_unique_json_object) for line in temporary[2].read_text().splitlines()]
+        # Tuples in geometry xy serialize as JSON lists; compare canonical JSON.
+        canonical = json.loads(json.dumps(all_audit, ensure_ascii=False, allow_nan=False))
+        if restored_audit != canonical:
+            raise ValueError("complete POI audit read-back differs")
+        for file, keep in ((temporary[0], "base_eligible"), (temporary[1], "analysis_include")):
+            restored = pq.read_table(file)
+            expected = [_poi_parquet_row(r) for r in all_audit if r[keep]]
+            if not restored.schema.equals(schema, check_metadata=True) or restored.to_pylist() != expected:
+                raise ValueError("POI Parquet schema/rows differ on read-back")
+        summary = poi_cleaning_summary(all_audit, include_ev_charging=include_ev_charging,
+                                       rule_version=context.rules.version, group_dictionary=context.dictionary.groups)
+        if (sum(summary["native_group_counts"].values()) != summary["analysis_included_count"]
+                or any(r["analysis_include"] and (not r["base_eligible"] or r["research_decision"] != "include"
+                       or r["group_code"] not in context.dictionary.groups or r["class_code"] == "10540832") for r in all_audit)
+                or any(not r["analysis_include"] and not r["analysis_exclusion_reason"] for r in all_audit)):
+            raise ValueError("POI eligibility/native Group/reason invariants failed")
+        # Reverify evidence/config/manifest/raw bytes after processing, before publication.
+        after = load_poi_cleaning_context(poi_path, data_root=root, code_root=code_root, **context_options)
+        if after.provenance != context.provenance or after.rules.coverage != context.rules.coverage:
+            raise ValueError("inputs/upstream/rules changed during POI sample cleaning")
+        for key, fingerprint_key, name in (("config_path", "config_fingerprint", "research_rules_snapshot.yaml"),
+                                            ("rules_file", "rules_fingerprint", "research_rules_snapshot.csv")):
+            source = project_path(context.rules.provenance[key], root=code_root)
+            expected = context.rules.provenance[fingerprint_key]
+            snapshot = output / (name + ".tmp")
+            with _open_regular(source) as stream, snapshot.open("xb") as target:
+                target.write(stream.read())
+            if _artifact_fingerprint(snapshot) != expected or _artifact_fingerprint(source) != expected:
+                raise ValueError("research rule snapshot/source differs from verified rules")
+            snapshot.replace(output / name)
+        for source, target in zip(temporary, (base_path, main_path, audit_path)):
+            source.replace(target)
+        _json_write(output / "poi_summary.json", summary)
+        _json_write(output / "rule_coverage.json", context.rules.coverage)
+        validation = {"status": "passed", "scope": "first_records_sample", "full_source_run": False,
+                      "counts_conserved": True, "audit_one_per_source_record": True,
+                      "parquet_schema_and_rows_verified": True, "native_groups_sum_verified": True,
+                      "composition_mode": "native_group", "functional_group_role": "audit_only",
+                      "all_excluded_rows_have_reasons": True, "input_bytes_unchanged": True,
+                      "upstream_and_rules_unchanged": True, "summary": summary}
+        _json_write(output / "validation_report.json", validation)
+        report.update(status="completed", validation_complete=True, input_bytes_unchanged=True, summary=summary,
+                      artifacts={p.name: _artifact_fingerprint(p) for p in sorted(output.iterdir()) if p.name != "run_manifest.json"})
+    except Exception as error:
+        report.update(status="failed", validation_complete=False)
+        report["errors"].append(f"{type(error).__name__}: {error}")
+        _json_write(output / "run_manifest.json", report)
+        raise POICleaningError(report) from error
+    _json_write(output / "run_manifest.json", report)
     return report

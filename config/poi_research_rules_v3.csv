@@ -1,0 +1,603 @@
+class_code,group_number,category_number,category_code,group_name,category_name,class_name,decision,poi_function_group,decision_reason,rule_version,rule_origin
+01010002,01,01,0101,"ACCOMMODATION, EATING AND DRINKING",ACCOMMODATION,"CAMPING, CARAVANNING, MOBILE HOMES, HOLIDAY PARKS AND CENTRES",include,accommodation,住宿类中的露营地、房车营地、移动住宅及度假园区提供住宿或度假活动空间；按本次明确决定纳入住宿组，不以是否独立经营或已核验开放状态为门槛。,poi-research-v3.0.0,step07_dictionary
+01010003,01,01,0101,"ACCOMMODATION, EATING AND DRINKING",ACCOMMODATION,BED AND BREAKFAST AND BACKPACKER ACCOMMODATION,include,accommodation,民宿与背包客住宿提供过夜住宿服务，属于站点周边的住宿功能。,poi-research-v3.0.0,step07_dictionary
+01010005,01,01,0101,"ACCOMMODATION, EATING AND DRINKING",ACCOMMODATION,HOSTELS AND REFUGES FOR THE HOMELESS,include,accommodation,旅舍和无家可归者庇护住宿提供居住安置与救助服务，不因服务对象受限而排除。,poi-research-v3.0.0,step07_dictionary
+01010006,01,01,0101,"ACCOMMODATION, EATING AND DRINKING",ACCOMMODATION,"HOTELS, MOTELS, COUNTRY HOUSES AND INNS",include,accommodation,酒店、汽车旅馆、乡间旅馆及客栈提供明确的住宿服务。,poi-research-v3.0.0,step07_dictionary
+01010007,01,01,0101,"ACCOMMODATION, EATING AND DRINKING",ACCOMMODATION,SELF CATERING,include,accommodation,自炊式住宿仍是住宿场所，是否附设餐饮不影响纳入。,poi-research-v3.0.0,step07_dictionary
+01010008,01,01,0101,"ACCOMMODATION, EATING AND DRINKING",ACCOMMODATION,TIMESHARE,include,accommodation,分时度假住宿提供度假居住功能，不以普通公众能否随时入住为门槛。,poi-research-v3.0.0,step07_dictionary
+01010009,01,01,0101,"ACCOMMODATION, EATING AND DRINKING",ACCOMMODATION,YOUTH ACCOMMODATION,include,accommodation,青年住宿提供特定人群的住宿服务，保留该住宿功能。,poi-research-v3.0.0,step07_dictionary
+01020012,01,02,0102,"ACCOMMODATION, EATING AND DRINKING",EATING AND DRINKING,BANQUETING AND FUNCTION ROOMS,include,food_beverage,宴会及活动厅承载聚会、宴饮和活动服务，附属于酒店等场所也不据此整类排除。,poi-research-v3.0.0,step07_dictionary
+01020013,01,02,0102,"ACCOMMODATION, EATING AND DRINKING",EATING AND DRINKING,"CAFES, SNACK BARS AND TEA ROOMS",include,food_beverage,咖啡馆、小吃店和茶室提供餐饮及停留活动空间。,poi-research-v3.0.0,step07_dictionary
+01020018,01,02,0102,"ACCOMMODATION, EATING AND DRINKING",EATING AND DRINKING,FAST FOOD AND TAKEAWAY OUTLETS,include,food_beverage,快餐和外卖门店提供食品制作与销售服务，不要求提供堂食座位。,poi-research-v3.0.0,step07_dictionary
+01020019,01,02,0102,"ACCOMMODATION, EATING AND DRINKING",EATING AND DRINKING,FAST FOOD DELIVERY SERVICES,include,food_beverage,餐食配送服务属于餐饮供给活动，不因顾客不能现场消费而排除。,poi-research-v3.0.0,step07_dictionary
+01020020,01,02,0102,"ACCOMMODATION, EATING AND DRINKING",EATING AND DRINKING,FISH AND CHIP SHOPS,include,food_beverage,炸鱼薯条店提供明确餐饮服务，包括外带经营形式。,poi-research-v3.0.0,step07_dictionary
+01020025,01,02,0102,"ACCOMMODATION, EATING AND DRINKING",EATING AND DRINKING,INTERNET CAFES,include,food_beverage,网吧在餐饮子类中提供上网及相关休闲服务，属于活动服务场所。,poi-research-v3.0.0,step07_dictionary
+01020034,01,02,0102,"ACCOMMODATION, EATING AND DRINKING",EATING AND DRINKING,"PUBS, BARS AND INNS",include,food_beverage,酒吧、酒馆和客栈的餐饮部分提供饮食与社交活动服务。,poi-research-v3.0.0,step07_dictionary
+01020043,01,02,0102,"ACCOMMODATION, EATING AND DRINKING",EATING AND DRINKING,RESTAURANTS,include,food_beverage,餐厅提供餐食和用餐服务，属于明确餐饮场所。,poi-research-v3.0.0,step07_dictionary
+02030044,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,METALWORKERS INCLUDING BLACKSMITHS,include,industry_logistics,金属加工者和铁匠提供制作加工服务，属于生产或专业服务功能。,poi-research-v3.0.0,step07_dictionary
+02030045,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,BUILDING CONTRACTORS,include,office_services,建筑承包机构提供工程施工与业务服务，办公室或施工服务据点均有明确功能。,poi-research-v3.0.0,step07_dictionary
+02030046,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,CONSTRUCTION COMPLETION SERVICES,include,office_services,建筑收尾工程服务承担装修安装等专业工作，纳入服务场所范围。,poi-research-v3.0.0,step07_dictionary
+02030047,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,CONSTRUCTION PLANT,include,,依据用户最新人工复核，由原判断调整为纳入（v2：exclude；v3：include）。本次纳入决定覆盖此前要求排除 CONSTRUCTION PLANT 的人工指示。,poi-research-v3.0.0,step07_dictionary
+02030048,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,"CUTTING, DRILLING  AND WELDING SERVICES",include,industry_logistics,切割、钻孔和焊接是明确的加工生产服务，不因面向企业客户而排除。,poi-research-v3.0.0,step07_dictionary
+02030049,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,DEMOLITION SERVICES,include,office_services,拆除服务机构提供工程作业服务，属于周边经济活动场所。,poi-research-v3.0.0,step07_dictionary
+02030050,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,DIVING SERVICES,include,office_services,商业潜水服务具有专业作业功能，不要求直接服务充电者。,poi-research-v3.0.0,step07_dictionary
+02030051,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,ELECTRICAL CONTRACTORS,include,office_services,电气承包商提供安装施工服务，应与单纯电力构件区分。,poi-research-v3.0.0,step07_dictionary
+02030052,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,"GARDENING, LANDSCAPING AND TREE SURGERY SERVICES",include,office_services,园艺、景观施工及树木养护机构提供专业维护服务。,poi-research-v3.0.0,step07_dictionary
+02030053,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,GLAZIERS,include,office_services,玻璃安装服务提供建筑及生活维修功能，不以商品销售为纳入条件。,poi-research-v3.0.0,step07_dictionary
+02030054,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,PAINTING AND DECORATING SERVICES,include,office_services,油漆与装饰服务属于明确的建筑和生活服务。,poi-research-v3.0.0,step07_dictionary
+02030055,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,PLASTERERS,include,office_services,抹灰服务承担建筑施工和修缮，具有专业服务功能。,poi-research-v3.0.0,step07_dictionary
+02030056,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,PLUMBING AND HEATING SERVICES,include,office_services,管道安装与供暖服务具有安装维修功能，应与管线构件本身区分。,poi-research-v3.0.0,step07_dictionary
+02030057,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,POOL AND COURT CONSTRUCTION,include,office_services,泳池和球场建设机构提供专业施工服务，不要求其自身是游乐场所。,poi-research-v3.0.0,step07_dictionary
+02030058,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,RESTORATION AND PRESERVATION SERVICES,include,office_services,修复与保护服务承担建筑或物品修复工作，属于专业服务活动。,poi-research-v3.0.0,step07_dictionary
+02030059,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,ROAD CONSTRUCTION SERVICES,include,office_services,道路建设服务机构承担工程施工；纳入的是服务场所，不是道路网络代表点。,poi-research-v3.0.0,step07_dictionary
+02030060,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,ROOFING AND CHIMNEY SERVICES,include,office_services,屋面与烟囱维护施工提供建筑服务，具有明确业务功能。,poi-research-v3.0.0,step07_dictionary
+02030778,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,FENCING AND DRYSTONE WALLING SERVICES,include,office_services,围栏施工和干砌石墙服务属于专业建造活动，不等同于墙或围栏构件。,poi-research-v3.0.0,step07_dictionary
+02030779,02,03,0203,COMMERCIAL SERVICES,CONSTRUCTION SERVICES,BUILDING AND COMPONENT SUPPLIERS,include,office_services,建筑及构件供应商提供材料供应和交易服务，纳入范围明确；原 office_services 与商品销售属性的冲突另列，暂保留原组。,poi-research-v3.0.0,step07_dictionary
+02040063,02,04,0204,COMMERCIAL SERVICES,CONSULTANCIES,ARCHITECTURAL AND BUILDING RELATED CONSULTANTS,include,office_services,建筑设计及相关咨询提供专业知识服务，纳入办公与服务功能。,poi-research-v3.0.0,step07_dictionary
+02040064,02,04,0204,COMMERCIAL SERVICES,CONSULTANCIES,BUSINESS RELATED CONSULTANTS,include,office_services,企业经营咨询具有明确商务服务功能，不要求公众自由进入办公室。,poi-research-v3.0.0,step07_dictionary
+02040065,02,04,0204,COMMERCIAL SERVICES,CONSULTANCIES,COMPUTER CONSULTANTS,include,office_services,计算机咨询提供信息技术专业服务，属于办公与服务活动。,poi-research-v3.0.0,step07_dictionary
+02040066,02,04,0204,COMMERCIAL SERVICES,CONSULTANCIES,CONSTRUCTION SERVICE CONSULTANTS,include,office_services,建筑工程咨询提供工程专业服务，不以现场消费为门槛。,poi-research-v3.0.0,step07_dictionary
+02040067,02,04,0204,COMMERCIAL SERVICES,CONSULTANCIES,"FENG SHUI CONSULTANTS, FURNISHERS AND SHOP FITTERS",include,office_services,风水咨询、室内布置和店铺装修均提供咨询或装配服务，类别内各项都有活动功能。,poi-research-v3.0.0,step07_dictionary
+02040068,02,04,0204,COMMERCIAL SERVICES,CONSULTANCIES,FOOD CONSULTANTS,include,office_services,食品咨询提供食品行业专业服务，属于商务服务场所。,poi-research-v3.0.0,step07_dictionary
+02040069,02,04,0204,COMMERCIAL SERVICES,CONSULTANCIES,IMAGE CONSULTANTS,include,office_services,形象顾问提供个人形象及专业咨询服务，保留服务功能。,poi-research-v3.0.0,step07_dictionary
+02040070,02,04,0204,COMMERCIAL SERVICES,CONSULTANCIES,INTERPRETATION AND TRANSLATION CONSULTANTS,include,office_services,口译和笔译咨询提供语言服务，纳入专业服务场所。,poi-research-v3.0.0,step07_dictionary
+02040071,02,04,0204,COMMERCIAL SERVICES,CONSULTANCIES,SECURITY CONSULTANTS,include,office_services,安全顾问提供风险及安保咨询服务，属于办公与服务功能。,poi-research-v3.0.0,step07_dictionary
+02040072,02,04,0204,COMMERCIAL SERVICES,CONSULTANCIES,TELECOMMUNICATIONS CONSULTANTS,include,office_services,电信顾问提供通信技术咨询，区别于通信网络构件。,poi-research-v3.0.0,step07_dictionary
+02040074,02,04,0204,COMMERCIAL SERVICES,CONSULTANCIES,TRAFFIC MANAGEMENT AND TRANSPORT RELATED CONSULTANTS,include,office_services,交通管理及运输咨询提供专业规划服务，纳入商务服务范围。,poi-research-v3.0.0,step07_dictionary
+02050075,02,05,0205,COMMERCIAL SERVICES,EMPLOYMENT AND CAREER AGENCIES,CAREERS OFFICES AND ARMED FORCES RECRUITMENT,include,office_services,职业指导和军队招募机构提供就业招募服务，面向特定人群不影响纳入。,poi-research-v3.0.0,step07_dictionary
+02050076,02,05,0205,COMMERCIAL SERVICES,EMPLOYMENT AND CAREER AGENCIES,DOMESTIC STAFF AND HOME HELP,include,office_services,家政人员和家庭帮扶服务提供劳务与生活支持功能。,poi-research-v3.0.0,step07_dictionary
+02050077,02,05,0205,COMMERCIAL SERVICES,EMPLOYMENT AND CAREER AGENCIES,DRIVER AGENCIES,include,office_services,驾驶员派遣机构提供就业和人力配置服务，属于商务服务活动。,poi-research-v3.0.0,step07_dictionary
+02050078,02,05,0205,COMMERCIAL SERVICES,EMPLOYMENT AND CAREER AGENCIES,EMPLOYMENT AGENCIES,include,office_services,就业中介提供招聘与求职服务，纳入办公与服务范围。,poi-research-v3.0.0,step07_dictionary
+02050079,02,05,0205,COMMERCIAL SERVICES,EMPLOYMENT AND CAREER AGENCIES,MODELLING AND THEATRICAL AGENCIES,include,office_services,模特和演艺经纪提供职业代理服务，具有明确业务活动。,poi-research-v3.0.0,step07_dictionary
+02050081,02,05,0205,COMMERCIAL SERVICES,EMPLOYMENT AND CAREER AGENCIES,NURSING AGENCIES,include,office_services,护理人员中介提供护理劳务配置服务，不因并非诊疗点而排除。,poi-research-v3.0.0,step07_dictionary
+02060083,02,06,0206,COMMERCIAL SERVICES,ENGINEERING SERVICES,AVIATION ENGINEERS,include,office_services,航空工程师提供航空技术与工程服务，纳入专业服务场所。,poi-research-v3.0.0,step07_dictionary
+02060084,02,06,0206,COMMERCIAL SERVICES,ENGINEERING SERVICES,CHEMICAL ENGINEERS,include,office_services,化学工程师提供化工技术服务，属于专业活动场所。,poi-research-v3.0.0,step07_dictionary
+02060085,02,06,0206,COMMERCIAL SERVICES,ENGINEERING SERVICES,CIVIL ENGINEERS,include,office_services,土木工程师提供工程设计或技术服务，不以公众开放为条件。,poi-research-v3.0.0,step07_dictionary
+02060086,02,06,0206,COMMERCIAL SERVICES,ENGINEERING SERVICES,ELECTRICAL AND ELECTRONIC ENGINEERS,include,office_services,电气及电子工程师提供技术服务，应与电气设备代表点区分。,poi-research-v3.0.0,step07_dictionary
+02060087,02,06,0206,COMMERCIAL SERVICES,ENGINEERING SERVICES,HYDRAULIC ENGINEERS,include,office_services,液压工程师提供液压技术服务，具有明确专业功能。,poi-research-v3.0.0,step07_dictionary
+02060088,02,06,0206,COMMERCIAL SERVICES,ENGINEERING SERVICES,INDUSTRIAL ENGINEERS,include,office_services,工业工程师提供工业技术和工程服务，属于生产支持活动。,poi-research-v3.0.0,step07_dictionary
+02060089,02,06,0206,COMMERCIAL SERVICES,ENGINEERING SERVICES,INSTRUMENTATION ENGINEERS,include,office_services,仪器工程师提供测控技术服务，纳入专业服务场所。,poi-research-v3.0.0,step07_dictionary
+02060090,02,06,0206,COMMERCIAL SERVICES,ENGINEERING SERVICES,MARINE ENGINEERS AND SERVICES,include,office_services,船舶工程及相关服务承担海事技术作业，具备明确服务功能。,poi-research-v3.0.0,step07_dictionary
+02060091,02,06,0206,COMMERCIAL SERVICES,ENGINEERING SERVICES,MECHANICAL ENGINEERS,include,office_services,机械工程师提供机械设计与技术服务，纳入专业服务范围。,poi-research-v3.0.0,step07_dictionary
+02060092,02,06,0206,COMMERCIAL SERVICES,ENGINEERING SERVICES,PNEUMATIC ENGINEERS,include,office_services,气动工程师提供气动系统技术服务，具有明确专业活动。,poi-research-v3.0.0,step07_dictionary
+02060093,02,06,0206,COMMERCIAL SERVICES,ENGINEERING SERVICES,PRECISION ENGINEERS,include,office_services,精密工程师提供精密工程服务，不因面向生产企业而排除。,poi-research-v3.0.0,step07_dictionary
+02060094,02,06,0206,COMMERCIAL SERVICES,ENGINEERING SERVICES,STRUCTURAL ENGINEERS,include,office_services,结构工程师提供建筑结构技术服务，纳入办公与服务功能。,poi-research-v3.0.0,step07_dictionary
+02070095,02,07,0207,COMMERCIAL SERVICES,CONTRACT SERVICES,AGRICULTURAL CONTRACTORS,include,office_services,农业承包商提供农业生产作业服务，属于明确的农业服务活动。,poi-research-v3.0.0,step07_dictionary
+02070096,02,07,0207,COMMERCIAL SERVICES,CONTRACT SERVICES,AIRCRAFT CHARTERS,include,transport_parking,飞机包租提供运输及航空使用服务，不要求属于常规公共航班。,poi-research-v3.0.0,step07_dictionary
+02070098,02,07,0207,COMMERCIAL SERVICES,CONTRACT SERVICES,CATERING SERVICES,include,food_beverage,配餐承包服务承担餐食制作与供应，属于餐饮功能。,poi-research-v3.0.0,step07_dictionary
+02070100,02,07,0207,COMMERCIAL SERVICES,CONTRACT SERVICES,CONTRACT CLEANING SERVICES,include,office_services,合约清洁机构提供场所保洁服务，不以服务是否在本地点完成为统一门槛。,poi-research-v3.0.0,step07_dictionary
+02070101,02,07,0207,COMMERCIAL SERVICES,CONTRACT SERVICES,DISPLAY AND WINDOW DRESSERS,include,office_services,陈列与橱窗布置提供商业展示服务，属于商务活动。,poi-research-v3.0.0,step07_dictionary
+02070102,02,07,0207,COMMERCIAL SERVICES,CONTRACT SERVICES,DRAIN AND SEWAGE CLEARANCE,include,office_services,排水和污水清通提供维护清理服务，区别于排水管线构件。,poi-research-v3.0.0,step07_dictionary
+02070105,02,07,0207,COMMERCIAL SERVICES,CONTRACT SERVICES,LINEN HIRE AND WASHROOM SERVICES,include,office_services,布草租赁及盥洗室服务提供租赁、卫生维护等实际服务。,poi-research-v3.0.0,step07_dictionary
+02070107,02,07,0207,COMMERCIAL SERVICES,CONTRACT SERVICES,OFFICE SERVICES,include,office_services,办公服务机构提供企业行政支持，具有明确商务服务功能。,poi-research-v3.0.0,step07_dictionary
+02070108,02,07,0207,COMMERCIAL SERVICES,CONTRACT SERVICES,PACKERS,include,industry_logistics,包装作业机构提供货物包装与物流支持，纳入生产物流活动。,poi-research-v3.0.0,step07_dictionary
+02070109,02,07,0207,COMMERCIAL SERVICES,CONTRACT SERVICES,PEST AND VERMIN CONTROL,include,office_services,害虫防治提供环境及生活维护服务，属于明确服务功能。,poi-research-v3.0.0,step07_dictionary
+02080114,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",ADVERTISING SERVICES,include,office_services,广告服务机构提供推广与创意服务，纳入办公与服务活动。,poi-research-v3.0.0,step07_dictionary
+02080115,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES","ARTISTS, ILLUSTRATORS AND CALLIGRAPHERS",include,office_services,艺术家、插画师和书法工作者提供创作服务，属于文化生产及专业服务。,poi-research-v3.0.0,step07_dictionary
+02080116,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",COMPUTER SECURITY,include,office_services,计算机安全服务承担信息安全业务，具有专业服务功能。,poi-research-v3.0.0,step07_dictionary
+02080117,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",COMPUTER SYSTEMS SERVICES,include,office_services,计算机系统服务提供系统建设维护，纳入信息技术服务场所。,poi-research-v3.0.0,step07_dictionary
+02080118,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",CONCERT/EXHIBITION ORGANISERS AND SERVICES,include,office_services,演出和展览组织者提供活动策划组织服务，不要求本点位就是活动现场。,poi-research-v3.0.0,step07_dictionary
+02080119,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",DATABASE SERVICES,include,office_services,数据库服务提供信息管理及处理功能，纳入办公服务范围。,poi-research-v3.0.0,step07_dictionary
+02080120,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",DESKTOP PUBLISHING SERVICES,include,office_services,桌面出版服务承担排版制作，属于明确的信息及创作服务。,poi-research-v3.0.0,step07_dictionary
+02080121,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",ELECTRONIC AND INTERNET PUBLISHERS,include,office_services,电子及互联网出版机构提供内容制作发行服务，保留其业务场所。,poi-research-v3.0.0,step07_dictionary
+02080122,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",FILM AND VIDEO SERVICES,include,office_services,电影和视频服务承担影像制作等专业活动，纳入服务场所。,poi-research-v3.0.0,step07_dictionary
+02080123,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",GENERAL COMPUTER SERVICES,include,office_services,一般计算机服务提供信息技术支持，类别功能明确。,poi-research-v3.0.0,step07_dictionary
+02080124,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",INTERNET SERVICES,include,office_services,互联网服务机构提供接入或相关技术服务，不以充电者能否现场使用为门槛。,poi-research-v3.0.0,step07_dictionary
+02080125,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",LITERARY SERVICES,include,office_services,文学服务提供写作及相关专业服务，纳入文化和商务活动范围。,poi-research-v3.0.0,step07_dictionary
+02080126,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",MAILING AND OTHER INFORMATION SERVICES,include,office_services,邮件及其他信息服务提供信息传递与处理，具有明确业务功能。,poi-research-v3.0.0,step07_dictionary
+02080127,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",MARKETING SERVICES,include,office_services,营销服务提供市场推广业务，属于办公与专业服务。,poi-research-v3.0.0,step07_dictionary
+02080128,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES","PLATE MAKERS, PRINT FINISHERS AND TYPE SETTERS",include,industry_logistics,制版、印后加工和排字是明确的印刷制作活动，纳入生产功能。,poi-research-v3.0.0,step07_dictionary
+02080129,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",PRESS AND JOURNALISM SERVICES,include,office_services,新闻和报道服务承担信息采编，纳入专业服务活动。,poi-research-v3.0.0,step07_dictionary
+02080130,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",PRINTING AND PHOTOCOPYING SERVICES,include,office_services,印刷及复印服务提供文件制作服务，是否附设于其他机构不影响类别纳入。,poi-research-v3.0.0,step07_dictionary
+02080131,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",RECORDING STUDIOS AND RECORD COMPANIES,include,office_services,录音室和唱片公司从事声音制作及发行，具有文化生产服务功能。,poi-research-v3.0.0,step07_dictionary
+02080133,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES","TELEPHONE, TELEX AND FAX SERVICES",include,office_services,电话、电传和传真服务直接提供通信服务，应与单纯网络构件区分。,poi-research-v3.0.0,step07_dictionary
+02080134,02,08,0208,COMMERCIAL SERVICES,"IT, ADVERTISING, MARKETING AND MEDIA SERVICES",TELEVISION AND RADIO SERVICES,include,office_services,电视和广播服务机构提供传媒制作或传播业务，具有明确活动功能。,poi-research-v3.0.0,step07_dictionary
+02090135,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,ACCOUNTANTS AND AUDITORS,include,office_services,会计师和审计师提供财务专业服务，纳入办公与服务功能。,poi-research-v3.0.0,step07_dictionary
+02090137,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,"AUCTIONEERS, AUCTION ROOMS AND VALUERS",include,office_services,拍卖机构、拍卖室和估价师提供交易组织及估价服务，类别均具有活动功能。,poi-research-v3.0.0,step07_dictionary
+02090138,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,BANKS AND BUILDING SOCIETIES,include,office_services,银行和房屋互助协会提供金融服务，不因其 ATM 同址而整类去重。,poi-research-v3.0.0,step07_dictionary
+02090140,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,CURRENCY CONVERSION AND MONEY TRANSFERS,include,office_services,货币兑换和汇款机构提供金融交易服务，纳入服务场所。,poi-research-v3.0.0,step07_dictionary
+02090141,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,CASH MACHINES,include,office_services,ATM 直接提供取现等金融便民服务；按本次明确决定纳入办公与服务组，不以无人值守或附属于银行、商店为由排除。,poi-research-v3.0.0,step07_dictionary
+02090142,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,CHEQUE CASHING,include,office_services,支票兑现提供明确金融服务，纳入活动服务设施。,poi-research-v3.0.0,step07_dictionary
+02090143,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,COMPANY REGISTRATION AND TRADEMARKS,include,office_services,公司注册和商标业务提供行政及知识产权服务，属于专业服务活动。,poi-research-v3.0.0,step07_dictionary
+02090144,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,COPYRIGHT AND PATENT,include,office_services,版权和专利服务提供知识产权支持，纳入办公与服务范围。,poi-research-v3.0.0,step07_dictionary
+02090145,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,CREDIT REFERENCE AGENCIES,include,office_services,征信机构提供信用信息服务，具有明确业务功能。,poi-research-v3.0.0,step07_dictionary
+02090146,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,DEBT COLLECTING AGENCIES,include,office_services,债务追收机构提供财务及法律相关服务，不以面向普通消费者为条件。,poi-research-v3.0.0,step07_dictionary
+02090147,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,FINANCIAL ADVICE SERVICES,include,office_services,财务咨询提供金融专业服务，属于办公与服务功能。,poi-research-v3.0.0,step07_dictionary
+02090148,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,FUNDRAISING SERVICES,include,office_services,筹资服务机构提供资金募集支持，纳入商务及机构服务活动。,poi-research-v3.0.0,step07_dictionary
+02090149,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,INSURERS AND SUPPORT ACTIVITIES,include,office_services,保险及辅助活动提供风险保障和金融服务，纳入服务场所。,poi-research-v3.0.0,step07_dictionary
+02090150,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,MORTGAGE AND FINANCIAL LENDERS,include,office_services,抵押贷款和融资机构提供金融服务，不要求充电者使用该服务。,poi-research-v3.0.0,step07_dictionary
+02090151,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,PAWNBROKERS,include,office_services,典当机构提供抵押融资及相关交易服务，具有明确服务活动。,poi-research-v3.0.0,step07_dictionary
+02090154,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,"SOLICITORS, ADVOCATES AND NOTARIES PUBLIC",include,office_services,律师、诉讼代理和公证机构提供法律服务，纳入办公与服务范围。,poi-research-v3.0.0,step07_dictionary
+02090773,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,"STOCKS, SHARES AND UNIT TRUSTS",include,office_services,股票和基金交易服务提供金融投资业务，具有专业服务功能。,poi-research-v3.0.0,step07_dictionary
+02090795,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,COMMODITY DEALERS,include,office_services,商品交易商在法律金融子类中提供商品交易与经纪服务，纳入商务活动。,poi-research-v3.0.0,step07_dictionary
+02090796,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,FRANCHISE AND HOLDING COMPANY SERVICES,include,office_services,特许经营和控股公司服务承担企业管理支持，属于办公与服务功能。,poi-research-v3.0.0,step07_dictionary
+02090811,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,PAYPOINT LOCATIONS,include,office_services,PayPoint 提供缴费及支付便民服务；按本次明确决定纳入办公与服务组，不因位于商店内或与宿主同址而排除整个类别。,poi-research-v3.0.0,step07_dictionary
+02090829,02,09,0209,COMMERCIAL SERVICES,LEGAL AND FINANCIAL,PENSION AND FUND MANAGEMENT,include,office_services,养老金和基金管理提供金融管理服务，纳入专业服务场所。,poi-research-v3.0.0,step07_dictionary
+02100103,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",HOTEL BOOKING AGENCIES,include,office_services,酒店预订代理提供旅行住宿预订服务，纳入办公与服务功能。,poi-research-v3.0.0,step07_dictionary
+02100112,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",EVENT TICKET AGENTS AND BOX OFFICE,include,office_services,票务代理和售票处提供购票服务，即使附属场馆仍具明确服务功能。,poi-research-v3.0.0,step07_dictionary
+02100155,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES","ASTROLOGERS, CLAIRVOYANTS AND PALMISTS",include,office_services,占星及相关个人咨询属于原生个人服务类别，按实际服务活动纳入，不作疗效或需求因果判断。,poi-research-v3.0.0,step07_dictionary
+02100156,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",HAIR AND BEAUTY SERVICES,include,office_services,理发美容主要提供生活服务；按本次明确决定归办公与服务，不因设有门店或接待消费者而归零售。,poi-research-v3.0.0,step07_dictionary
+02100158,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",CLEANING SERVICES,include,office_services,清洁服务提供生活和场所维护功能，纳入个人及商务服务范围。,poi-research-v3.0.0,step07_dictionary
+02100160,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",CUSTOMER SERVICE CENTRES,include,office_services,客户服务中心承担咨询和售后等服务，附属于企业也可纳入。,poi-research-v3.0.0,step07_dictionary
+02100161,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",CV WRITERS,include,office_services,简历撰写提供求职支持服务，属于明确个人专业服务。,poi-research-v3.0.0,step07_dictionary
+02100162,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",DETECTIVE AND INVESTIGATION AGENCIES,include,office_services,侦探和调查机构提供专业调查服务，具有办公与服务功能。,poi-research-v3.0.0,step07_dictionary
+02100165,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",FUNERAL AND ASSOCIATED SERVICES,include,office_services,殡葬及相关服务具有明确生活与社会服务功能，纳入服务场所。,poi-research-v3.0.0,step07_dictionary
+02100166,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",HISTORICAL RESEARCH,include,office_services,历史研究提供研究服务，纳入专业知识活动。,poi-research-v3.0.0,step07_dictionary
+02100167,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES","HEADQUARTERS, ADMINISTRATION AND CENTRAL OFFICES",include,office_services,总部、行政及中央办公室承担企业或机构管理活动，不以公众开放为门槛。,poi-research-v3.0.0,step07_dictionary
+02100169,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",INTRODUCTION AND DATING AGENCIES,include,office_services,介绍和婚恋中介提供个人生活服务，纳入服务场所。,poi-research-v3.0.0,step07_dictionary
+02100170,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES","LOCK, KEY AND SECURITY SERVICES",include,office_services,锁具、钥匙和安防服务以开锁、配钥匙及安全技术服务为主；按本次明确决定归办公与服务。,poi-research-v3.0.0,step07_dictionary
+02100171,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",MESSAGE AND GREETING SERVICES,include,office_services,传信和祝贺服务提供个人信息及活动服务，具有明确业务功能。,poi-research-v3.0.0,step07_dictionary
+02100173,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",MOTORING ORGANISATIONS,include,office_services,汽车组织提供车主相关组织和支持服务，纳入活动服务范围。,poi-research-v3.0.0,step07_dictionary
+02100174,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",PARTY ORGANISERS,include,office_services,聚会组织者提供活动策划服务，不要求在该地点直接举办聚会。,poi-research-v3.0.0,step07_dictionary
+02100175,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",PERSONALISATION,include,office_services,个性化定制主要提供加工和定制服务；按本次明确决定归办公与服务，不因交付商品而一律归零售。,poi-research-v3.0.0,step07_dictionary
+02100177,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",PHOTOGRAPHIC SERVICES,include,office_services,摄影服务提供影像拍摄及制作，属于个人和专业服务活动。,poi-research-v3.0.0,step07_dictionary
+02100179,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",SPORTS SERVICES,include,office_services,体育服务提供运动相关专业支持，具有明确服务功能。,poi-research-v3.0.0,step07_dictionary
+02100180,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",TATTOOING AND PIERCING SERVICES,include,retail,纹身及穿孔提供身体装饰服务，纳入范围明确；原 retail 与服务属性冲突，另列建议而保留原组。,poi-research-v3.0.0,step07_dictionary
+02100182,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",TROPHIES AND ENGRAVING SERVICES,include,retail,奖杯供应与雕刻均有销售或定制服务功能，应纳入；销售和雕刻服务的组别边界另列核对，不影响纳入。,poi-research-v3.0.0,step07_dictionary
+02100183,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",VEHICLE CLEANING SERVICES,include,retail,车辆清洗提供明确生活及交通维护服务；原 retail 与服务属性冲突，另列建议而保留原组。,poi-research-v3.0.0,step07_dictionary
+02100185,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",WEATHER SERVICES,include,office_services,气象服务提供天气信息和专业服务，区别于不明确功能的气象构件记录。,poi-research-v3.0.0,step07_dictionary
+02100186,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",WEDDING SERVICES,include,office_services,婚礼服务承担婚庆活动支持，具有明确生活服务功能。,poi-research-v3.0.0,step07_dictionary
+02100188,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",WINDOW CLEANERS,include,office_services,玻璃窗清洁提供建筑和生活维护服务，纳入服务活动。,poi-research-v3.0.0,step07_dictionary
+02100774,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES","MUSICIANS, ORCHESTRAS AND COMPOSERS",include,office_services,音乐家、乐团和作曲者提供演出或音乐创作服务，纳入文化活动场所。,poi-research-v3.0.0,step07_dictionary
+02100775,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES","SCULPTORS, WOOD WORKERS AND STONE MASONS",include,industry_logistics,雕塑、木工及石工作坊提供制作加工服务，纳入生产和创作功能。,poi-research-v3.0.0,step07_dictionary
+02100776,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",TAILORING AND CLOTHING ALTERATION,include,retail,裁缝及衣物修改提供定制修整服务；原 retail 与服务属性冲突，另列建议而保留原组。,poi-research-v3.0.0,step07_dictionary
+02100777,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",VEHICLE BREAKDOWN AND RECOVERY SERVICES,include,transport_parking,车辆故障救援和回收提供交通支持服务，属于明确服务设施。,poi-research-v3.0.0,step07_dictionary
+02100818,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",SEWAGE SERVICES,include,industry_logistics,污水服务承担收集处理及维护等服务，应与单纯管线结构区分。,poi-research-v3.0.0,step07_dictionary
+02100821,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",SPAS,include,leisure_tourism,水疗场所提供身体护理和休闲活动服务，纳入范围明确。,poi-research-v3.0.0,step07_dictionary
+02100822,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",SLIMMING CLUBS AND SERVICES,include,leisure_tourism,减重俱乐部及服务提供健康管理或活动服务，不要求证明其对充电需求有作用。,poi-research-v3.0.0,step07_dictionary
+02100823,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",ADULT SERVICES,include,office_services,成人个人服务属于原生个人服务活动，按功能纳入。,poi-research-v3.0.0,step07_dictionary
+02100826,02,10,0210,COMMERCIAL SERVICES,"PERSONAL, CONSUMER AND OTHER SERVICES",PRINTING ON GARMENTS,include,retail,服装印花提供定制加工服务；原 retail 与服务属性冲突，另列建议而保留原组。,poi-research-v3.0.0,step07_dictionary
+02110189,02,11,0211,COMMERCIAL SERVICES,PROPERTY AND DEVELOPMENT SERVICES,COMMERCIAL PROPERTY LETTING,include,office_services,商业物业出租提供物业交易服务，纳入办公与服务功能。,poi-research-v3.0.0,step07_dictionary
+02110190,02,11,0211,COMMERCIAL SERVICES,PROPERTY AND DEVELOPMENT SERVICES,PROPERTY SALES,include,office_services,房地产销售代理提供房产交易服务，不按一般商品门店处理。,poi-research-v3.0.0,step07_dictionary
+02110191,02,11,0211,COMMERCIAL SERVICES,PROPERTY AND DEVELOPMENT SERVICES,ESTATE AND PROPERTY MANAGEMENT,include,office_services,地产和物业管理提供管理维护服务，属于明确商务活动。,poi-research-v3.0.0,step07_dictionary
+02110192,02,11,0211,COMMERCIAL SERVICES,PROPERTY AND DEVELOPMENT SERVICES,PROPERTY LETTING,include,office_services,物业租赁提供居住或经营空间租赁服务，纳入服务场所。,poi-research-v3.0.0,step07_dictionary
+02110194,02,11,0211,COMMERCIAL SERVICES,PROPERTY AND DEVELOPMENT SERVICES,PROPERTY DEVELOPMENT SERVICES,include,office_services,房地产开发服务承担项目开发业务，具有明确经济活动功能。,poi-research-v3.0.0,step07_dictionary
+02110195,02,11,0211,COMMERCIAL SERVICES,PROPERTY AND DEVELOPMENT SERVICES,PROPERTY INFORMATION SERVICES,include,office_services,物业信息服务提供房产信息和查询支持，纳入专业服务范围。,poi-research-v3.0.0,step07_dictionary
+02120196,02,12,0212,COMMERCIAL SERVICES,RECYCLING SERVICES,"RECYCLING, RECLAMATION AND DISPOSAL",include,industry_logistics,回收、再生和处置承担物资处理服务，纳入生产物流功能。,poi-research-v3.0.0,step07_dictionary
+02120198,02,12,0212,COMMERCIAL SERVICES,RECYCLING SERVICES,RAG MERCHANTS,include,industry_logistics,废旧织物商从事回收交易和再利用活动，具有物资处理功能。,poi-research-v3.0.0,step07_dictionary
+02120199,02,12,0212,COMMERCIAL SERVICES,RECYCLING SERVICES,CLEARANCE AND SALVAGE DEALERS,include,industry_logistics,清场及废料回收交易提供回收处置服务，纳入生产物流活动。,poi-research-v3.0.0,step07_dictionary
+02120200,02,12,0212,COMMERCIAL SERVICES,RECYCLING SERVICES,SCRAP METAL DEALERS AND BREAKERS YARDS,include,industry_logistics,废金属交易和拆解场从事回收及加工，具有明确生产处置功能。,poi-research-v3.0.0,step07_dictionary
+02120202,02,12,0212,COMMERCIAL SERVICES,RECYCLING SERVICES,WASTE PAPER MERCHANTS,include,industry_logistics,废纸回收商提供回收交易服务，纳入资源处理活动。,poi-research-v3.0.0,step07_dictionary
+02130204,02,13,0213,COMMERCIAL SERVICES,REPAIR AND SERVICING,BUILDING REPAIRS,include,office_services,建筑维修提供明确修缮服务，不等同于建筑物轮廓或定位点。,poi-research-v3.0.0,step07_dictionary
+02130205,02,13,0213,COMMERCIAL SERVICES,REPAIR AND SERVICING,ELECTRICAL EQUIPMENT REPAIR AND SERVICING,include,office_services,电气设备维修保养提供技术服务，应与单纯电气构件区分。,poi-research-v3.0.0,step07_dictionary
+02130206,02,13,0213,COMMERCIAL SERVICES,REPAIR AND SERVICING,HOUSEHOLD REPAIRS AND RESTORATION,include,retail,家居维修与修复提供生活服务；原 retail 与维修服务属性冲突，另列建议而保留原组。,poi-research-v3.0.0,step07_dictionary
+02130207,02,13,0213,COMMERCIAL SERVICES,REPAIR AND SERVICING,INDUSTRIAL REPAIRS AND SERVICING,include,industry_logistics,工业维修保养提供生产支持服务，纳入生产及服务场所。,poi-research-v3.0.0,step07_dictionary
+02130209,02,13,0213,COMMERCIAL SERVICES,REPAIR AND SERVICING,SERVICE INDUSTRY EQUIPMENT REPAIRS,include,office_services,服务行业设备维修承担专业维护业务，具有明确服务功能。,poi-research-v3.0.0,step07_dictionary
+02130210,02,13,0213,COMMERCIAL SERVICES,REPAIR AND SERVICING,SPORTS AND LEISURE EQUIPMENT REPAIR,include,retail,体育休闲器材维修提供维护服务；原 retail 与服务属性冲突，另列建议而保留原组。,poi-research-v3.0.0,step07_dictionary
+02130211,02,13,0213,COMMERCIAL SERVICES,REPAIR AND SERVICING,TOOL REPAIRS,include,office_services,工具维修提供技术维护服务，纳入活动服务范围。,poi-research-v3.0.0,step07_dictionary
+02130212,02,13,0213,COMMERCIAL SERVICES,REPAIR AND SERVICING,"VEHICLE REPAIR, TESTING AND SERVICING",include,retail,车辆维修、检测和保养提供交通生活服务；原 retail 与服务属性冲突，另列建议而保留原组。,poi-research-v3.0.0,step07_dictionary
+02130793,02,13,0213,COMMERCIAL SERVICES,REPAIR AND SERVICING,SHOE REPAIRS,include,retail,修鞋提供明确生活维修服务；原 retail 与服务属性冲突，另列建议而保留原组。,poi-research-v3.0.0,step07_dictionary
+02140214,02,14,0214,COMMERCIAL SERVICES,RESEARCH AND DESIGN,DESIGN SERVICES,include,office_services,设计服务提供创意和专业技术支持，纳入办公与服务功能。,poi-research-v3.0.0,step07_dictionary
+02140216,02,14,0214,COMMERCIAL SERVICES,RESEARCH AND DESIGN,RESEARCH SERVICES,include,office_services,研究机构提供研究活动或服务，不要求研究对象与充电有关。,poi-research-v3.0.0,step07_dictionary
+02140217,02,14,0214,COMMERCIAL SERVICES,RESEARCH AND DESIGN,TESTING AND ANALYSIS SERVICES,include,office_services,检测分析提供专业技术服务，纳入活动场所。,poi-research-v3.0.0,step07_dictionary
+02150218,02,15,0215,COMMERCIAL SERVICES,"TRANSPORT, STORAGE AND DELIVERY",AIRLINES AND AIRLINE SERVICES,include,office_services,航空公司及航空服务具有明确运输运营功能；原 office_services 与运输功能的边界另列核对，纳入不受影响。,poi-research-v3.0.0,step07_dictionary
+02150219,02,15,0215,COMMERCIAL SERVICES,"TRANSPORT, STORAGE AND DELIVERY",ANIMAL TRANSPORTATION,include,industry_logistics,动物运输提供实际物流服务，纳入运输生产支持活动。,poi-research-v3.0.0,step07_dictionary
+02150221,02,15,0215,COMMERCIAL SERVICES,"TRANSPORT, STORAGE AND DELIVERY",CONTAINER AND STORAGE,include,industry_logistics,集装箱和仓储提供货物存放及物流功能，不要求公众进入。,poi-research-v3.0.0,step07_dictionary
+02150222,02,15,0215,COMMERCIAL SERVICES,"TRANSPORT, STORAGE AND DELIVERY","COURIER, DELIVERY AND MESSENGER",include,industry_logistics,快递、配送和信使提供物品递送服务，纳入物流活动。,poi-research-v3.0.0,step07_dictionary
+02150223,02,15,0215,COMMERCIAL SERVICES,"TRANSPORT, STORAGE AND DELIVERY",DISTRIBUTION AND HAULAGE,include,industry_logistics,配送和公路货运提供货物运输服务，纳入物流功能。,poi-research-v3.0.0,step07_dictionary
+02150224,02,15,0215,COMMERCIAL SERVICES,"TRANSPORT, STORAGE AND DELIVERY",FERRY AND CRUISE COMPANIES,include,office_services,渡轮及邮轮公司提供运输或游览运营服务；原 office_services 的组别边界另列核对，纳入明确。,poi-research-v3.0.0,step07_dictionary
+02150225,02,15,0215,COMMERCIAL SERVICES,"TRANSPORT, STORAGE AND DELIVERY",IMPORT AND EXPORT SERVICES,include,industry_logistics,进出口服务承担跨境贸易和物流支持，具有明确业务功能。,poi-research-v3.0.0,step07_dictionary
+02150227,02,15,0215,COMMERCIAL SERVICES,"TRANSPORT, STORAGE AND DELIVERY",RAILWAY RELATED SERVICES,include,office_services,铁路相关服务具有运营或专业服务功能；运输运营与商务支持的组别另列核对，不因组别不明排除。,poi-research-v3.0.0,step07_dictionary
+02150228,02,15,0215,COMMERCIAL SERVICES,"TRANSPORT, STORAGE AND DELIVERY",REMOVALS AND SHIPPING AGENTS,include,industry_logistics,搬运和航运代理提供货运组织及搬迁服务，纳入物流功能。,poi-research-v3.0.0,step07_dictionary
+02150230,02,15,0215,COMMERCIAL SERVICES,"TRANSPORT, STORAGE AND DELIVERY",TAXI SERVICES,include,transport_parking,出租车服务提供出行运输，纳入明确交通服务设施。,poi-research-v3.0.0,step07_dictionary
+02600097,02,60,0260,COMMERCIAL SERVICES,HIRE SERVICES,BOAT HIRING SERVICES,include,office_services,船舶租赁提供交通或游憩使用服务；具体功能组边界另列核对，服务本身明确纳入。,poi-research-v3.0.0,step07_dictionary
+02600099,02,60,0260,COMMERCIAL SERVICES,HIRE SERVICES,CONSTRUCTION AND TOOL HIRE,include,office_services,施工设备和工具租赁提供明确租赁服务，区别于本次明确排除的 CONSTRUCTION PLANT 类别。,poi-research-v3.0.0,step07_dictionary
+02600104,02,60,0260,COMMERCIAL SERVICES,HIRE SERVICES,LEISURE EQUIPMENT HIRINGS,include,office_services,休闲设备租赁提供活动用品使用服务，纳入租赁服务场所。,poi-research-v3.0.0,step07_dictionary
+02600110,02,60,0260,COMMERCIAL SERVICES,HIRE SERVICES,RENTING AND LEASING OF PERSONAL AND HOUSEHOLD GOODS,include,office_services,个人及家居用品租赁提供生活服务，纳入范围不要求商品永久销售。,poi-research-v3.0.0,step07_dictionary
+02600111,02,60,0260,COMMERCIAL SERVICES,HIRE SERVICES,"SOUND, LIGHT AND VISION SERVICE AND EQUIPMENT HIRE",include,office_services,音响灯光影像设备租赁及服务提供活动技术支持，具有明确服务功能。,poi-research-v3.0.0,step07_dictionary
+02600113,02,60,0260,COMMERCIAL SERVICES,HIRE SERVICES,VEHICLE HIRE AND RENTAL,include,transport_parking,车辆租赁提供出行服务，纳入交通与停车功能。,poi-research-v3.0.0,step07_dictionary
+02600159,02,60,0260,COMMERCIAL SERVICES,HIRE SERVICES,CLOTHING HIRE,include,office_services,服装租赁提供生活及活动用品服务，属于明确服务活动。,poi-research-v3.0.0,step07_dictionary
+02600270,02,60,0260,COMMERCIAL SERVICES,HIRE SERVICES,BOUNCY CASTLES AND INFLATABLES HIRE,include,office_services,充气城堡及游乐设备租赁提供休闲活动支持，不因设备本身可移动而排除服务类别。,poi-research-v3.0.0,step07_dictionary
+03160231,03,16,0316,ATTRACTIONS,BOTANICAL AND ZOOLOGICAL,AQUARIA AND SEA LIFE CENTRES,include,leisure_tourism,水族馆和海洋生物中心是明确观赏及教育活动场所。,poi-research-v3.0.0,step07_dictionary
+03160232,03,16,0316,ATTRACTIONS,BOTANICAL AND ZOOLOGICAL,"BIRD RESERVES, COLLECTIONS AND SANCTUARIES",include,leisure_tourism,景点大类中的鸟类保护区、鸟类展示与庇护场所具有保育及观赏功能；不因缺少收费、管理或开放证明而排除。,poi-research-v3.0.0,step07_dictionary
+03160233,03,16,0316,ATTRACTIONS,BOTANICAL AND ZOOLOGICAL,BUTTERFLY FARMS,include,leisure_tourism,景点大类中的蝴蝶农场提供生物观赏活动，应与纯自然定位对象区分。,poi-research-v3.0.0,step07_dictionary
+03160235,03,16,0316,ATTRACTIONS,BOTANICAL AND ZOOLOGICAL,FARM BASED ATTRACTIONS,include,leisure_tourism,农场型景点明确承载旅游休闲活动，纳入景点功能。,poi-research-v3.0.0,step07_dictionary
+03160236,03,16,0316,ATTRACTIONS,BOTANICAL AND ZOOLOGICAL,HORTICULTURAL ATTRACTIONS,include,leisure_tourism,园艺景点承载植物展示及游览活动，不要求收费或专人管理。,poi-research-v3.0.0,step07_dictionary
+03160237,03,16,0316,ATTRACTIONS,BOTANICAL AND ZOOLOGICAL,SALMON LADDERS,exclude,,虽位于景点的动植物子类，SALMON LADDERS 指鱼类洄游通道工程构件；类别本身未指向水族馆、保护区或游览服务场所，按纯工程构件排除。,poi-research-v3.0.0,step07_dictionary
+03160239,03,16,0316,ATTRACTIONS,BOTANICAL AND ZOOLOGICAL,ZOOS AND ANIMAL COLLECTIONS,include,leisure_tourism,动物园和动物展示场所具有明确观赏、保育及教育活动功能。,poi-research-v3.0.0,step07_dictionary
+03170240,03,17,0317,ATTRACTIONS,HISTORICAL AND CULTURAL,ARCHAEOLOGICAL SITES,include,leisure_tourism,考古遗址属于明确文化遗址；无需证明配有游客中心、收费或有人管理即可纳入。,poi-research-v3.0.0,step07_dictionary
+03170241,03,17,0317,ATTRACTIONS,HISTORICAL AND CULTURAL,BATTLEFIELDS,include,leisure_tourism,历史文化子类中的战场遗址承载历史纪念与文化场所功能，不按普通地理定位点排除。,poi-research-v3.0.0,step07_dictionary
+03170244,03,17,0317,ATTRACTIONS,HISTORICAL AND CULTURAL,"HISTORIC BUILDINGS INCLUDING CASTLES, FORTS AND ABBEYS",include,leisure_tourism,城堡、堡垒和修道院等历史建筑属于文化遗产场所，不要求查明收费开放状态。,poi-research-v3.0.0,step07_dictionary
+03170245,03,17,0317,ATTRACTIONS,HISTORICAL AND CULTURAL,HISTORIC AND CEREMONIAL STRUCTURES,include,leisure_tourism,历史及礼仪构筑物具有文化纪念或仪式功能，纳入文化场所；不因体量小或无人值守当作普通测量标记。,poi-research-v3.0.0,step07_dictionary
+03170246,03,17,0317,ATTRACTIONS,HISTORICAL AND CULTURAL,HISTORICAL SHIPS,include,leisure_tourism,历史船舶作为文化遗产展示对象具有文化游览功能，纳入景点范围。,poi-research-v3.0.0,step07_dictionary
+03170248,03,17,0317,ATTRACTIONS,HISTORICAL AND CULTURAL,MUSEUMS,include,leisure_tourism,博物馆提供展览、教育和文化活动，属于明确活动场所。,poi-research-v3.0.0,step07_dictionary
+03170813,03,17,0317,ATTRACTIONS,HISTORICAL AND CULTURAL,ART GALLERIES,include,leisure_tourism,艺术画廊提供艺术展示及文化活动，纳入范围不以收费为条件。,poi-research-v3.0.0,step07_dictionary
+03180252,03,18,0318,ATTRACTIONS,RECREATIONAL,COMMONS,include,leisure_tourism,原生游憩子类中的公地作为开放休闲活动空间纳入；不因没有经营者或设施开放证明而排除。,poi-research-v3.0.0,step07_dictionary
+03180253,03,18,0318,ATTRACTIONS,RECREATIONAL,COUNTRY AND NATIONAL PARKS,include,leisure_tourism,郊野公园和国家公园是明确游憩场所，应与仅表示山体等自然地理记录区分。,poi-research-v3.0.0,step07_dictionary
+03180254,03,18,0318,ATTRACTIONS,RECREATIONAL,PICNIC AREAS,include,leisure_tourism,野餐区提供明确户外停留和休闲活动空间，附属于公园也不整类排除。,poi-research-v3.0.0,step07_dictionary
+03180255,03,18,0318,ATTRACTIONS,RECREATIONAL,PLAYGROUNDS,include,leisure_tourism,游乐场提供儿童及社区休闲活动空间，不要求收费或有人管理。,poi-research-v3.0.0,step07_dictionary
+03180814,03,18,0318,ATTRACTIONS,RECREATIONAL,MUNICIPAL PARKS AND GARDENS,include,leisure_tourism,市政公园和花园提供明确休闲游憩功能，纳入活动场所。,poi-research-v3.0.0,step07_dictionary
+03190257,03,19,0319,ATTRACTIONS,LANDSCAPE FEATURES,DESIGNATED SCENIC FEATURES,exclude,,依据用户最新人工复核，由原判断调整为排除（v2：review；v3：exclude）。,poi-research-v3.0.0,step07_dictionary
+03190259,03,19,0319,ATTRACTIONS,LANDSCAPE FEATURES,TRIGONOMETRIC POINTS,exclude,,三角测量点用于测绘定位，属于本次明确排除的定位标记，不是文化遗址或游憩场所。,poi-research-v3.0.0,step07_dictionary
+03200263,03,20,0320,ATTRACTIONS,TOURISM,"LASERIA, OBSERVATORIES AND PLANETARIA",include,leisure_tourism,激光展示、天文台和天象馆在旅游子类中提供观赏教育活动，纳入场所功能。,poi-research-v3.0.0,step07_dictionary
+03200264,03,20,0320,ATTRACTIONS,TOURISM,MODEL VILLAGES,include,leisure_tourism,模型村提供展示和游览活动，属于明确景点。,poi-research-v3.0.0,step07_dictionary
+03200265,03,20,0320,ATTRACTIONS,TOURISM,"RAILWAYS (HERITAGE, STEAM AND MINIATURE)",include,leisure_tourism,遗产、蒸汽及微型铁路提供文化展示和旅游乘坐活动，纳入旅游功能。,poi-research-v3.0.0,step07_dictionary
+03200266,03,20,0320,ATTRACTIONS,TOURISM,THEME AND ADVENTURE PARKS,include,leisure_tourism,主题及冒险乐园提供明确休闲娱乐活动，纳入场所范围。,poi-research-v3.0.0,step07_dictionary
+03200267,03,20,0320,ATTRACTIONS,TOURISM,"SITESEEING, TOURS, VIEWING AND VISITOR CENTRES",include,leisure_tourism,观光、游览、观景及游客中心均提供旅游活动或服务，不要求独立经营。,poi-research-v3.0.0,step07_dictionary
+03200268,03,20,0320,ATTRACTIONS,TOURISM,INFORMATION CENTRES,include,leisure_tourism,旅游信息中心提供游客咨询服务，附属于其他场所也保留该功能。,poi-research-v3.0.0,step07_dictionary
+03200269,03,20,0320,ATTRACTIONS,TOURISM,UNSPECIFIED AND OTHER ATTRACTIONS,include,leisure_tourism,虽未细分类型，但原生旅游子类明确标为其他景点；不因缺少更细分类或开放证明而排除其旅游活动功能。,poi-research-v3.0.0,step07_dictionary
+03580804,03,58,0358,ATTRACTIONS,BODIES OF WATER,LAKES AND WATERS,exclude,,水体子类的湖泊及水域记录表示水体对象本身，未表示公园、景区或水上活动服务场所。,poi-research-v3.0.0,step07_dictionary
+03580805,03,58,0358,ATTRACTIONS,BODIES OF WATER,LOCHS AND LOCHANS,exclude,,水体子类中的大小湖泊表示自然水体对象，按纯地理对象排除；另列的游憩场所不受影响。,poi-research-v3.0.0,step07_dictionary
+03580806,03,58,0358,ATTRACTIONS,BODIES OF WATER,"TARNS, POOLS AND MERES",exclude,,山地小湖、水池和浅湖在水体子类中表示水体对象，不等同于游泳池等明确活动设施。,poi-research-v3.0.0,step07_dictionary
+03580807,03,58,0358,ATTRACTIONS,BODIES OF WATER,RESERVOIRS,exclude,,本类位于水体子类，记录水库水体本身；不将其替代为供水厂站或游憩场所，后两者按各自功能类别保留。,poi-research-v3.0.0,step07_dictionary
+04210271,04,21,0421,SPORT AND ENTERTAINMENT,SPORT AND ENTERTAINMENT SUPPORT SERVICES,CHILDREN'S ACTIVITY CENTRES,include,leisure_tourism,儿童活动中心提供明确娱乐和活动服务，纳入场所功能。,poi-research-v3.0.0,step07_dictionary
+04210273,04,21,0421,SPORT AND ENTERTAINMENT,SPORT AND ENTERTAINMENT SUPPORT SERVICES,ENTERTAINMENT SERVICES,include,office_services,娱乐服务机构提供演出或活动支持，属于明确服务活动。,poi-research-v3.0.0,step07_dictionary
+04210274,04,21,0421,SPORT AND ENTERTAINMENT,SPORT AND ENTERTAINMENT SUPPORT SERVICES,FIREWORK RELATED SERVICES,include,office_services,烟花相关服务提供活动或技术服务，按服务类别纳入。,poi-research-v3.0.0,step07_dictionary
+04210275,04,21,0421,SPORT AND ENTERTAINMENT,SPORT AND ENTERTAINMENT SUPPORT SERVICES,FUNFAIR SERVICES,include,office_services,游乐集市服务提供娱乐活动组织支持，不要求有固定收费场馆。,poi-research-v3.0.0,step07_dictionary
+04210276,04,21,0421,SPORT AND ENTERTAINMENT,SPORT AND ENTERTAINMENT SUPPORT SERVICES,MOBILE DISCOS,include,office_services,流动迪斯科提供音乐娱乐服务，场地可移动不否定服务机构功能。,poi-research-v3.0.0,step07_dictionary
+04210820,04,21,0421,SPORT AND ENTERTAINMENT,SPORT AND ENTERTAINMENT SUPPORT SERVICES,MOTORSPORT SERVICES,include,office_services,赛车运动服务提供赛事或技术支持，属于明确服务活动。,poi-research-v3.0.0,step07_dictionary
+04220277,04,22,0422,SPORT AND ENTERTAINMENT,GAMBLING,AMUSEMENT PARKS AND ARCADES,include,leisure_tourism,游乐园和游戏厅承载娱乐活动，纳入休闲场所。,poi-research-v3.0.0,step07_dictionary
+04220278,04,22,0422,SPORT AND ENTERTAINMENT,GAMBLING,BINGO HALLS,include,leisure_tourism,宾果游戏厅提供娱乐活动空间，纳入休闲功能。,poi-research-v3.0.0,step07_dictionary
+04220279,04,22,0422,SPORT AND ENTERTAINMENT,GAMBLING,BOOKMAKERS,include,leisure_tourism,博彩投注站提供明确娱乐相关服务，按原生博彩子类纳入。,poi-research-v3.0.0,step07_dictionary
+04220280,04,22,0422,SPORT AND ENTERTAINMENT,GAMBLING,CASINOS,include,leisure_tourism,赌场属于明确的娱乐活动场所，不要求证明其与充电需求关联。,poi-research-v3.0.0,step07_dictionary
+04230282,04,23,0423,SPORT AND ENTERTAINMENT,OUTDOOR PURSUITS,ANGLING AND SPORTS FISHING,include,leisure_tourism,钓鱼和运动垂钓类别明确表示活动功能，应与只记录水体的类别区分。,poi-research-v3.0.0,step07_dictionary
+04230283,04,23,0423,SPORT AND ENTERTAINMENT,OUTDOOR PURSUITS,"COMBAT, LASER AND PAINTBALL GAMES",include,leisure_tourism,对抗、激光和 paintball 游戏提供户外娱乐活动，纳入休闲功能。,poi-research-v3.0.0,step07_dictionary
+04230284,04,23,0423,SPORT AND ENTERTAINMENT,OUTDOOR PURSUITS,HOT AIR BALLOONING,include,leisure_tourism,热气球活动提供明确户外休闲体验，纳入活动服务场所。,poi-research-v3.0.0,step07_dictionary
+04230285,04,23,0423,SPORT AND ENTERTAINMENT,OUTDOOR PURSUITS,PARACHUTING AND BUNGEE JUMPING,include,leisure_tourism,跳伞和蹦极提供体育休闲活动，纳入场所及服务功能。,poi-research-v3.0.0,step07_dictionary
+04230286,04,23,0423,SPORT AND ENTERTAINMENT,OUTDOOR PURSUITS,PARAGLIDING AND HANG GLIDING,include,leisure_tourism,滑翔伞和悬挂滑翔提供户外运动服务，纳入休闲活动。,poi-research-v3.0.0,step07_dictionary
+04230287,04,23,0423,SPORT AND ENTERTAINMENT,OUTDOOR PURSUITS,WATERSPORTS,include,leisure_tourism,水上运动类别直接表示运动活动及服务，不因邻水而归为纯自然对象。,poi-research-v3.0.0,step07_dictionary
+04230321,04,23,0423,SPORT AND ENTERTAINMENT,OUTDOOR PURSUITS,"RIDING SCHOOLS, LIVERY STABLES AND EQUESTRIAN CENTRES",include,leisure_tourism,骑术学校、寄养马厩及马术中心提供培训、照护或运动活动，类别内各项均纳入。,poi-research-v3.0.0,step07_dictionary
+04230770,04,23,0423,SPORT AND ENTERTAINMENT,OUTDOOR PURSUITS,OUTDOOR PURSUIT ORGANISERS AND EQUIPMENT,include,leisure_tourism,户外活动组织者及装备服务位于户外运动子类，具有活动组织或装备供给功能，不仅因名称含设备而排除。,poi-research-v3.0.0,step07_dictionary
+04240289,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,ATHLETICS FACILITIES,include,leisure_tourism,田径设施提供明确体育活动空间，纳入休闲文体功能。,poi-research-v3.0.0,step07_dictionary
+04240290,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,BOWLING FACILITIES,include,leisure_tourism,保龄球设施承载体育娱乐活动，属于明确活动场所。,poi-research-v3.0.0,step07_dictionary
+04240291,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,CLIMBING FACILITIES,include,leisure_tourism,攀岩设施提供运动活动空间，纳入体育功能。,poi-research-v3.0.0,step07_dictionary
+04240292,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,"GOLF RANGES, COURSES, CLUBS AND PROFESSIONALS",include,leisure_tourism,高尔夫练习场、球场、俱乐部和教练均提供运动或专业服务，纳入范围明确。,poi-research-v3.0.0,step07_dictionary
+04240293,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,"GYMNASIUMS, SPORTS HALLS AND LEISURE CENTRES",include,leisure_tourism,健身房、体育馆及休闲中心提供运动娱乐活动，纳入场所功能。,poi-research-v3.0.0,step07_dictionary
+04240294,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,ICE RINKS,include,leisure_tourism,溜冰场提供明确冰上运动活动，纳入体育设施。,poi-research-v3.0.0,step07_dictionary
+04240297,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,MOTORSPORT VENUES,include,leisure_tourism,赛车运动场地提供竞赛和运动活动，属于明确文体场所。,poi-research-v3.0.0,step07_dictionary
+04240298,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,RACECOURSES AND GREYHOUND TRACKS,include,leisure_tourism,赛马场和赛犬跑道承载赛事及观赛活动，纳入休闲文体功能。,poi-research-v3.0.0,step07_dictionary
+04240299,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,SHOOTING FACILITIES,include,leisure_tourism,射击设施提供体育活动空间，不以一般公众自由进入为条件。,poi-research-v3.0.0,step07_dictionary
+04240300,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,SKI INFRASTRUCTURE AND AERIAL CABLEWAYS,include,leisure_tourism,滑雪设施和空中索道直接支持滑雪、登乘及游憩活动，不按一般网络构件排除。,poi-research-v3.0.0,step07_dictionary
+04240301,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,SNOOKER AND POOL HALLS,include,leisure_tourism,斯诺克和台球厅提供明确体育娱乐活动空间。,poi-research-v3.0.0,step07_dictionary
+04240302,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,"SPORTS GROUNDS, STADIA AND PITCHES",include,leisure_tourism,运动场、体育场馆和球场承载体育活动，不要求收费或有人管理。,poi-research-v3.0.0,step07_dictionary
+04240303,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,SQUASH COURTS,include,leisure_tourism,壁球场提供明确体育活动设施，纳入文体功能。,poi-research-v3.0.0,step07_dictionary
+04240304,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,SWIMMING POOLS,include,leisure_tourism,游泳池为明确游泳活动设施，区别于水体子类中的自然水池。,poi-research-v3.0.0,step07_dictionary
+04240305,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,TENNIS FACILITIES,include,leisure_tourism,网球设施提供运动活动场所，纳入文体功能。,poi-research-v3.0.0,step07_dictionary
+04240306,04,24,0424,SPORT AND ENTERTAINMENT,SPORTS COMPLEX,VELODROMES,include,leisure_tourism,自行车竞赛场提供体育训练和赛事空间，纳入活动场所。,poi-research-v3.0.0,step07_dictionary
+04250308,04,25,0425,SPORT AND ENTERTAINMENT,"VENUES, STAGE AND SCREEN",CINEMAS,include,leisure_tourism,电影院提供影视观赏活动，属于明确文化娱乐场所。,poi-research-v3.0.0,step07_dictionary
+04250312,04,25,0425,SPORT AND ENTERTAINMENT,"VENUES, STAGE AND SCREEN",NIGHTCLUBS,include,leisure_tourism,夜总会提供娱乐和社交活动，纳入休闲功能。,poi-research-v3.0.0,step07_dictionary
+04250314,04,25,0425,SPORT AND ENTERTAINMENT,"VENUES, STAGE AND SCREEN",SOCIAL CLUBS,include,leisure_tourism,社交俱乐部提供聚会活动空间，不因会员限制而排除。,poi-research-v3.0.0,step07_dictionary
+04250315,04,25,0425,SPORT AND ENTERTAINMENT,"VENUES, STAGE AND SCREEN",THEATRES AND CONCERT HALLS,include,leisure_tourism,剧院和音乐厅承载演出及文化活动，纳入场所功能。,poi-research-v3.0.0,step07_dictionary
+04250762,04,25,0425,SPORT AND ENTERTAINMENT,"VENUES, STAGE AND SCREEN",CONFERENCE AND EXHIBITION CENTRES,include,leisure_tourism,会议展览中心提供会议和展示活动空间，商务活动也在本研究范围内。,poi-research-v3.0.0,step07_dictionary
+04250825,04,25,0425,SPORT AND ENTERTAINMENT,"VENUES, STAGE AND SCREEN",ADULT VENUES,include,leisure_tourism,成人娱乐场所具有明确活动功能，按原生场所类别纳入。,poi-research-v3.0.0,step07_dictionary
+05260316,05,26,0526,EDUCATION AND HEALTH,ANIMAL WELFARE,ANIMAL CLIPPING AND GROOMING,include,retail,动物修剪和美容提供宠物生活服务；原 retail 与服务属性冲突，另列建议而保留原组。,poi-research-v3.0.0,step07_dictionary
+05260317,05,26,0526,EDUCATION AND HEALTH,ANIMAL WELFARE,DOG TRAINING,include,education_health_public,犬只训练提供动物训练和照护服务，具有明确活动功能。,poi-research-v3.0.0,step07_dictionary
+05260318,05,26,0526,EDUCATION AND HEALTH,ANIMAL WELFARE,HORSE TRAINING,include,education_health_public,马匹训练提供专业训练活动，纳入动物服务场所。,poi-research-v3.0.0,step07_dictionary
+05260319,05,26,0526,EDUCATION AND HEALTH,ANIMAL WELFARE,KENNELS AND CATTERIES,include,education_health_public,犬舍和猫舍提供动物寄养照护服务，纳入服务功能。,poi-research-v3.0.0,step07_dictionary
+05260320,05,26,0526,EDUCATION AND HEALTH,ANIMAL WELFARE,PET CEMETERIES AND CREMATORIA,include,education_health_public,宠物墓地及火化设施提供动物殡葬服务，属于明确服务场所。,poi-research-v3.0.0,step07_dictionary
+05260322,05,26,0526,EDUCATION AND HEALTH,ANIMAL WELFARE,VETERINARIANS AND ANIMAL HOSPITALS,include,education_health_public,兽医和动物医院提供动物医疗服务，纳入健康服务功能。,poi-research-v3.0.0,step07_dictionary
+05260323,05,26,0526,EDUCATION AND HEALTH,ANIMAL WELFARE,VETERINARY PHARMACIES,include,education_health_public,兽药房提供动物医药供给服务，具有明确健康及商品服务功能。,poi-research-v3.0.0,step07_dictionary
+05270324,05,27,0527,EDUCATION AND HEALTH,EDUCATION SUPPORT SERVICES,EDUCATION AUTHORITIES,include,education_health_public,教育主管机构承担教育管理服务，纳入公共和教育功能。,poi-research-v3.0.0,step07_dictionary
+05270325,05,27,0527,EDUCATION AND HEALTH,EDUCATION SUPPORT SERVICES,EDUCATION SERVICES,include,education_health_public,教育服务机构提供教学及相关支持，类别功能明确。,poi-research-v3.0.0,step07_dictionary
+05270326,05,27,0527,EDUCATION AND HEALTH,EDUCATION SUPPORT SERVICES,EXAMINATION BOARDS,include,education_health_public,考试机构提供考评和教育管理服务，纳入教育支持功能。,poi-research-v3.0.0,step07_dictionary
+05270800,05,27,0527,EDUCATION AND HEALTH,EDUCATION SUPPORT SERVICES,SECURE UNITS,include,education_health_public,教育支持子类的安全管护机构提供特定群体的照护或教育服务，不因限制进入而排除。,poi-research-v3.0.0,step07_dictionary
+05280330,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,"ALTERNATIVE, NATURAL AND COMPLEMENTARY",include,education_health_public,替代、自然和补充疗法在健康从业子类中提供保健服务，纳入服务活动不表示认可疗效。,poi-research-v3.0.0,step07_dictionary
+05280333,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,FOOT RELATED SERVICES,include,education_health_public,足部相关健康服务具有明确诊护和保健功能。,poi-research-v3.0.0,step07_dictionary
+05280335,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,DENTAL TECHNICIANS,include,education_health_public,牙科技师提供牙科制作及技术服务，纳入健康支持活动。,poi-research-v3.0.0,step07_dictionary
+05280337,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,DIETICIANS AND NUTRITIONISTS,include,education_health_public,营养师提供营养咨询和健康服务，纳入专业服务场所。,poi-research-v3.0.0,step07_dictionary
+05280340,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,HOMEOPATHS,include,education_health_public,顺势疗法从业场所在原生健康子类中提供服务，纳入活动描述不构成疗效判断。,poi-research-v3.0.0,step07_dictionary
+05280342,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,MIDWIFERY,include,education_health_public,助产服务提供孕产照护，纳入医疗健康功能。,poi-research-v3.0.0,step07_dictionary
+05280344,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,OPTOMETRISTS AND OPTICIANS,include,education_health_public,验光师及眼镜专业服务提供视力检查和相关服务，纳入健康活动。,poi-research-v3.0.0,step07_dictionary
+05280345,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,PHYSICAL THERAPY,include,education_health_public,物理治疗提供康复服务，纳入医疗健康场所。,poi-research-v3.0.0,step07_dictionary
+05280352,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,SPEECH THERAPISTS,include,education_health_public,言语治疗提供康复训练服务，具有明确健康功能。,poi-research-v3.0.0,step07_dictionary
+05280354,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,SURGEONS AND COSMETIC SURGERIES,include,education_health_public,外科及整形外科提供医疗服务，纳入诊疗活动场所。,poi-research-v3.0.0,step07_dictionary
+05280364,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,CHEMISTS AND PHARMACIES,include,education_health_public,药房提供药品供应和用药服务，纳入范围不取决于是否独立于医院或商场。,poi-research-v3.0.0,step07_dictionary
+05280365,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,CLINICS AND HEALTH CENTRES,include,education_health_public,诊所和健康中心提供医疗保健服务，纳入健康功能。,poi-research-v3.0.0,step07_dictionary
+05280367,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,DENTAL AND MEDICAL LABORATORIES,include,education_health_public,牙科和医学实验室提供检验或技术支持，属于医疗生产服务活动。,poi-research-v3.0.0,step07_dictionary
+05280368,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,DENTAL SURGERIES,include,education_health_public,牙科诊所提供明确诊疗服务，纳入健康功能。,poi-research-v3.0.0,step07_dictionary
+05280369,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,DOCTORS SURGERIES,include,education_health_public,医生诊所提供医疗咨询和诊疗服务，纳入场所范围。,poi-research-v3.0.0,step07_dictionary
+05280370,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,HOSPICES,include,education_health_public,临终关怀机构提供照护服务，不因服务对象特殊而排除。,poi-research-v3.0.0,step07_dictionary
+05280371,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,HOSPITALS,include,education_health_public,医院提供医疗及照护活动，属于明确健康服务场所。,poi-research-v3.0.0,step07_dictionary
+05280372,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,MENTAL HEALTH CENTRES AND PRACTITIONERS,include,education_health_public,精神健康中心及从业机构提供精神健康服务，纳入医疗功能。,poi-research-v3.0.0,step07_dictionary
+05280373,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,NURSING AND RESIDENTIAL CARE HOMES,include,education_health_public,护理和住宿照护机构提供长期照护服务，纳入健康及社会服务范围。,poi-research-v3.0.0,step07_dictionary
+05280780,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,ACCIDENT AND EMERGENCY HOSPITALS,include,education_health_public,急诊医院提供紧急医疗服务，纳入公共健康功能。,poi-research-v3.0.0,step07_dictionary
+05280809,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,PARENTING AND CHILDCARE SERVICES,include,education_health_public,育儿及托育服务提供家庭照护支持，纳入教育健康和社会服务活动。,poi-research-v3.0.0,step07_dictionary
+05280812,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,WALK-IN CENTRE,include,education_health_public,无需预约的医疗中心提供直接健康服务，纳入诊疗场所。,poi-research-v3.0.0,step07_dictionary
+05280815,05,28,0528,EDUCATION AND HEALTH,HEALTH PRACTITIONERS AND ESTABLISHMENTS,DAY AND CARE CENTRES,include,education_health_public,日间及照护中心提供照料与支持活动，纳入社会健康服务。,poi-research-v3.0.0,step07_dictionary
+05290106,05,29,0529,EDUCATION AND HEALTH,HEALTH SUPPORT SERVICES,MEDICAL EQUIPMENT RENTAL AND LEASING,include,education_health_public,医疗设备租赁提供医疗支持服务，不因提供的是设备使用而排除。,poi-research-v3.0.0,step07_dictionary
+05290356,05,29,0529,EDUCATION AND HEALTH,HEALTH SUPPORT SERVICES,AMBULANCE AND MEDICAL TRANSPORTATION SERVICES,include,education_health_public,救护和医疗运输提供紧急及医疗出行服务，纳入健康支持功能。,poi-research-v3.0.0,step07_dictionary
+05290357,05,29,0529,EDUCATION AND HEALTH,HEALTH SUPPORT SERVICES,BLOOD TRANSFUSION SERVICE,include,education_health_public,输血服务承担采供血等医疗支持，纳入健康设施。,poi-research-v3.0.0,step07_dictionary
+05290358,05,29,0529,EDUCATION AND HEALTH,HEALTH SUPPORT SERVICES,COUNSELLING AND ADVICE SERVICES,include,education_health_public,辅导咨询提供心理及生活支持服务，纳入健康支持活动。,poi-research-v3.0.0,step07_dictionary
+05290359,05,29,0529,EDUCATION AND HEALTH,HEALTH SUPPORT SERVICES,HEALTH AUTHORITIES,include,education_health_public,卫生主管机构提供医疗卫生管理，纳入公共健康服务。,poi-research-v3.0.0,step07_dictionary
+05290361,05,29,0529,EDUCATION AND HEALTH,HEALTH SUPPORT SERVICES,MEDICAL WASTE DISPOSAL SERVICES,include,industry_logistics,医疗废弃物处置具有明确处理生产和环境服务功能。,poi-research-v3.0.0,step07_dictionary
+05290362,05,29,0529,EDUCATION AND HEALTH,HEALTH SUPPORT SERVICES,PREGNANCY RELATED SERVICES AND HELP CENTRES,include,education_health_public,孕期相关服务及援助中心提供孕产支持，纳入健康和救助服务。,poi-research-v3.0.0,step07_dictionary
+05290363,05,29,0529,EDUCATION AND HEALTH,HEALTH SUPPORT SERVICES,X-RAY SERVICES,include,education_health_public,X 光服务提供医学影像检查，纳入健康功能。,poi-research-v3.0.0,step07_dictionary
+05310375,05,31,0531,EDUCATION AND HEALTH,"PRIMARY, SECONDARY AND TERTIARY EDUCATION","FIRST, PRIMARY AND INFANT SCHOOLS",include,education_health_public,小学及幼儿学段学校提供基础教育，纳入教育场所。,poi-research-v3.0.0,step07_dictionary
+05310376,05,31,0531,EDUCATION AND HEALTH,"PRIMARY, SECONDARY AND TERTIARY EDUCATION",FURTHER EDUCATION ESTABLISHMENTS,include,education_health_public,继续教育机构提供教育培训，纳入教育功能。,poi-research-v3.0.0,step07_dictionary
+05310377,05,31,0531,EDUCATION AND HEALTH,"PRIMARY, SECONDARY AND TERTIARY EDUCATION",INDEPENDENT AND PREPARATORY SCHOOLS,include,education_health_public,私立和预备学校提供教育服务，不因招生或进入限制而排除。,poi-research-v3.0.0,step07_dictionary
+05310379,05,31,0531,EDUCATION AND HEALTH,"PRIMARY, SECONDARY AND TERTIARY EDUCATION",BROAD AGE RANGE AND SECONDARY STATE SCHOOLS,include,education_health_public,跨学段和公立中学提供基础教育，纳入学校活动场所。,poi-research-v3.0.0,step07_dictionary
+05310380,05,31,0531,EDUCATION AND HEALTH,"PRIMARY, SECONDARY AND TERTIARY EDUCATION",SPECIAL SCHOOLS AND COLLEGES,include,education_health_public,特殊学校和学院提供特定群体教育，纳入教育功能。,poi-research-v3.0.0,step07_dictionary
+05310381,05,31,0531,EDUCATION AND HEALTH,"PRIMARY, SECONDARY AND TERTIARY EDUCATION",HIGHER EDUCATION ESTABLISHMENTS,include,education_health_public,高等教育机构提供教学研究活动，纳入教育场所。,poi-research-v3.0.0,step07_dictionary
+05310382,05,31,0531,EDUCATION AND HEALTH,"PRIMARY, SECONDARY AND TERTIARY EDUCATION",UNSPECIFIED AND OTHER SCHOOLS,include,education_health_public,未细分和其他学校仍明确属于学校，不因细分类缺失排除教育活动。,poi-research-v3.0.0,step07_dictionary
+05310801,05,31,0531,EDUCATION AND HEALTH,"PRIMARY, SECONDARY AND TERTIARY EDUCATION",PUPIL REFERRAL UNITS,include,education_health_public,学生转介教育机构提供替代教育服务，纳入教育支持功能。,poi-research-v3.0.0,step07_dictionary
+05320384,05,32,0532,EDUCATION AND HEALTH,RECREATIONAL AND VOCATIONAL EDUCATION,BALLET AND DANCE SCHOOLS,include,education_health_public,芭蕾和舞蹈学校提供艺术培训，纳入教育服务。,poi-research-v3.0.0,step07_dictionary
+05320385,05,32,0532,EDUCATION AND HEALTH,RECREATIONAL AND VOCATIONAL EDUCATION,BEAUTY AND HAIRDRESSING SCHOOLS,include,education_health_public,美容美发学校提供职业培训，区别于美容商品销售。,poi-research-v3.0.0,step07_dictionary
+05320388,05,32,0532,EDUCATION AND HEALTH,RECREATIONAL AND VOCATIONAL EDUCATION,DIVING SCHOOLS,include,education_health_public,潜水学校提供运动技能培训，纳入教育活动。,poi-research-v3.0.0,step07_dictionary
+05320389,05,32,0532,EDUCATION AND HEALTH,RECREATIONAL AND VOCATIONAL EDUCATION,DRAMA SCHOOLS,include,education_health_public,戏剧学校提供表演教育，纳入培训场所。,poi-research-v3.0.0,step07_dictionary
+05320390,05,32,0532,EDUCATION AND HEALTH,RECREATIONAL AND VOCATIONAL EDUCATION,DRIVING AND MOTORCYCLE SCHOOLS,include,education_health_public,汽车及摩托驾驶学校提供驾驶培训，纳入教育服务。,poi-research-v3.0.0,step07_dictionary
+05320391,05,32,0532,EDUCATION AND HEALTH,RECREATIONAL AND VOCATIONAL EDUCATION,FIRST AID TRAINING,include,education_health_public,急救培训提供医疗应急技能教育，纳入教育活动。,poi-research-v3.0.0,step07_dictionary
+05320392,05,32,0532,EDUCATION AND HEALTH,RECREATIONAL AND VOCATIONAL EDUCATION,FLYING SCHOOLS,include,education_health_public,飞行学校提供航空技能培训，纳入职业教育。,poi-research-v3.0.0,step07_dictionary
+05320394,05,32,0532,EDUCATION AND HEALTH,RECREATIONAL AND VOCATIONAL EDUCATION,LANGUAGE SCHOOLS,include,education_health_public,语言学校提供语言教学，属于明确教育服务。,poi-research-v3.0.0,step07_dictionary
+05320395,05,32,0532,EDUCATION AND HEALTH,RECREATIONAL AND VOCATIONAL EDUCATION,MARTIAL ARTS INSTRUCTION,include,education_health_public,武术教学提供运动技能培训，纳入教育活动。,poi-research-v3.0.0,step07_dictionary
+05320396,05,32,0532,EDUCATION AND HEALTH,RECREATIONAL AND VOCATIONAL EDUCATION,MUSIC TEACHERS AND SCHOOLS,include,education_health_public,音乐教师和学校提供音乐教育，不要求独立校舍或公众自由进入。,poi-research-v3.0.0,step07_dictionary
+05320397,05,32,0532,EDUCATION AND HEALTH,RECREATIONAL AND VOCATIONAL EDUCATION,NURSERY SCHOOLS AND PRE AND AFTER SCHOOL CARE,include,education_health_public,幼儿园及课前课后照护提供教育托育服务，纳入活动设施。,poi-research-v3.0.0,step07_dictionary
+05320399,05,32,0532,EDUCATION AND HEALTH,RECREATIONAL AND VOCATIONAL EDUCATION,SAILING SCHOOLS,include,education_health_public,帆船学校提供航海运动培训，纳入教育服务。,poi-research-v3.0.0,step07_dictionary
+05320400,05,32,0532,EDUCATION AND HEALTH,RECREATIONAL AND VOCATIONAL EDUCATION,SPORTS AND FITNESS COACHING,include,education_health_public,体育健身教练提供运动技能及训练指导，纳入培训服务。,poi-research-v3.0.0,step07_dictionary
+05320403,05,32,0532,EDUCATION AND HEALTH,RECREATIONAL AND VOCATIONAL EDUCATION,TRAINING PROVIDERS AND CENTRES,include,education_health_public,培训提供者和中心提供职业或技能教育，类别功能明确。,poi-research-v3.0.0,step07_dictionary
+06330404,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,ARMED SERVICES,include,education_health_public,武装部队机构具有国防和公共行政活动，不以公众可进入为纳入条件。,poi-research-v3.0.0,step07_dictionary
+06330407,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,COASTAL SAFETY,include,education_health_public,海岸安全机构提供海事安全和救助服务，纳入公共服务。,poi-research-v3.0.0,step07_dictionary
+06330408,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,CONSULAR SERVICES,include,education_health_public,领事服务提供公共行政支持，纳入机构服务功能。,poi-research-v3.0.0,step07_dictionary
+06330409,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,"COURTS, COURT SERVICES AND TRIBUNALS",include,education_health_public,法院、法庭及司法服务提供司法活动，纳入公共服务场所。,poi-research-v3.0.0,step07_dictionary
+06330411,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,DRIVING TEST CENTRES,include,education_health_public,驾驶考试中心提供驾驶资格考核服务，纳入公共服务。,poi-research-v3.0.0,step07_dictionary
+06330412,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,EMBASSIES AND CONSULATES,include,education_health_public,使馆和领馆提供外交及领事行政服务，不因安保限制排除。,poi-research-v3.0.0,step07_dictionary
+06330414,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,FIRE BRIGADE STATIONS,include,education_health_public,消防站提供救援和应急服务，是明确运营场站。,poi-research-v3.0.0,step07_dictionary
+06330415,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,CENTRAL GOVERNMENT,include,education_health_public,中央政府机构承担公共行政活动，纳入公共服务范围。,poi-research-v3.0.0,step07_dictionary
+06330416,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,LOCAL GOVERNMENT,include,education_health_public,地方政府机构提供地方行政服务，纳入公共活动场所。,poi-research-v3.0.0,step07_dictionary
+06330417,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,REVENUE AND CUSTOMS OFFICES,include,education_health_public,税务海关机构提供税收和通关管理服务，纳入公共服务。,poi-research-v3.0.0,step07_dictionary
+06330418,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,JOB CENTRES,include,education_health_public,就业中心提供求职及就业支持，纳入公共服务活动。,poi-research-v3.0.0,step07_dictionary
+06330419,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,MEMBERS OF PARLIAMENT AND MEMBERS OF EUROPEAN PARLIAMENT,include,education_health_public,议员相关服务点承担代表及公共事务服务；是否过时须凭具体记录核实，不能按类别名称整类删除。,poi-research-v3.0.0,step07_dictionary
+06330422,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,POLICE STATIONS,include,education_health_public,警察局提供治安及公共安全服务，纳入运营机构。,poi-research-v3.0.0,step07_dictionary
+06330424,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,PRISONS,include,education_health_public,监狱承担司法矫正等公共职能，不以公众开放作为纳入门槛。,poi-research-v3.0.0,step07_dictionary
+06330425,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,PROBATION OFFICES AND POLICE SUPPORT SERVICES,include,education_health_public,缓刑机构和警务支持提供司法及安全服务，纳入公共活动。,poi-research-v3.0.0,step07_dictionary
+06330426,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,REGISTRARS OFFICES,include,education_health_public,登记机构提供民事登记服务，纳入公共服务场所。,poi-research-v3.0.0,step07_dictionary
+06330429,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,SOCIAL SERVICE ACTIVITIES,include,education_health_public,社会服务活动提供福利及帮扶，纳入机构和救助功能。,poi-research-v3.0.0,step07_dictionary
+06330431,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,TRIBUNALS,include,education_health_public,法庭提供司法审理服务，纳入公共机构活动。,poi-research-v3.0.0,step07_dictionary
+06330830,06,33,0633,PUBLIC INFRASTRUCTURE,CENTRAL AND LOCAL GOVERNMENT,FOREIGN COUNTRY SUPPORT ACTIVITIES,include,education_health_public,外国事务支持活动位于政府子类，具有机构和行政服务功能。,poi-research-v3.0.0,step07_dictionary
+06340433,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,ELECTRICAL FEATURES,include,,依据用户最新人工复核，由原判断调整为纳入（v2：review；v3：include）。,poi-research-v3.0.0,step07_dictionary
+06340437,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,GAS FEATURES,include,,依据用户最新人工复核，由原判断调整为纳入（v2：review；v3：include）。,poi-research-v3.0.0,step07_dictionary
+06340438,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,METEOROLOGICAL FEATURES,include,,依据用户最新人工复核，由原判断调整为纳入（v2：review；v3：include）。,poi-research-v3.0.0,step07_dictionary
+06340440,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,REFUSE DISPOSAL FACILITIES,include,industry_logistics,垃圾处置设施承担明确废物处理服务，属于生产和环境服务功能。,poi-research-v3.0.0,step07_dictionary
+06340441,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,"WASTE STORAGE, PROCESSING AND DISPOSAL",include,industry_logistics,废物存储、加工和处置承担明确物资处理活动，不要求公众进入。,poi-research-v3.0.0,step07_dictionary
+06340442,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,TELECOMMUNICATIONS COMPANIES,include,office_services,电信公司提供通信运营或企业服务，具有明确业务场所功能。,poi-research-v3.0.0,step07_dictionary
+06340443,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,TELECOMMUNICATIONS FEATURES,include,,依据用户最新人工复核，由原判断调整为纳入（v2：review；v3：include）。,poi-research-v3.0.0,step07_dictionary
+06340444,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,UTILITY COMPANIES AND BROKERS,include,office_services,公用事业公司及经纪机构提供能源或公共事业运营服务，纳入办公服务功能。,poi-research-v3.0.0,step07_dictionary
+06340453,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,ALLOTMENTS,include,leisure_tourism,配给菜园提供种植及休闲活动空间，不要求商业经营或专人管理。,poi-research-v3.0.0,step07_dictionary
+06340454,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,CEMETERIES AND CREMATORIA,include,education_health_public,墓地和火化设施提供安葬、纪念和殡葬服务，纳入公共及生活服务。,poi-research-v3.0.0,step07_dictionary
+06340455,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,DRINKING FOUNTAINS AND WATER POINTS,include,education_health_public,饮水喷泉及供水点直接提供饮水便民服务；无人值守、体量小或附属于公园不构成类别排除。,poi-research-v3.0.0,step07_dictionary
+06340456,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,HALLS AND COMMUNITY CENTRES,include,education_health_public,礼堂和社区中心承载集会及社区服务，属于明确活动场所。,poi-research-v3.0.0,step07_dictionary
+06340457,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,LETTER BOXES,include,education_health_public,邮筒直接提供投递邮件服务，按便民设施纳入；不因与邮局或商店同址而整类排除。,poi-research-v3.0.0,step07_dictionary
+06340458,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,LIBRARIES,include,education_health_public,图书馆提供阅读、信息与文化公共服务，纳入活动设施。,poi-research-v3.0.0,step07_dictionary
+06340459,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,PLACES OF WORSHIP,include,education_health_public,宗教活动场所提供礼拜和社区活动，不要求公众随时进入。,poi-research-v3.0.0,step07_dictionary
+06340461,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,PUBLIC TOILETS,include,education_health_public,公厕直接提供卫生便民服务，按本次标准纳入；是否收费、有人值守或独立经营均不是门槛。,poi-research-v3.0.0,step07_dictionary
+06340462,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,RECYCLING CENTRES,include,industry_logistics,回收中心提供明确物资回收服务，纳入生产物流及环境服务功能。,poi-research-v3.0.0,step07_dictionary
+06340802,06,34,0634,PUBLIC INFRASTRUCTURE,INFRASTRUCTURE AND FACILITIES,WIFI HOTSPOTS,include,,WiFi 热点直接提供上网接入服务，不能以设备或附属服务点为由排除；纳入已确定，办公通信服务与公共便民服务的功能组边界另列核对，暂保留原空值。,poi-research-v3.0.0,step07_dictionary
+06350445,06,35,0635,PUBLIC INFRASTRUCTURE,ORGANISATIONS,ANIMAL WELFARE ORGANISATIONS,include,education_health_public,动物福利组织提供保护救助活动，纳入社会服务功能。,poi-research-v3.0.0,step07_dictionary
+06350446,06,35,0635,PUBLIC INFRASTRUCTURE,ORGANISATIONS,FAN CLUBS AND ASSOCIATIONS,include,education_health_public,爱好者俱乐部和协会提供组织及集体活动，纳入社区服务范围。,poi-research-v3.0.0,step07_dictionary
+06350447,06,35,0635,PUBLIC INFRASTRUCTURE,ORGANISATIONS,SPORTS CLUBS AND ASSOCIATIONS,include,leisure_tourism,体育俱乐部和协会承担运动组织或活动，纳入文体服务。,poi-research-v3.0.0,step07_dictionary
+06350448,06,35,0635,PUBLIC INFRASTRUCTURE,ORGANISATIONS,INSTITUTES AND PROFESSIONAL ORGANISATIONS,include,office_services,学会和专业组织提供行业交流与专业支持，具有明确服务活动。,poi-research-v3.0.0,step07_dictionary
+06350449,06,35,0635,PUBLIC INFRASTRUCTURE,ORGANISATIONS,POLITICAL PARTIES AND RELATED ORGANISATIONS,include,education_health_public,政党及相关组织提供政治和社会组织活动，纳入公共机构功能。,poi-research-v3.0.0,step07_dictionary
+06350450,06,35,0635,PUBLIC INFRASTRUCTURE,ORGANISATIONS,RELIGIOUS ORGANISATIONS,include,education_health_public,宗教组织提供宗教及社会服务，纳入机构活动。,poi-research-v3.0.0,step07_dictionary
+06350452,06,35,0635,PUBLIC INFRASTRUCTURE,ORGANISATIONS,YOUTH ORGANISATIONS,include,education_health_public,青年组织提供青年活动和支持服务，纳入社区教育功能。,poi-research-v3.0.0,step07_dictionary
+06350769,06,35,0635,PUBLIC INFRASTRUCTURE,ORGANISATIONS,COMMUNITY NETWORKS AND PROJECTS,include,education_health_public,社区网络与项目提供社区组织或服务活动，不因名称含网络而按工程网络排除。,poi-research-v3.0.0,step07_dictionary
+06350816,06,35,0635,PUBLIC INFRASTRUCTURE,ORGANISATIONS,CHARITABLE ORGANISATIONS,include,education_health_public,慈善组织提供公益及救助活动，纳入社会服务功能。,poi-research-v3.0.0,step07_dictionary
+06350817,06,35,0635,PUBLIC INFRASTRUCTURE,ORGANISATIONS,CONSERVATION ORGANISATIONS,include,education_health_public,保护组织承担环境或遗产保护服务，区别于纯自然地理对象。,poi-research-v3.0.0,step07_dictionary
+07370464,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,"BABY, NURSERY AND PLAYGROUND EQUIPMENT",include,industry_logistics,制造业—消费品子类中的婴幼儿及游乐设备生产具有明确生产功能，不把商品名称当作孤立设备点。,poi-research-v3.0.0,step07_dictionary
+07370465,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,BEDS AND BEDDING,include,industry_logistics,制造业—消费品子类中的床具和寝具生产属于工业活动，保留生产场所。,poi-research-v3.0.0,step07_dictionary
+07370466,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,BRUSHES,include,industry_logistics,制造业—消费品子类中的刷具生产具有加工制造功能，不要求公众进入。,poi-research-v3.0.0,step07_dictionary
+07370467,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,CANDLES,include,industry_logistics,制造业—消费品子类中的蜡烛制造属于生产活动，不按单件物品记录理解。,poi-research-v3.0.0,step07_dictionary
+07370468,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,CANVAS GOODS,include,industry_logistics,制造业—消费品子类中的帆布用品生产属于明确加工活动。,poi-research-v3.0.0,step07_dictionary
+07370470,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,"CARPETS, FLOORING, RUGS AND SOFT FURNISHINGS",include,industry_logistics,制造业—消费品子类中的地毯、地板和软装生产具有工业生产功能。,poi-research-v3.0.0,step07_dictionary
+07370471,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,"MEDALS, TROPHIES, CEREMONIAL AND RELIGIOUS GOODS",include,industry_logistics,制造业—消费品子类中的奖章、奖杯及礼仪宗教用品生产属于制造活动。,poi-research-v3.0.0,step07_dictionary
+07370472,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,CHINA AND GLASSWARE,include,industry_logistics,制造业—消费品子类中的瓷器和玻璃器皿生产具有明确加工功能。,poi-research-v3.0.0,step07_dictionary
+07370473,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,"CLOTHING, COMPONENTS AND ACCESSORIES",include,industry_logistics,制造业—消费品子类中的服装、部件和配饰生产属于产业活动。,poi-research-v3.0.0,step07_dictionary
+07370474,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,COOKERS AND STOVES - NON ELECTRICAL,include,industry_logistics,制造业—消费品子类中的非电炉灶生产属于制造场所，不是炉灶工程代表点。,poi-research-v3.0.0,step07_dictionary
+07370475,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,"COSMETICS, TOILETRIES AND PERFUMES",include,industry_logistics,制造业—消费品子类中的化妆品、洗护品和香水生产具有明确生产功能。,poi-research-v3.0.0,step07_dictionary
+07370476,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,CURTAINS AND BLINDS,include,industry_logistics,制造业—消费品子类中的窗帘和百叶生产属于加工制造活动。,poi-research-v3.0.0,step07_dictionary
+07370477,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,CUTLERY AND TABLEWARE,include,industry_logistics,制造业—消费品子类中的刀叉及餐具生产属于工业活动。,poi-research-v3.0.0,step07_dictionary
+07370478,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,DISABILITY AND MOBILITY EQUIPMENT,include,industry_logistics,制造业—消费品子类中的残障及行动辅助设备生产具有生产和供应功能。,poi-research-v3.0.0,step07_dictionary
+07370479,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,REFRIGERATION AND FREEZING APPLIANCES,include,industry_logistics,制造业—消费品子类中的冷藏冷冻器具生产属于明确制造活动。,poi-research-v3.0.0,step07_dictionary
+07370480,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,FOOTWEAR,include,industry_logistics,制造业—消费品子类中的鞋类生产具有加工制造功能，与鞋类零售另行分类。,poi-research-v3.0.0,step07_dictionary
+07370481,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,FURNITURE,include,industry_logistics,制造业—消费品子类中的家具生产属于产业活动，不要求门店销售。,poi-research-v3.0.0,step07_dictionary
+07370482,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,GARDEN GOODS,include,industry_logistics,制造业—消费品子类中的园艺用品生产具有明确生产功能。,poi-research-v3.0.0,step07_dictionary
+07370483,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,GIFTWARE,include,industry_logistics,制造业—消费品子类中的礼品生产属于加工制造场所。,poi-research-v3.0.0,step07_dictionary
+07370485,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,"HOBBY, SPORTS AND PASTIME PRODUCTS",include,industry_logistics,制造业—消费品子类中的爱好、体育及休闲用品生产具有工业功能。,poi-research-v3.0.0,step07_dictionary
+07370486,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,DISPOSABLE PRODUCTS,include,industry_logistics,制造业—消费品子类中的一次性用品生产属于生产活动。,poi-research-v3.0.0,step07_dictionary
+07370487,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,"JEWELLERY, GEMS, CLOCKS AND WATCHES",include,industry_logistics,制造业—消费品子类中的珠宝、宝石和钟表制作具有加工功能。,poi-research-v3.0.0,step07_dictionary
+07370488,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,LAMPSHADES AND LIGHTING,include,industry_logistics,制造业—消费品子类中的灯罩及照明用品生产属于制造活动，区别于路灯等网络构件。,poi-research-v3.0.0,step07_dictionary
+07370489,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,LEATHER PRODUCTS,include,industry_logistics,制造业—消费品子类中的皮革制品生产具有明确加工功能。,poi-research-v3.0.0,step07_dictionary
+07370490,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,LINGERIE AND HOSIERY,include,industry_logistics,制造业—消费品子类中的内衣和袜类生产属于纺织服饰产业活动。,poi-research-v3.0.0,step07_dictionary
+07370491,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,"LUGGAGE, BAGS, UMBRELLAS AND TRAVEL ACCESSORIES",include,industry_logistics,制造业—消费品子类中的箱包、雨伞及旅行用品生产具有制造功能。,poi-research-v3.0.0,step07_dictionary
+07370493,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,MUSICAL INSTRUMENTS,include,industry_logistics,制造业—消费品子类中的乐器制作属于生产活动，不要求演出空间。,poi-research-v3.0.0,step07_dictionary
+07370494,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,PHOTOGRAPHIC AND OPTICAL EQUIPMENT,include,industry_logistics,制造业—消费品子类中的摄影和光学设备生产属于技术制造活动。,poi-research-v3.0.0,step07_dictionary
+07370495,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,SAUNAS AND SUNBEDS,include,industry_logistics,制造业—消费品子类中的桑拿和日光浴设备生产具有工业功能，不把设备制造商当作孤立设备排除。,poi-research-v3.0.0,step07_dictionary
+07370497,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,"TENTS, MARQUEES AND CAMPING EQUIPMENT",include,industry_logistics,制造业—消费品子类中的帐篷、篷房和露营器材生产属于产业活动。,poi-research-v3.0.0,step07_dictionary
+07370498,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,TOBACCO PRODUCTS,include,industry_logistics,制造业—消费品子类中的烟草制品生产属于生产场所，纳入仅用于描述功能分布。,poi-research-v3.0.0,step07_dictionary
+07370782,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,FIREPLACES AND MANTELPIECES,include,industry_logistics,制造业—消费品子类中的壁炉及炉架生产具有制造功能，区别于建筑内构件本身。,poi-research-v3.0.0,step07_dictionary
+07370785,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,CONSERVATORIES,include,industry_logistics,制造业—消费品子类中的阳光房制作供应具有生产功能，不据名称推断为单纯建筑定位点。,poi-research-v3.0.0,step07_dictionary
+07370790,07,37,0737,MANUFACTURING AND PRODUCTION,CONSUMER PRODUCTS,"BATHROOM FIXTURES, FITTINGS AND SANITARY EQUIPMENT",include,industry_logistics,制造业—消费品子类中的卫浴装置和卫生设备生产具有明确工业功能。,poi-research-v3.0.0,step07_dictionary
+07380500,07,38,0738,MANUFACTURING AND PRODUCTION,EXTRACTIVE INDUSTRIES,COAL MINING,include,industry_logistics,煤矿开采属于明确采掘生产活动，不要求公众进入或先取得当前营业证明。,poi-research-v3.0.0,step07_dictionary
+07380501,07,38,0738,MANUFACTURING AND PRODUCTION,EXTRACTIVE INDUSTRIES,"OIL AND GAS EXTRACTION, REFINERY AND PRODUCT MANUFACTURE",include,industry_logistics,石油天然气开采、炼制和产品制造具有明确生产功能，应与管线等网络构件区分。,poi-research-v3.0.0,step07_dictionary
+07380502,07,38,0738,MANUFACTURING AND PRODUCTION,EXTRACTIVE INDUSTRIES,ORE MINING,include,industry_logistics,金属矿开采属于明确采掘生产，纳入产业活动场所。,poi-research-v3.0.0,step07_dictionary
+07380503,07,38,0738,MANUFACTURING AND PRODUCTION,EXTRACTIVE INDUSTRIES,PEAT EXTRACTION,include,industry_logistics,泥炭开采属于采掘生产活动，不按自然泥炭地对象处理。,poi-research-v3.0.0,step07_dictionary
+07380504,07,38,0738,MANUFACTURING AND PRODUCTION,EXTRACTIVE INDUSTRIES,"SAND, GRAVEL AND CLAY EXTRACTION AND MERCHANTS",include,industry_logistics,砂石和黏土开采及交易具有生产供应功能，类别内各项均纳入。,poi-research-v3.0.0,step07_dictionary
+07380506,07,38,0738,MANUFACTURING AND PRODUCTION,EXTRACTIVE INDUSTRIES,STONE QUARRYING AND PREPARATION,include,industry_logistics,石材采掘及加工属于明确采矿生产活动。,poi-research-v3.0.0,step07_dictionary
+07380507,07,38,0738,MANUFACTURING AND PRODUCTION,EXTRACTIVE INDUSTRIES,UNSPECIFIED QUARRIES OR MINES,include,industry_logistics,未细分的采石场或矿山仍在采掘工业子类中明确指向生产场所；不凭可能废弃的猜测整类排除，过时记录留待点位证据处理。,poi-research-v3.0.0,step07_dictionary
+07390508,07,39,0739,MANUFACTURING AND PRODUCTION,FARMING,ANIMAL BREEDERS (NOT HORSES),include,industry_logistics,非马类动物繁育属于农业生产活动，纳入生产场所。,poi-research-v3.0.0,step07_dictionary
+07390509,07,39,0739,MANUFACTURING AND PRODUCTION,FARMING,ARABLE FARMING,include,industry_logistics,耕作农业具有明确作物生产功能，不因场地不是商店或办公室而排除。,poi-research-v3.0.0,step07_dictionary
+07390510,07,39,0739,MANUFACTURING AND PRODUCTION,FARMING,BEE KEEPERS,include,industry_logistics,养蜂属于农业生产活动，纳入相关生产场所。,poi-research-v3.0.0,step07_dictionary
+07390511,07,39,0739,MANUFACTURING AND PRODUCTION,FARMING,DAIRY FARMING,include,industry_logistics,奶牛养殖属于明确畜牧生产活动。,poi-research-v3.0.0,step07_dictionary
+07390512,07,39,0739,MANUFACTURING AND PRODUCTION,FARMING,FISH AND SHELLFISH,include,industry_logistics,农业子类中的鱼类和贝类指养殖或生产活动，应与纯水体对象区分。,poi-research-v3.0.0,step07_dictionary
+07390513,07,39,0739,MANUFACTURING AND PRODUCTION,FARMING,FORESTRY,include,industry_logistics,农业子类中的林业代表林业生产活动，不等同于单纯森林地名或自然地理标记。,poi-research-v3.0.0,step07_dictionary
+07390514,07,39,0739,MANUFACTURING AND PRODUCTION,FARMING,"FRUIT, FLOWER AND VEGETABLE GROWERS",include,industry_logistics,水果、花卉和蔬菜种植者具有明确农业生产功能。,poi-research-v3.0.0,step07_dictionary
+07390516,07,39,0739,MANUFACTURING AND PRODUCTION,FARMING,HORSE BREEDERS AND DEALERS,include,industry_logistics,马匹繁育和交易提供畜牧生产及供应服务，均属于纳入范围。,poi-research-v3.0.0,step07_dictionary
+07390517,07,39,0739,MANUFACTURING AND PRODUCTION,FARMING,LIVESTOCK FARMING,include,industry_logistics,牲畜养殖属于明确农业生产，纳入生产场所。,poi-research-v3.0.0,step07_dictionary
+07390518,07,39,0739,MANUFACTURING AND PRODUCTION,FARMING,MIXED OR UNSPECIFIED FARMING,include,industry_logistics,混合或未细分农业仍明确指农业生产，不因缺少细分类别排除。,poi-research-v3.0.0,step07_dictionary
+07390520,07,39,0739,MANUFACTURING AND PRODUCTION,FARMING,"POULTRY FARMING, EQUIPMENT AND SUPPLIES",include,industry_logistics,家禽养殖及相关设备用品提供生产或农业供应服务，不仅因名称含设备而排除。,poi-research-v3.0.0,step07_dictionary
+07390521,07,39,0739,MANUFACTURING AND PRODUCTION,FARMING,SHEEP DIPS AND WASHES,include,industry_logistics,羊只药浴及清洗设施直接承担养殖卫生和生产支持功能；不以是否独立经营或有人值守作为排除理由。,poi-research-v3.0.0,step07_dictionary
+07400522,07,40,0740,MANUFACTURING AND PRODUCTION,FOODSTUFFS,ALCOHOLIC DRINKS,include,industry_logistics,制造业—食品子类中的酒精饮品生产具有明确食品加工功能。,poi-research-v3.0.0,step07_dictionary
+07400523,07,40,0740,MANUFACTURING AND PRODUCTION,FOODSTUFFS,"ANIMAL FEEDS, PET FOODS, HAY AND STRAW",include,industry_logistics,制造业—食品子类中的饲料、宠物食品及草料生产供应属于生产活动。,poi-research-v3.0.0,step07_dictionary
+07400524,07,40,0740,MANUFACTURING AND PRODUCTION,FOODSTUFFS,BAKING AND CONFECTIONERY,include,industry_logistics,制造业—食品子类中的烘焙和糖果生产具有食品加工功能，与零售门店分类区分。,poi-research-v3.0.0,step07_dictionary
+07400525,07,40,0740,MANUFACTURING AND PRODUCTION,FOODSTUFFS,DAIRY PRODUCTS,include,industry_logistics,制造业—食品子类中的乳制品生产属于明确生产活动。,poi-research-v3.0.0,step07_dictionary
+07400526,07,40,0740,MANUFACTURING AND PRODUCTION,FOODSTUFFS,"FISH, MEAT AND POULTRY PRODUCTS",include,industry_logistics,制造业—食品子类中的水产、肉类和禽类加工属于食品生产功能。,poi-research-v3.0.0,step07_dictionary
+07400528,07,40,0740,MANUFACTURING AND PRODUCTION,FOODSTUFFS,"MILLING, REFINING AND FOOD ADDITIVES",include,industry_logistics,碾磨、精炼和食品添加剂生产具有明确食品加工功能。,poi-research-v3.0.0,step07_dictionary
+07400529,07,40,0740,MANUFACTURING AND PRODUCTION,FOODSTUFFS,NON ALCOHOLIC DRINKS,include,industry_logistics,制造业—食品子类中的非酒精饮料生产属于生产场所。,poi-research-v3.0.0,step07_dictionary
+07400530,07,40,0740,MANUFACTURING AND PRODUCTION,FOODSTUFFS,CATERING AND NON SPECIFIC FOOD PRODUCTS,include,industry_logistics,餐饮及未细分食品产品在制造业食品子类中具有食品生产供应功能。,poi-research-v3.0.0,step07_dictionary
+07410531,07,41,0741,MANUFACTURING AND PRODUCTION,INDUSTRIAL FEATURES,BUSINESS PARKS AND INDUSTRIAL ESTATES,include,industry_logistics,商业园区和工业园区承载明确企业或生产活动；与内部企业的层级重叠须在记录阶段说明，不能整类排除。,poi-research-v3.0.0,step07_dictionary
+07410534,07,41,0741,MANUFACTURING AND PRODUCTION,INDUSTRIAL FEATURES,ENERGY PRODUCTION,include,industry_logistics,能源生产直接具有生产功能，无人值守的发电设施也不因人员条件被排除；与纯输送管线等工程网络结构区分。,poi-research-v3.0.0,step07_dictionary
+07410536,07,41,0741,MANUFACTURING AND PRODUCTION,INDUSTRIAL FEATURES,LIME KILNS,include,industry_logistics,石灰窑在工业特征子类中指明石灰生产功能；不以未经核实的闲置或历史状态猜测整类排除。,poi-research-v3.0.0,step07_dictionary
+07410537,07,41,0741,MANUFACTURING AND PRODUCTION,INDUSTRIAL FEATURES,OAST HOUSES,include,industry_logistics,啤酒花烘干房在制造业工业特征子类中具有干燥加工用途；不凭可能改用或废弃的推测排除，具体记录状态另行核验。,poi-research-v3.0.0,step07_dictionary
+07410538,07,41,0741,MANUFACTURING AND PRODUCTION,INDUSTRIAL FEATURES,PIPELINES,exclude,,管线表示物质输送网络的工程结构，属于本次明确排除的纯工程构件；相关生产厂站及运营机构按各自类别保留。,poi-research-v3.0.0,step07_dictionary
+07410542,07,41,0741,MANUFACTURING AND PRODUCTION,INDUSTRIAL FEATURES,UNSPECIFIED WORKS OR FACTORIES,include,industry_logistics,未细分的工厂或生产场所仍明确具有生产属性；缺少产品细分或当前营业证明不构成类别排除。,poi-research-v3.0.0,step07_dictionary
+07410543,07,41,0741,MANUFACTURING AND PRODUCTION,INDUSTRIAL FEATURES,WATER PUMPING STATIONS,include,industry_logistics,水泵站是执行抽送供水等运行功能的明确厂站，按生产服务设施保留，不因无人值守或不对外开放排除。,poi-research-v3.0.0,step07_dictionary
+07420544,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,ABRASIVE PRODUCTS AND GRINDING EQUIPMENT,include,industry_logistics,制造业—工业产品子类中的磨料和研磨设备生产供应具有生产功能，不按单个设备点排除。,poi-research-v3.0.0,step07_dictionary
+07420545,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,ADHESIVES AND SEALANTS,include,industry_logistics,制造业—工业产品子类中的黏合剂和密封剂生产具有加工功能。,poi-research-v3.0.0,step07_dictionary
+07420546,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,AEROPLANES,include,industry_logistics,制造业—工业产品子类中的飞机制造属于明确产业活动，不按飞机位置标记处理。,poi-research-v3.0.0,step07_dictionary
+07420547,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,AGRICULTURAL MACHINERY AND GOODS,include,industry_logistics,制造业—工业产品子类中的农业机械及用品生产供应具有生产功能。,poi-research-v3.0.0,step07_dictionary
+07420548,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,AIR AND WATER FILTRATION,include,industry_logistics,制造业—工业产品子类中的空气和水过滤产品生产具有明确工业功能。,poi-research-v3.0.0,step07_dictionary
+07420549,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,ARMS AND AMMUNITION,include,industry_logistics,武器弹药制造属于产业生产活动，纳入不以公众可进入为条件。,poi-research-v3.0.0,step07_dictionary
+07420550,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"BEARING, GEAR AND DRIVE ELEMENTS",include,industry_logistics,制造业—工业产品子类中的轴承、齿轮及传动部件生产具有制造功能。,poi-research-v3.0.0,step07_dictionary
+07420551,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,BEEKEEPING SUPPLIES,include,industry_logistics,制造业—工业产品子类中的养蜂用品生产供应具有生产支持功能。,poi-research-v3.0.0,step07_dictionary
+07420553,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"BRICKS, TILES, CLAY AND CERAMIC PRODUCTS",include,industry_logistics,砖瓦、黏土及陶瓷产品制造属于明确生产活动，不按建筑构件本身排除。,poi-research-v3.0.0,step07_dictionary
+07420555,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"CABLE, WIRE AND FIBRE OPTICS",include,industry_logistics,电缆、电线和光纤在工业产品子类中表示制造供应活动，应与已铺设网络线路区分。,poi-research-v3.0.0,step07_dictionary
+07420557,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"COLOURS, CHEMICALS AND WATER SOFTENERS AND SUPPLIES",include,industry_logistics,色料、化学品和软水产品在工业产品子类中具有生产供应功能。,poi-research-v3.0.0,step07_dictionary
+07420558,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,CLEANING EQUIPMENT AND SUPPLIES,include,industry_logistics,清洁设备及用品在工业产品子类中属于制造供应活动。,poi-research-v3.0.0,step07_dictionary
+07420562,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,CONCRETE PRODUCTS,include,industry_logistics,混凝土产品制造属于明确生产活动，不按现场混凝土构件处理。,poi-research-v3.0.0,step07_dictionary
+07420563,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,COOLING AND REFRIGERATION,include,industry_logistics,工业产品子类中的冷却冷藏产品生产具有工业功能。,poi-research-v3.0.0,step07_dictionary
+07420564,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,ELECTRICAL COMPONENTS,include,industry_logistics,电气元件制造是产业活动，应与公共基础设施中纯电气构件位置记录区分。,poi-research-v3.0.0,step07_dictionary
+07420565,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,ELECTRICAL MOTORS AND GENERATORS,include,industry_logistics,电动机和发电机制造供应具有明确生产功能，不仅因设备无人值守而排除。,poi-research-v3.0.0,step07_dictionary
+07420566,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,ELECTRICAL PRODUCTION AND MANIPULATION EQUIPMENT,include,industry_logistics,电力生产及转换设备在工业产品子类中指向制造供应活动，属于生产功能。,poi-research-v3.0.0,step07_dictionary
+07420567,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,ELECTRONIC EQUIPMENT,include,industry_logistics,电子设备在工业产品子类中具有制造供应功能，不按孤立电子设备标记处理。,poi-research-v3.0.0,step07_dictionary
+07420568,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,ELECTRONIC MEDIA,include,industry_logistics,电子介质在制造业工业产品子类中具有生产功能，纳入产业场所。,poi-research-v3.0.0,step07_dictionary
+07420569,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,ENGINES,include,industry_logistics,发动机制造供应属于明确工业生产活动。,poi-research-v3.0.0,step07_dictionary
+07420571,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,FERTILISERS,include,industry_logistics,化肥生产具有明确化工生产及农业支持功能。,poi-research-v3.0.0,step07_dictionary
+07420572,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,FOOD AND BEVERAGE INDUSTRY MACHINERY,include,industry_logistics,食品饮料工业机械生产具有明确装备制造功能。,poi-research-v3.0.0,step07_dictionary
+07420573,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,GENERAL CONSTRUCTION SUPPLIES,include,industry_logistics,一般建筑用品在制造业工业产品子类中具有生产供应功能。,poi-research-v3.0.0,step07_dictionary
+07420574,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,GENERAL PURPOSE MACHINERY,include,industry_logistics,通用机械制造属于明确产业生产活动。,poi-research-v3.0.0,step07_dictionary
+07420575,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,GLASS,include,industry_logistics,制造业工业产品子类中的玻璃生产具有加工制造功能。,poi-research-v3.0.0,step07_dictionary
+07420576,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,HORTICULTURAL EQUIPMENT,include,industry_logistics,园艺设备制造供应属于生产及农业支持活动。,poi-research-v3.0.0,step07_dictionary
+07420577,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,INDUSTRIAL COATINGS AND FINISHINGS,include,industry_logistics,工业涂层及表面处理产品生产具有明确加工功能。,poi-research-v3.0.0,step07_dictionary
+07420579,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,TOOLS INCLUDING MACHINE SHOPS,include,industry_logistics,工具生产及机械加工车间具有明确制造和加工活动，不按单个工具记录排除。,poi-research-v3.0.0,step07_dictionary
+07420580,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,LIFTING AND HANDLING EQUIPMENT,include,industry_logistics,起重搬运设备在工业产品子类中具有制造供应功能，区别于工程现场构件点。,poi-research-v3.0.0,step07_dictionary
+07420581,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,LUBRICANTS AND LUBRICATING EQUIPMENT,include,industry_logistics,润滑剂及润滑设备生产供应属于明确工业活动。,poi-research-v3.0.0,step07_dictionary
+07420582,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,MARINE EQUIPMENT INCLUDING BOATS AND SHIPS,include,industry_logistics,船舶及海事设备在工业产品子类中具有制造供应功能，纳入产业场所。,poi-research-v3.0.0,step07_dictionary
+07420583,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,MEASUREMENT AND INSPECTION EQUIPMENT,include,industry_logistics,测量检验设备制造具有明确生产功能，应与三角测量定位点区分。,poi-research-v3.0.0,step07_dictionary
+07420584,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"MEDICAL EQUIPMENT, SUPPLIES AND PHARMACEUTICALS",include,industry_logistics,医疗器械、用品及药品生产供应具有明确制造功能。,poi-research-v3.0.0,step07_dictionary
+07420585,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"METALS MANUFACTURERS, FABRICATORS AND STOCKHOLDERS",include,industry_logistics,金属制造、加工和库存供应具有生产仓储功能，类别内各项均纳入。,poi-research-v3.0.0,step07_dictionary
+07420586,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"MOULDS, DIES AND CASTINGS",include,industry_logistics,模具和铸件生产属于明确加工制造活动。,poi-research-v3.0.0,step07_dictionary
+07420588,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,OFFICE AND SHOP EQUIPMENT,include,industry_logistics,办公及商店设备生产供应具有工业功能，不仅因属于附属设备而排除制造场所。,poi-research-v3.0.0,step07_dictionary
+07420589,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,OVENS AND FURNACES,include,industry_logistics,工业产品子类中的烤炉和熔炉制造具有生产功能，不按工程设备单点处理。,poi-research-v3.0.0,step07_dictionary
+07420590,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,PACKAGING,include,industry_logistics,包装产品生产属于明确制造活动，与包装服务同属纳入范围。,poi-research-v3.0.0,step07_dictionary
+07420591,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"PAINTS, VARNISHES AND LACQUERS",include,industry_logistics,油漆、清漆和漆料生产具有化工加工功能。,poi-research-v3.0.0,step07_dictionary
+07420594,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,PESTICIDES,include,industry_logistics,农药生产具有明确产业功能，纳入仅描述场所分布。,poi-research-v3.0.0,step07_dictionary
+07420598,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,PRINTING RELATED MACHINERY,include,industry_logistics,印刷机械制造供应属于装备生产活动。,poi-research-v3.0.0,step07_dictionary
+07420599,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,PUBLISHED GOODS,include,industry_logistics,出版物生产在制造业工业产品子类中属于内容制品生产活动。,poi-research-v3.0.0,step07_dictionary
+07420600,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,PUMPS AND COMPRESSORS,include,industry_logistics,泵和压缩机制造供应属于工业活动，应与纯网络构件以及实际泵站分别理解。,poi-research-v3.0.0,step07_dictionary
+07420601,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,RADAR AND TELECOMMUNICATIONS EQUIPMENT,include,industry_logistics,雷达和通信设备制造具有明确产业功能，不按网络结构代表点排除。,poi-research-v3.0.0,step07_dictionary
+07420602,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,ROAD MAINTENANCE EQUIPMENT,include,industry_logistics,道路养护设备生产供应具有制造功能，不等同于道路结构记录。,poi-research-v3.0.0,step07_dictionary
+07420603,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"ROPES, NETS AND CORDAGE",include,industry_logistics,绳索、网具及缆绳生产属于明确工业活动。,poi-research-v3.0.0,step07_dictionary
+07420604,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"RUBBER, SILICONES AND PLASTICS",include,industry_logistics,橡胶、硅材料和塑料生产具有材料加工功能。,poi-research-v3.0.0,step07_dictionary
+07420605,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"SEALS, TAPES, TAPS AND VALVES",include,industry_logistics,密封件、胶带、水龙头及阀门在工业产品子类中具有制造供应功能。,poi-research-v3.0.0,step07_dictionary
+07420606,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,SIGNS,include,industry_logistics,标牌在制造业工业产品子类中指向标牌生产活动，不等同于道路定位或信号标记。,poi-research-v3.0.0,step07_dictionary
+07420607,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,SPECIAL PURPOSE MACHINERY AND EQUIPMENT,include,industry_logistics,专用机械和设备制造属于明确生产活动，不因产品为设备而排除。,poi-research-v3.0.0,step07_dictionary
+07420608,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"TEXTILES, FABRICS, SILK AND MACHINERY",include,industry_logistics,纺织品、面料、丝绸及相关机械生产具有制造功能。,poi-research-v3.0.0,step07_dictionary
+07420609,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"STATIONERY, STAMPS, TAGS AND LABELS",include,industry_logistics,文具、印章及标签生产属于明确加工制造活动。,poi-research-v3.0.0,step07_dictionary
+07420612,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,GENERAL MANUFACTURING,include,industry_logistics,一般制造业虽未细分产品，但生产属性明确，不因细类不足排除。,poi-research-v3.0.0,step07_dictionary
+07420613,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,VEHICLE BODYBUILDERS,include,industry_logistics,车身制造提供明确车辆生产加工功能。,poi-research-v3.0.0,step07_dictionary
+07420614,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,VEHICLE COMPONENTS,include,industry_logistics,车辆零部件制造属于明确工业生产活动。,poi-research-v3.0.0,step07_dictionary
+07420615,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,VEHICLES,include,industry_logistics,制造业工业产品子类中的车辆生产属于产业活动，与车辆零售分类区分。,poi-research-v3.0.0,step07_dictionary
+07420616,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"WOOD PRODUCTS INCLUDING CHARCOAL, PAPER, CARD AND BOARD",include,industry_logistics,木制品、木炭、纸及纸板生产具有明确加工功能。,poi-research-v3.0.0,step07_dictionary
+07420617,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,WORKWEAR,include,industry_logistics,工作服生产属于服装制造活动，纳入生产场所。,poi-research-v3.0.0,step07_dictionary
+07420765,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,EDUCATIONAL EQUIPMENT AND SUPPLIES,include,industry_logistics,教育设备和用品制造供应具有生产功能，不要求自身提供教学活动。,poi-research-v3.0.0,step07_dictionary
+07420767,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,ICE,include,industry_logistics,制造业工业产品子类中的制冰属于明确生产活动，不按天然冰体理解。,poi-research-v3.0.0,step07_dictionary
+07420781,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"FENCES, GATES AND RAILINGS",include,industry_logistics,围栏、门和栏杆制造供应具有工业功能，应与已建成工程构件区分。,poi-research-v3.0.0,step07_dictionary
+07420783,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,ACCESS EQUIPMENT,include,industry_logistics,高处作业或通达设备在工业产品子类中具有制造供应功能，不仅因名称泛称设备而排除。,poi-research-v3.0.0,step07_dictionary
+07420784,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,CAR PORTS AND STEEL BUILDINGS,include,industry_logistics,车棚和钢结构建筑制造属于生产活动，不按单纯建筑位置记录处理。,poi-research-v3.0.0,step07_dictionary
+07420787,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"WASTE COLLECTION, PROCESSING AND DISPOSAL EQUIPMENT",include,industry_logistics,废物收集处理设备制造供应具有产业功能，区别于废物处理厂站但同样纳入。,poi-research-v3.0.0,step07_dictionary
+07420788,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,GLASS FIBRE SERVICES,include,industry_logistics,玻璃纤维服务在制造业子类中具有材料加工或专业服务功能。,poi-research-v3.0.0,step07_dictionary
+07420791,07,42,0742,MANUFACTURING AND PRODUCTION,INDUSTRIAL PRODUCTS,"SHELVING, STORAGE, SAFES AND VAULTS",include,industry_logistics,货架、储物设施、保险柜和金库产品在工业产品子类中具有制造供应功能。,poi-research-v3.0.0,step07_dictionary
+09460656,09,46,0946,RETAIL,CLOTHING AND ACCESSORIES,CLOTHING,include,retail,零售—服装配饰子类中的服装销售属于商品交易场所。,poi-research-v3.0.0,step07_dictionary
+09460657,09,46,0946,RETAIL,CLOTHING AND ACCESSORIES,FOOTWEAR,include,retail,零售—服装配饰子类中的鞋类销售具有明确零售功能。,poi-research-v3.0.0,step07_dictionary
+09460659,09,46,0946,RETAIL,CLOTHING AND ACCESSORIES,JEWELLERY AND FASHION ACCESSORIES,include,retail,珠宝和时尚配饰销售以商品交易为主，纳入零售功能。,poi-research-v3.0.0,step07_dictionary
+09460660,09,46,0946,RETAIL,CLOTHING AND ACCESSORIES,LINGERIE AND HOSIERY,include,retail,内衣和袜类销售属于明确商品零售活动。,poi-research-v3.0.0,step07_dictionary
+09460797,09,46,0946,RETAIL,CLOTHING AND ACCESSORIES,BABY AND NURSERY EQUIPMENT AND CHILDREN'S CLOTHES,include,retail,婴幼儿用品和童装销售属于商品零售场所。,poi-research-v3.0.0,step07_dictionary
+09470661,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL",BAKERIES,include,retail,零售子类中的面包店提供烘焙食品销售，纳入商品零售功能。,poi-research-v3.0.0,step07_dictionary
+09470662,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL",BUTCHERS,include,retail,肉铺提供肉类商品销售，属于明确零售场所。,poi-research-v3.0.0,step07_dictionary
+09470663,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL",CONFECTIONERS,include,retail,糖果商店提供食品销售，纳入零售功能。,poi-research-v3.0.0,step07_dictionary
+09470665,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL",DELICATESSENS,include,retail,熟食店提供熟食等商品销售，属于食品零售活动。,poi-research-v3.0.0,step07_dictionary
+09470666,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL",FISHMONGERS,include,retail,鱼贩和鱼店提供水产商品销售，纳入零售场所。,poi-research-v3.0.0,step07_dictionary
+09470667,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL",FROZEN FOODS,include,retail,冷冻食品销售属于食品零售活动，不按冷冻设备本身理解。,poi-research-v3.0.0,step07_dictionary
+09470668,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL",GREEN AND NEW AGE GOODS,include,retail,环保及新世纪商品销售属于商品交易活动，纳入零售范围。,poi-research-v3.0.0,step07_dictionary
+09470669,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL","GROCERS, FARM SHOPS AND PICK YOUR OWN",include,retail,食品杂货店、农场商店和自采销售提供食品交易或采摘活动，类别内均具明确功能。,poi-research-v3.0.0,step07_dictionary
+09470670,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL",HERBS AND SPICES,include,retail,香草和香料销售属于食品商品零售活动。,poi-research-v3.0.0,step07_dictionary
+09470671,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL",ALCOHOLIC DRINKS INCLUDING OFF LICENCES AND WHOLESALERS,include,retail,酒类门店及批发商提供商品销售，不因面向企业或存在购买限制而排除。,poi-research-v3.0.0,step07_dictionary
+09470672,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL","ORGANIC, HEALTH, GOURMET AND KOSHER FOODS",include,retail,有机、健康、美食及洁食商品销售具有明确零售功能。,poi-research-v3.0.0,step07_dictionary
+09470699,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL",CONVENIENCE STORES AND INDEPENDENT SUPERMARKETS,include,retail,便利店和独立超市提供日常商品销售，纳入零售场所。,poi-research-v3.0.0,step07_dictionary
+09470703,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL",LIVESTOCK MARKETS,include,retail,牲畜市场提供交易活动，属于明确市场功能。,poi-research-v3.0.0,step07_dictionary
+09470705,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL",MARKETS,include,retail,市场提供集中商品交易活动，纳入零售范围。,poi-research-v3.0.0,step07_dictionary
+09470768,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL",CASH AND CARRY,include,retail,现购自运批发场所提供商品销售，不以普通消费者可以进入为门槛。,poi-research-v3.0.0,step07_dictionary
+09470798,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL",TEA AND COFFEE MERCHANTS,include,retail,茶叶和咖啡商品商提供商品销售，区别于以现制饮品服务为主的咖啡馆。,poi-research-v3.0.0,step07_dictionary
+09470819,09,47,0947,RETAIL,"FOOD, DRINK AND MULTI ITEM RETAIL",SUPERMARKET CHAINS,include,retail,连锁超市提供多类商品零售，属于明确购物场所。,poi-research-v3.0.0,step07_dictionary
+09480674,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",BOOKS AND MAPS,include,retail,书籍和地图销售属于商品零售，纳入零售功能。,poi-research-v3.0.0,step07_dictionary
+09480675,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN","CARPETS, RUGS, SOFT FURNISHINGS AND NEEDLECRAFT",include,retail,地毯、软装和针线用品销售以商品供应为主，纳入零售场所。,poi-research-v3.0.0,step07_dictionary
+09480676,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",CHINA AND GLASSWARE,include,retail,瓷器和玻璃器皿销售属于商品零售，与制造业同名商品类区分。,poi-research-v3.0.0,step07_dictionary
+09480677,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN","COSMETICS, TOILETRIES, PERFUMES AND HAIRDRESSING SUPPLIES",include,retail,化妆品、洗护品、香水及美发用品销售以商品交易为主，应与理发美容服务区分。,poi-research-v3.0.0,step07_dictionary
+09480678,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",CRAFT SUPPLIES,include,retail,手工艺材料销售具有明确零售功能，不等同于手工艺培训服务。,poi-research-v3.0.0,step07_dictionary
+09480679,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",CYCLES AND ACCESSORIES,include,retail,自行车及配件销售属于商品零售活动。,poi-research-v3.0.0,step07_dictionary
+09480680,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",DIY AND HOME IMPROVEMENT,include,retail,家装和 DIY 商品销售提供建材工具等零售功能。,poi-research-v3.0.0,step07_dictionary
+09480682,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",FURNITURE,include,retail,家具销售属于商品零售，与家具制造场所分别按原生类别理解。,poi-research-v3.0.0,step07_dictionary
+09480683,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",GARDEN CENTRES AND NURSERIES,include,retail,园艺中心和苗圃在零售子类中提供植物及园艺商品销售，纳入零售场所。,poi-research-v3.0.0,step07_dictionary
+09480684,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",GARDEN MACHINERY AND FURNITURE,include,retail,园艺机械和户外家具销售以商品交易为主，纳入零售范围。,poi-research-v3.0.0,step07_dictionary
+09480685,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",GENERAL HOUSEHOLD GOODS,include,retail,一般家居用品销售具有明确日用品零售功能。,poi-research-v3.0.0,step07_dictionary
+09480686,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN","HOBBY, SPORTS AND PASTIME PRODUCTS",include,retail,爱好、体育和休闲商品销售属于零售，不等同于体育场馆或器材维修服务。,poi-research-v3.0.0,step07_dictionary
+09480687,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN","LEATHER GOODS, LUGGAGE AND TRAVEL ACCESSORIES INCLUDING HANDBAGS",include,retail,皮具、箱包及旅行配件销售以商品交易为主，纳入零售。,poi-research-v3.0.0,step07_dictionary
+09480688,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",LIGHTING,include,retail,零售子类中的照明用品销售具有商品交易功能，不按灯具网络构件排除。,poi-research-v3.0.0,step07_dictionary
+09480689,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",MUSIC AND VIDEO,include,retail,音乐和影像商品销售属于文化商品零售活动。,poi-research-v3.0.0,step07_dictionary
+09480690,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",MUSICAL INSTRUMENTS,include,retail,乐器销售具有明确商品零售功能，不与音乐教学混为一类。,poi-research-v3.0.0,step07_dictionary
+09480691,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN","PETS, SUPPLIES AND SERVICES",include,retail,宠物、用品及相关服务均具有明确销售或生活服务功能；销售与服务的组别边界另列核对，不影响纳入。,poi-research-v3.0.0,step07_dictionary
+09480693,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",CAMPING AND CARAVANNING,include,retail,零售子类中的露营和房车用品销售具有商品功能，应与住宿营地类别区分。,poi-research-v3.0.0,step07_dictionary
+09480694,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",TRAVEL AGENCIES,include,retail,旅行社提供旅行咨询和预订服务，纳入范围明确；原 retail 与专业服务属性冲突，另列 office_services 建议而保留原组。,poi-research-v3.0.0,step07_dictionary
+09480700,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",DEPARTMENT STORES,include,retail,百货商店提供多类商品销售，属于明确零售场所。,poi-research-v3.0.0,step07_dictionary
+09480701,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",DISCOUNT STORES,include,retail,折扣商店提供商品销售，纳入零售功能。,poi-research-v3.0.0,step07_dictionary
+09480704,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",MAIL ORDER AND CATALOGUE STORES,include,retail,邮购和目录商店提供商品销售，不因顾客不能直接进入仓储或办公点而排除。,poi-research-v3.0.0,step07_dictionary
+09480708,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",SHOPPING CENTRES AND RETAIL PARKS,include,retail,购物中心和零售园区承载明确购物活动；与内部商户的层级关系留待点位计数处理，不整类排除。,poi-research-v3.0.0,step07_dictionary
+09480710,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",SURPLUS GOODS,include,retail,剩余物资销售提供商品交易功能，纳入零售场所。,poi-research-v3.0.0,step07_dictionary
+09480712,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",ART AND ANTIQUES,include,retail,艺术品和古董销售以商品交易为主，纳入零售活动。,poi-research-v3.0.0,step07_dictionary
+09480714,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",CHARITY SHOPS,include,retail,慈善商店提供商品销售，不因公益性质而改变其纳入资格。,poi-research-v3.0.0,step07_dictionary
+09480716,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",FLORISTS,include,retail,花店主要提供花卉商品销售，纳入零售场所。,poi-research-v3.0.0,step07_dictionary
+09480717,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",GIFTS AND CARDS,include,retail,礼品和贺卡销售属于商品零售功能。,poi-research-v3.0.0,step07_dictionary
+09480718,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",PARTY GOODS AND NOVELTIES,include,retail,聚会用品和新奇商品销售具有明确零售功能，不等同于聚会策划服务。,poi-research-v3.0.0,step07_dictionary
+09480719,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",SECONDHAND GOODS,include,retail,二手商品销售提供交易服务，纳入零售场所。,poi-research-v3.0.0,step07_dictionary
+09480720,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",COMPUTER SUPPLIES,include,retail,计算机用品销售以商品交易为主，应与计算机咨询维修服务区分。,poi-research-v3.0.0,step07_dictionary
+09480721,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",DOMESTIC APPLIANCES,include,retail,家用电器销售具有明确零售功能，不因销售设备而被视作工程构件。,poi-research-v3.0.0,step07_dictionary
+09480722,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",ELECTRICAL GOODS AND COMPONENTS,include,retail,电气商品及元件销售属于商品零售，应与纯电气网络点区分。,poi-research-v3.0.0,step07_dictionary
+09480724,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",PHOTOGRAPHIC AND OPTICAL EQUIPMENT,include,retail,摄影和光学器材销售属于商品零售，与摄影服务及设备制造分别理解。,poi-research-v3.0.0,step07_dictionary
+09480725,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",STATIONERY AND OFFICE SUPPLIES,include,retail,文具和办公用品销售具有明确零售功能。,poi-research-v3.0.0,step07_dictionary
+09480726,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",TELEPHONES AND TELEPHONE CARDS,include,retail,电话机和电话卡销售以商品交易为主，纳入零售场所。,poi-research-v3.0.0,step07_dictionary
+09480763,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",POST OFFICES,include,education_health_public,邮局直接提供邮政及相关便民服务，附设于商店也不整类排除。,poi-research-v3.0.0,step07_dictionary
+09480764,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN","GARAGES, GARDEN AND PORTABLE BUILDINGS",include,retail,车库、园艺建筑和活动房在零售子类中指产品销售，不等同于普通建筑位置点。,poi-research-v3.0.0,step07_dictionary
+09480766,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",FUEL DISTRIBUTORS AND SUPPLIERS,include,industry_logistics,燃料分销和供应具有商品供应及配送服务功能，纳入活动场所。,poi-research-v3.0.0,step07_dictionary
+09480824,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",ADULT SHOPS,include,retail,成人用品商店提供商品销售，按零售活动纳入。,poi-research-v3.0.0,step07_dictionary
+09480827,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",COMICS BOOKSHOPS,include,retail,漫画书店提供出版物销售，属于明确零售场所。,poi-research-v3.0.0,step07_dictionary
+09480828,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",COMPUTER SHOPS,include,retail,计算机商店提供商品销售，纳入零售功能。,poi-research-v3.0.0,step07_dictionary
+09480831,09,48,0948,RETAIL,"HOUSEHOLD, OFFICE, LEISURE AND GARDEN",POTTERIES,include,retail,陶器店在原生零售子类中提供陶器商品销售，具有明确交易功能。,poi-research-v3.0.0,step07_dictionary
+09490695,09,49,0949,RETAIL,MOTORING,NEW VEHICLES,include,retail,新车销售属于商品零售活动；与同址充电设施分别按各自功能处理。,poi-research-v3.0.0,step07_dictionary
+09490696,09,49,0949,RETAIL,MOTORING,SECONDHAND VEHICLES,include,retail,二手车辆销售属于商品交易场所，纳入零售功能。,poi-research-v3.0.0,step07_dictionary
+09490697,09,49,0949,RETAIL,MOTORING,VEHICLE AUCTIONS,include,retail,车辆拍卖提供车辆商品交易活动，纳入零售范围。,poi-research-v3.0.0,step07_dictionary
+09490698,09,49,0949,RETAIL,MOTORING,VEHICLE PARTS AND ACCESSORIES,include,retail,车辆零件及配件销售属于商品零售，应与车辆维修服务区分。,poi-research-v3.0.0,step07_dictionary
+10530728,10,53,1053,TRANSPORT,AIR,AIRPORTS AND LANDING STRIPS,include,transport_parking,机场和起降跑道均具有航空运输起降功能；不要求公共客运、独立经营或公众自由进入，不能据私人起降场的可能性整类排除。,poi-research-v3.0.0,step07_dictionary
+10530729,10,53,1053,TRANSPORT,AIR,HELIPADS,include,transport_parking,直升机停机坪直接提供航空起降服务，属于明确交通设施；无人值守或附属于医院等机构不是排除理由。,poi-research-v3.0.0,step07_dictionary
+10540730,10,54,1054,TRANSPORT,ROAD AND RAIL,BRIDGES,exclude,,桥梁属于本次明确排除的交通网络工程构件；类别未表示客运场站或直接服务点。,poi-research-v3.0.0,step07_dictionary
+10540733,10,54,1054,TRANSPORT,ROAD AND RAIL,CATTLE GRIDS,exclude,,拦畜格栅是道路工程构件，本次明确要求不计入普通活动和服务设施构成。,poi-research-v3.0.0,step07_dictionary
+10540734,10,54,1054,TRANSPORT,ROAD AND RAIL,FORDS AND LEVEL CROSSINGS,exclude,,涉水通道和铁路平交道口表示道路通行结构或交叉点，按纯工程及网络结构代表点排除。,poi-research-v3.0.0,step07_dictionary
+10540735,10,54,1054,TRANSPORT,ROAD AND RAIL,MOTORWAY SERVICE STATIONS,include,transport_parking,高速公路服务区提供明确出行配套和生活服务；即使设有充电设施仍保留服务区功能。,poi-research-v3.0.0,step07_dictionary
+10540736,10,54,1054,TRANSPORT,ROAD AND RAIL,PARKING,include,transport_parking,停车场直接提供车辆停放服务，与充电站同址也保留停车功能，不能连同充电设施一并排除。,poi-research-v3.0.0,step07_dictionary
+10540737,10,54,1054,TRANSPORT,ROAD AND RAIL,PETROL AND FUEL STATIONS,include,transport_parking,加油站提供明确燃料补给服务；与充电设施共址不改变其普通服务功能。,poi-research-v3.0.0,step07_dictionary
+10540740,10,54,1054,TRANSPORT,ROAD AND RAIL,SIGNALLING FACILITIES,exclude,,信号设施表示交通控制设备或网络结构点，属于本次明确排除的信号工程设施；另列的实际运营场站保留。,poi-research-v3.0.0,step07_dictionary
+10540743,10,54,1054,TRANSPORT,ROAD AND RAIL,VIADUCTS,exclude,,高架桥属于交通网络工程构件，与桥梁采用相同排除标准。,poi-research-v3.0.0,step07_dictionary
+10540744,10,54,1054,TRANSPORT,ROAD AND RAIL,WEIGHBRIDGES,include,transport_parking,地磅直接提供车辆或货物称重服务，属于明确运输生产支持设施；不以设备、附属或无人值守为由排除。,poi-research-v3.0.0,step07_dictionary
+10540832,10,54,1054,TRANSPORT,ROAD AND RAIL,,exclude,,本次 prompt 明确排除电动汽车充电设施的普通 POI 构成；该身份线索来自原表理由中的 Public Electric Vehicle Charging Locations，原始 class_name 为空且原样保留，不伪造官方名称。邻近充电设施可另作集聚指标。,poi-research-v3.0.0,user_policy_exception
+10550747,10,55,1055,TRANSPORT,WALKING,FOOTBRIDGES,exclude,,步行桥仍是通行网络工程构件，与其他桥梁采用一致排除标准，不能仅因可供行人使用就当作活动服务场所。,poi-research-v3.0.0,step07_dictionary
+10560751,10,56,1056,TRANSPORT,WATER,AQUEDUCTS,exclude,,渡槽表示输水或运河通行的工程构件，类别本身不表示供水厂站、码头或服务设施。,poi-research-v3.0.0,step07_dictionary
+10560752,10,56,1056,TRANSPORT,WATER,LOCKS,include,transport_parking,船闸执行船舶过闸和水位转换的航运运行服务，作为明确水运运行设施纳入；不因工程形态或无人值守排除，与仅表示桥槽构件的记录区分。,poi-research-v3.0.0,step07_dictionary
+10560753,10,56,1056,TRANSPORT,WATER,MOORINGS AND UNLOADING FACILITIES,include,transport_parking,系泊和装卸设施直接提供停靠及货物转运服务，两种功能均在本次范围内；客运与货运差别不构成 review 或排除理由。,poi-research-v3.0.0,step07_dictionary
+10560754,10,56,1056,TRANSPORT,WATER,RIVERS AND CANAL ORGANISATIONS AND INFRASTRUCTURE,include,,依据用户最新人工复核，由原判断调整为纳入（v2：review；v3：include）。,poi-research-v3.0.0,step07_dictionary
+10560755,10,56,1056,TRANSPORT,WATER,"WEIRS, SLUICES AND DAMS",exclude,,堰、泄水闸和坝表示水工调控构件，未表示发电厂、泵站、客货运场站或直接便民服务点，按纯工程结构排除。,poi-research-v3.0.0,step07_dictionary
+10560760,10,56,1056,TRANSPORT,WATER,FERRIES AND FERRY TERMINALS,include,transport_parking,渡轮和渡轮码头直接提供运输及上下客服务，纳入交通设施。,poi-research-v3.0.0,step07_dictionary
+10570731,10,57,1057,TRANSPORT,"PUBLIC TRANSPORT, STATIONS AND INFRASTRUCTURE","BUS AND COACH STATIONS, DEPOTS AND COMPANIES",include,transport_parking,公交及长途客车站、车库和公司分别提供客运、运营维护或运输组织功能，均在本次范围内；不以公众能否进入运营场站为门槛。,poi-research-v3.0.0,step07_dictionary
+10570738,10,57,1057,TRANSPORT,"PUBLIC TRANSPORT, STATIONS AND INFRASTRUCTURE","RAILWAY STATIONS, JUNCTIONS AND HALTS",include,,依据用户最新人工复核，由原判断调整为纳入（v2：review；v3：include）。,poi-research-v3.0.0,step07_dictionary
+10570756,10,57,1057,TRANSPORT,"PUBLIC TRANSPORT, STATIONS AND INFRASTRUCTURE","TRAM, METRO AND LIGHT RAILWAY STATIONS AND STOPS",include,transport_parking,有轨电车、地铁和轻轨车站及停靠点直接提供客运服务，不要求规模达到交通枢纽。,poi-research-v3.0.0,step07_dictionary
+10570758,10,57,1057,TRANSPORT,"PUBLIC TRANSPORT, STATIONS AND INFRASTRUCTURE",TAXI RANKS,include,transport_parking,出租车候车点直接提供候车上车功能，纳入交通服务设施。,poi-research-v3.0.0,step07_dictionary
+10570761,10,57,1057,TRANSPORT,"PUBLIC TRANSPORT, STATIONS AND INFRASTRUCTURE",UNDERGROUND NETWORK STATIONS,include,transport_parking,地下轨道交通站提供明确客运服务，纳入交通设施。,poi-research-v3.0.0,step07_dictionary
+10570794,10,57,1057,TRANSPORT,"PUBLIC TRANSPORT, STATIONS AND INFRASTRUCTURE",LONDON UNDERGROUND ENTRANCES,include,transport_parking,伦敦地铁入口直接提供客运进出服务，应纳入类别范围；同站多个入口是否合并计数留待实际记录阶段统一处理，不能整类排除。,poi-research-v3.0.0,step07_dictionary
+10590732,10,59,1059,TRANSPORT,BUS TRANSPORT,BUS STOPS,include,transport_parking,公交站提供明确候车及上下客服务，按本次标准纳入；站牌形态、无人值守或规模小不构成排除理由。,poi-research-v3.0.0,step07_dictionary
+10590759,10,59,1059,TRANSPORT,BUS TRANSPORT,HAIL AND RIDE ZONES,include,transport_parking,招手即停区域提供明确的公交上下客服务位置，应纳入服务范围；区域或重复点的计数单位留待点位处理，不因不是独立门店而排除。,poi-research-v3.0.0,step07_dictionary
