@@ -2,6 +2,7 @@
 
 from contextlib import contextmanager
 from contextlib import ExitStack
+from contextlib import closing
 from collections import Counter
 from dataclasses import dataclass
 import csv
@@ -17,6 +18,7 @@ import re
 import stat
 import sqlite3
 import struct
+import time
 from types import MappingProxyType
 
 
@@ -1927,7 +1929,10 @@ def clean_poi_batch(records, *, context, include_ev_charging=False):
             # deltas when a caller supplies different attribute CRS metadata.
             attribute_crs = original.get("attribute_crs", schema["crs"]["definition"])
             try:
-                same_crs = CRS.from_user_input(attribute_crs).equals(crs)
+                # The default is the already validated layer WKT. Avoid parsing
+                # that identical WKT millions of times during full-source runs.
+                same_crs = (attribute_crs == schema["crs"]["definition"]
+                            or CRS.from_user_input(attribute_crs).equals(crs))
             except (TypeError, ValueError, CRSError):
                 same_crs = False
             if same_crs:
@@ -2145,4 +2150,388 @@ def prepare_poi_sample(poi_path, *, data_root, code_root, output_dir, context_op
         _json_write(output / "run_manifest.json", report)
         raise POICleaningError(report) from error
     _json_write(output / "run_manifest.json", report)
+    return report
+
+
+class PreparationError(ValueError):
+    """A failed/partial preparation is never a consumable candidate dataset."""
+
+    def __init__(self, report):
+        self.report = report
+        super().__init__("; ".join(report["errors"]))
+
+
+def load_prepared_stations(station_dir, *, data_root, context):
+    """Read sealed step-10 entities without resampling or changing eligibility."""
+    import pyarrow.parquet as pq
+    from shapely import from_wkb
+    from shapely.geometry import Point
+    from src.spatial import validate_coordinate_operation
+
+    root = project_path(".", root=data_root)
+    names = ("station_preparation_report.json", "coverage_definition.json", "stations.parquet")
+    directory, evidence = _sealed_step(station_dir, names, root)
+    report = _read_json(directory / names[0])
+    _completed_evidence(report, "step10 stations")
+    if report.get("scope") not in ("sample", "full_source") or report.get("full_source_identity_checked") is not True:
+        raise ValueError("stations require an explicit scope and full-source identity check")
+    _check_prior_inputs(report["input_fingerprints_before"], report["input_fingerprints_after"],
+                        context.provenance["input_fingerprints"], "step10 stations")
+    definition = _read_json(directory / names[1])
+    full_definition = context.provenance["coverage_definition"]
+    if ({k: v for k, v in definition.items() if k != "sample_keys"}
+            != {k: v for k, v in full_definition.items() if k != "sample_keys"}):
+        raise ValueError("station coverage/source/PUA/coordinate definition differs from cleaning context")
+    validate_coordinate_operation(definition["coordinate_operation"])
+    if definition.get("radii_m") != [500, 1000] or report.get("target_puas") != definition["target_puas"]:
+        raise ValueError("station radii or target PUA declaration mismatch")
+    for name in names[1:]:
+        if report.get("artifacts", {}).get(name) != evidence["artifacts"][name]:
+            raise ValueError("station report artifact fingerprint mismatch")
+    study_dir = _audit_path(context.provenance["upstream"]["step09"]["directory"], root)
+    study = from_wkb((study_dir / "study_area.wkb").read_bytes())
+    schema, _ = station_parquet_schemas()
+    keys, source_numbers, selected, queries = set(), set(), [], []
+    with pq.ParquetFile(directory / "stations.parquet") as source:
+        if not source.schema_arrow.equals(schema, check_metadata=True):
+            raise ValueError("station Parquet schema/CRS mismatch")
+        for batch in source.iter_batches(batch_size=10000):
+            for row in batch.to_pylist():
+                key, numbers = row["station_key"], row["source_record_nos"]
+                if not isinstance(key, str) or not key or key in keys:
+                    raise ValueError("invalid/duplicate station key")
+                keys.add(key)
+                if (not numbers or numbers != sorted(set(numbers)) or numbers[0] <= 0
+                        or row["source_row_count"] != len(numbers) or source_numbers.intersection(numbers)):
+                    raise ValueError("station source row identity/count mismatch")
+                source_numbers.update(numbers)
+                if any(type(row[k]) is not bool for k in ("selected", "query_eligible", "identity_eligible", "entity_resolved")):
+                    raise ValueError("station eligibility flags must be explicit booleans")
+                xy = row["xy"]
+                if xy is not None and (len(xy) != 2 or any(v is None or not math.isfinite(v) for v in xy)):
+                    raise ValueError("station coordinates must be finite XY")
+                if row["entity_resolved"] != (xy is not None):
+                    raise ValueError("station resolved flag disagrees with position")
+                if xy is not None:
+                    lon, lat = row["longitude"], row["latitude"]
+                    if lon is None or lat is None or not -180 <= lon <= 180 or not -90 <= lat <= 90:
+                        raise ValueError("invalid station angular coordinates")
+                    identity = ((0.0 if lon == 0 else lon).hex() + "," + (0.0 if lat == 0 else lat).hex()).encode("ascii")
+                    if key != "loc_" + hashlib.sha256(identity).hexdigest():
+                        raise ValueError("station key differs from stable coordinate identity")
+                elif key != f"unresolved_{numbers[0]:012d}" or len(numbers) != 1:
+                    raise ValueError("unresolved station identity mismatch")
+                if row["query_eligible"] and not row["selected"]:
+                    raise ValueError("unselected station cannot be query eligible")
+                if row["selected"]:
+                    if (row["in_target_pua"] is not True or not row["target_pua_names"]
+                            or not set(row["target_pua_names"]) <= set(definition["target_puas"])
+                            or xy is None or not study.covers(Point(xy))):
+                        raise ValueError("selected station is not in verified target PUA")
+                    selected.append(key)
+                if row["query_eligible"]:
+                    if (not row["identity_eligible"] or row["query_blockers"]
+                            or row["within_gb_proxy"] is not True or row["within_ni_proxy"] is not False
+                            or row["within_order"] is not True or not context.coverage.covers(Point(xy))):
+                        raise ValueError("query eligible station contradicts identity/coverage")
+                    queries.append({"station_key": key, "xy": xy})
+    if (len(keys) != report["entity_record_count"] or len(source_numbers) != report["source_record_count"]
+            or source_numbers != set(range(1, report["source_record_count"] + 1))
+            or len(selected) != report["selected_entity_count"] or len(queries) != report["query_eligible_count"]):
+        raise ValueError("station report/table counts disagree")
+    if report["scope"] == "sample":
+        if (sorted(selected) != definition["sample_keys"] or type(report.get("sample_size")) is not int
+                or report["sample_size"] <= 0 or len(selected) > report["sample_size"]
+                or type(report.get("random_seed")) is not int):
+            raise ValueError("station sample membership/seed mismatch")
+    elif definition.get("sample_keys") is not None:
+        raise ValueError("full station scope cannot carry sample keys")
+    if _sealed_step(station_dir, names, root)[1] != evidence:
+        raise ValueError("station evidence changed during reading")
+    return {"queries": queries, "provenance": evidence, "scope": report["scope"],
+            "entity_count": len(keys), "selected_count": len(selected), "query_count": len(queries),
+            "sample_size": report.get("sample_size"), "random_seed": report.get("random_seed")}
+
+
+def preparation_audit_schema(rule_version):
+    """One row for every source FID, including invalid geometry and non-neighbours."""
+    import pyarrow as pa
+    return pa.schema([
+        ("source_path", pa.string()), ("source_layer", pa.string()), ("source_fid", pa.int64()),
+        ("ref_no_type", pa.string()), ("ref_no_value", pa.string()),
+        ("base_eligible", pa.bool_()), ("analysis_include", pa.bool_()),
+        ("preparation_status", pa.string()), ("neighbor_evaluated", pa.bool_()),
+        ("is_neighbor", pa.bool_()), ("audit_json", pa.string()),
+    ], metadata={b"schema_version": b"1", b"step": b"13", b"scope": b"one_row_per_source_record",
+                 b"classification_rule_version": rule_version.encode()})
+
+
+def _preparation_json(value):
+    return json.dumps(value, ensure_ascii=False, allow_nan=False, sort_keys=True,
+                      separators=(",", ":"), default=lambda v: v.hex() if isinstance(v, bytes) else _unsupported_json(v))
+
+
+def _unsupported_json(value):
+    raise TypeError(f"unsupported preparation JSON type: {type(value).__name__}")
+
+
+def _preparation_audit_row(row, state):
+    return {"source_path": row["source_path"], "source_layer": row["source_layer"], "source_fid": row["source_fid"],
+            "ref_no_type": row["raw_ref_no"]["type"], "ref_no_value": row["raw_ref_no"]["value"],
+            "base_eligible": row["base_eligible"], "analysis_include": row["analysis_include"],
+            "preparation_status": state, "neighbor_evaluated": state != "ineligible",
+            "is_neighbor": None if state == "ineligible" else state == "saved", "audit_json": _preparation_json(row)}
+
+
+class _PreparationCounts:
+    """Bounded counters; reasons are many-to-one, never row denominators."""
+    def __init__(self, groups):
+        self.groups = groups
+        self.counts = Counter()
+        self.states = Counter({k: 0 for k in ("ineligible", "eligible_not_neighbor", "saved")})
+        self.frequencies = {k: Counter() for k in ("base_exclusion_reasons", "quality_reasons", "analysis_exclusion_reasons",
+                            "classification_status_counts", "research_decision_counts", "native_group_counts", "candidate_native_group_counts")}
+
+    def add(self, row, state):
+        included, base = row["analysis_include"], row["base_eligible"]
+        if (type(included) is not bool or type(base) is not bool or state not in self.states
+                or (state != "ineligible") != included
+                or included and (not base or row["research_decision"] != "include"
+                                 or row["group_code"] not in self.groups or row["class_code"] == "10540832")
+                or not included and not row["analysis_exclusion_reason"]):
+            raise ValueError("preparation eligibility/state/reason invariants failed")
+        self.states[state] += 1
+        self.counts.update({"input_count": 1, "base_eligible_count": int(base), "analysis_included_count": int(included),
+                            "classification_review_count": int(row["classification_review"]),
+                            "classification_anomaly_count": int(row["classification_status"] in ("unknown_dictionary", "missing", "malformed")),
+                            "base_eligible_classification_review_count": int(base and row["classification_review"]),
+                            "multiple_base_exclusion_reason_count": int(len(row["base_exclusion_reasons"]) > 1),
+                            "functional_group_pending_count": int(included and row["functional_group_pending"])})
+        for name, values in (("base_exclusion_reasons", row["base_exclusion_reasons"]),
+                             ("quality_reasons", [r["reason"] for r in row["quality_reasons"]]),
+                             ("analysis_exclusion_reasons", row["analysis_exclusion_reason"]),
+                             ("classification_status_counts", [row["classification_status"]]),
+                             ("research_decision_counts", [row["research_decision"]])):
+            self.frequencies[name].update(values)
+        if included:
+            self.frequencies["native_group_counts"][row["group_code"]] += 1
+        if state == "saved":
+            self.frequencies["candidate_native_group_counts"][row["group_code"]] += 1
+
+    def result(self):
+        names = ("input_count", "base_eligible_count", "analysis_included_count", "classification_review_count",
+                 "classification_anomaly_count", "base_eligible_classification_review_count",
+                 "multiple_base_exclusion_reason_count", "functional_group_pending_count")
+        counts = {name: self.counts[name] for name in names}
+        n, base, included = (counts[k] for k in names[:3])
+        counts.update(base_excluded_count=n-base, analysis_excluded_count=n-included,
+                      base_eligible_research_excluded_count=base-included,
+                      audit_count=n, candidate_count=self.states["saved"], preparation_status_counts=dict(self.states))
+        for name, frequencies in self.frequencies.items():
+            domain = set(frequencies) | (set(self.groups) if name.endswith("group_counts") else set())
+            counts[name] = {k: frequencies[k] for k in sorted(domain)}
+        counts["native_group_names"] = {g: self.groups[g].get("dictionary_name") for g in sorted(self.groups)}
+        for key in ("classification_review", "classification_anomaly"):
+            counts[key + "_proportion"] = counts[key + "_count"] / n if n else None
+        if (n != sum(self.states.values()) or included != self.states["eligible_not_neighbor"] + self.states["saved"]
+                or sum(counts["native_group_counts"].values()) != included
+                or sum(counts["candidate_native_group_counts"].values()) != self.states["saved"]):
+            raise ValueError("preparation row/Group conservation failed")
+        return counts
+
+
+def _preparation_digest(digest, row):
+    digest.update((_preparation_json(row) + "\n").encode("utf-8"))
+
+
+def _parquet_rows(path, schema, batch_size):
+    import pyarrow.parquet as pq
+    with pq.ParquetFile(path) as source:
+        if not source.schema_arrow.equals(schema, check_metadata=True):
+            raise ValueError("preparation Parquet schema mismatch")
+        for batch in source.iter_batches(batch_size=batch_size):
+            yield from batch.to_pylist()
+
+
+def _verify_preparation_files(candidate_path, audit_path, *, context, batch_size, expected_counts,
+                              expected_digests, index_path):
+    """Stream both files, checking each saved audit against the candidate row.
+
+    ID uniqueness is disk-backed, while strictly increasing FIDs require only
+    one previous value. Canonical row digests also detect changed audit fields.
+    """
+    schemas = (poi_parquet_schema(context.rules.version), preparation_audit_schema(context.rules.version))
+    candidates = _parquet_rows(candidate_path, schemas[0], batch_size)
+    audits = _parquet_rows(audit_path, schemas[1], batch_size)
+    digests = [hashlib.sha256(), hashlib.sha256()]
+    counts = _PreparationCounts(context.dictionary.groups)
+    previous = None
+    try:
+        with closing(sqlite3.connect(index_path)) as db, db:
+            db.execute("PRAGMA cache_size=-8192")
+            db.execute("CREATE TABLE candidate_ids (kind TEXT, value TEXT, PRIMARY KEY(kind,value)) WITHOUT ROWID")
+            for outer in audits:
+                row = json.loads(outer["audit_json"], object_pairs_hook=_unique_json_object)
+                fid, state = row["source_fid"], outer["preparation_status"]
+                if (type(fid) is not int or previous is not None and fid <= previous
+                        or row["source_path"] != context.source_path or row["source_layer"] != context.layer
+                        or row["classification_rule_version"] != context.rules.version
+                        or outer != _preparation_audit_row(row, state)):
+                    raise ValueError("preparation audit fields/source/FID order mismatch")
+                previous = fid
+                counts.add(row, state)
+                _preparation_digest(digests[1], outer)
+                if state == "saved":
+                    candidate = next(candidates, None)
+                    if candidate != _poi_parquet_row(row):
+                        raise ValueError("saved audit/candidate fields disagree")
+                    db.execute("INSERT INTO candidate_ids VALUES (?, ?)", (candidate["ref_no_type"], candidate["ref_no_value"]))
+                    _preparation_digest(digests[0], candidate)
+            if next(candidates, None) is not None:
+                raise ValueError("candidate file has extra records")
+            if db.execute("SELECT COUNT(*) FROM candidate_ids").fetchone()[0] != counts.states["saved"]:
+                raise ValueError("candidate ID uniqueness count mismatch")
+    finally:
+        candidates.close()
+        audits.close()
+    if counts.result() != expected_counts or [d.hexdigest() for d in digests] != expected_digests:
+        raise ValueError("complete preparation read-back counts/content digests differ")
+    return {"status": "passed", "source_count": context.schema["source_count"],
+            "counts_conserved": True, "audit_one_per_source_record": True,
+            "parquet_schema_and_rows_verified": True, "candidate_ids_unique": True,
+            "native_groups_sum_verified": True, "logical_content_sha256": expected_digests}
+
+
+def prepare(poi_path, *, station_dir, data_root, code_root, output_dir, context_options,
+            batch_size=10000, include_ev_charging=False, progress=None):
+    """Step 13: full-source cleaning and the union of selected station buffers.
+
+    This is candidate preparation, not station–POI pairing. No row limit, PUA
+    crop, coverage-completeness filter, resampling or all-source audit list.
+    Outputs become consumable only with a completed preparation_report.json.
+    """
+    import resource
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+    from src.spatial import build_neighbor_index, exact_neighbors
+
+    _positive_integer(batch_size, "batch_size")
+    if type(include_ev_charging) is not bool or progress is not None and not callable(progress):
+        raise ValueError("boolean facility switch and optional callable progress required")
+    root = project_path(".", root=data_root)
+    output = _audit_path(output_dir, root)
+    if output == root / "outputs":
+        raise ValueError("output must be strictly inside outputs/")
+    output.mkdir(parents=True, exist_ok=False)
+    started = time.monotonic()
+    report = {"schema_version": 1, "status": "running", "validation_complete": False, "errors": [],
+              "poi_scope": "full_source", "full_source_cleaning_run": True, "poi_matching_performed": False,
+              "radii_m": [500, 1000], "max_radius_m": 1000, "batch_size": batch_size,
+              "include_ev_charging": include_ev_charging, "composition_mode": "native_group",
+              "functional_group_role": "audit_only", "output_dir": str(output),
+              "started_at": datetime.now().astimezone().isoformat(), "batches_written": 0}
+    report_path = output / "preparation_report.json"
+    _json_write(report_path, report)
+
+    def checkpoint(stage):
+        report["stage"] = stage
+        report["elapsed_seconds"] = time.monotonic() - started
+        # Linux ru_maxrss is KiB and includes earlier work in this process.
+        report["peak_rss_kib"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        report["peak_rss_scope"] = "process_lifetime_linux_kib"
+        _json_write(report_path, report)
+        if progress is not None:
+            progress({k: report[k] for k in ("stage", "elapsed_seconds", "peak_rss_kib", "batches_written")}
+                     | {"counts": report.get("counts")})
+
+    try:
+        code_paths = [Path(__file__).resolve().with_name(n)
+                      for n in ("data.py", "spatial.py", "classification.py", "poi_research.py", "geography.py")]
+        report["code_fingerprints"] = {p.name: _artifact_fingerprint(p) for p in code_paths}
+        context = load_poi_cleaning_context(poi_path, data_root=root, code_root=code_root, **context_options)
+        stations = load_prepared_stations(station_dir, data_root=root, context=context)
+        index = build_neighbor_index([r["xy"] for r in stations["queries"]])
+        report.update(station_scope=stations["scope"], stations=stations, upstream=context.provenance,
+                      input_schema=context.schema, classification_rule_version=context.rules.version,
+                      rule_coverage=context.rules.coverage)
+        checkpoint("inputs_verified")
+        processed = output / "processed"
+        processed.mkdir()
+        final = [processed / n for n in ("pois.parquet", "poi_issues.parquet")]
+        temporary = [p.with_suffix(".parquet.tmp") for p in final]
+        schemas = (poi_parquet_schema(context.rules.version), preparation_audit_schema(context.rules.version))
+        counts = _PreparationCounts(context.dictionary.groups)
+        digests = [hashlib.sha256(), hashlib.sha256()]
+        previous = None
+        with ExitStack() as stack:
+            writers = [stack.enter_context(pq.ParquetWriter(p, s, compression="zstd")) for p, s in zip(temporary, schemas)]
+            for batch in poi_batches(poi_path, data_root=root, layer=context.layer,
+                                     fields=context.schema["field_mapping"], batch_size=batch_size, limit=None):
+                if not batch or len(batch) > batch_size:
+                    raise ValueError("reader returned empty/oversized batch")
+                for original in batch:
+                    fid = original["source_fid"]
+                    if type(fid) is not int or previous is not None and fid <= previous:
+                        raise ValueError("source FID must strictly increase across batches")
+                    previous = fid
+                cleaned = clean_poi_batch(batch, context=context, include_ev_charging=include_ev_charging)
+                if [r["source_fid"] for r in cleaned["audit"]] != [r["source_fid"] for r in batch]:
+                    raise ValueError("cleaning did not preserve every source row in order")
+                candidates, audits = [], []
+                for row in cleaned["audit"]:
+                    state = "ineligible"
+                    if row["analysis_include"]:
+                        neighbors = exact_neighbors((row["x"], row["y"]), index, 1000)
+                        state = "saved" if neighbors else "eligible_not_neighbor"
+                    counts.add(row, state)
+                    audits.append(_preparation_audit_row(row, state))
+                    if state == "saved":
+                        candidates.append(_poi_parquet_row(row))
+                for writer, rows, schema, digest in zip(writers, (candidates, audits), schemas, digests):
+                    if rows:
+                        writer.write_table(pa.Table.from_pylist(rows, schema=schema))
+                    for row in rows:
+                        _preparation_digest(digest, row)
+                report["batches_written"] += 1
+                report["counts"] = counts.result()
+                checkpoint("streaming")
+        report["counts"] = counts.result()
+        if counts.counts["input_count"] != context.schema["source_count"]:
+            raise ValueError("complete source reader/audit count does not reconcile")
+        checkpoint("readback")
+        validation = _verify_preparation_files(*temporary, context=context, batch_size=batch_size,
+                     expected_counts=counts.result(), expected_digests=[d.hexdigest() for d in digests],
+                     index_path=output / "candidate_identity_check.sqlite")
+        checkpoint("rechecking_inputs")
+        after = load_poi_cleaning_context(poi_path, data_root=root, code_root=code_root, **context_options)
+        if (after.provenance != context.provenance or after.rules.coverage != context.rules.coverage
+                or load_prepared_stations(station_dir, data_root=root, context=after) != stations
+                or {p.name: _artifact_fingerprint(p) for p in code_paths} != report["code_fingerprints"]):
+            raise ValueError("inputs/upstream/rules/code changed during preparation")
+        for key, fingerprint_key, name in (("config_path", "config_fingerprint", "research_rules_snapshot.yaml"),
+                                           ("rules_file", "rules_fingerprint", "research_rules_snapshot.csv")):
+            source = project_path(context.rules.provenance[key], root=code_root)
+            target = output / name
+            with _open_regular(source) as stream, target.open("xb") as sink:
+                sink.write(stream.read())
+            if (_artifact_fingerprint(target) != context.rules.provenance[fingerprint_key]
+                    or _artifact_fingerprint(source) != context.rules.provenance[fingerprint_key]):
+                raise ValueError("rule snapshot differs from verified rules")
+        _json_write(output / "rule_coverage.json", context.rules.coverage)
+        validation.update(input_bytes_unchanged=True, upstream_and_rules_unchanged=True)
+        _json_write(output / "validation_report.json", validation)
+        for source, target in zip(temporary, final):
+            source.replace(target)
+        report["artifacts"] = {str(p.relative_to(output)): _artifact_fingerprint(p)
+                               for p in [*final, output / "rule_coverage.json", output / "validation_report.json",
+                                         output / "research_rules_snapshot.yaml", output / "research_rules_snapshot.csv"]}
+        report.update(status="completed", validation_complete=True, input_bytes_unchanged=True,
+                      finished_at=datetime.now().astimezone().isoformat())
+        checkpoint("completed")
+    except Exception as error:
+        report.update(status="failed", validation_complete=False, stage="failed",
+                      elapsed_seconds=time.monotonic()-started, peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+        report["errors"].append(f"{type(error).__name__}: {error}")
+        _json_write(report_path, report)
+        raise PreparationError(report) from error
     return report
