@@ -1,0 +1,1569 @@
+{
+  "schema_version": 1,
+  "required_paths": [
+    "data/raw/charging/UK_OCM_stations_with_connector_summary.csv",
+    "data/raw/digimap/OS-EULA-26-27.pdf",
+    "data/raw/digimap/citations_orders_3022550.txt",
+    "data/raw/digimap/contents_order_3022550.txt",
+    "data/raw/digimap/docs/CLASSIFICATION_SCHEME_v_3_4.pdf",
+    "data/raw/digimap/docs/DATA_SUPPLIES_SEP26.pdf",
+    "data/raw/digimap/docs/DESC_CLASS_REPORT_SEP26.pdf",
+    "data/raw/digimap/docs/POI_CATEGORIES.txt",
+    "data/raw/digimap/docs/POI_CLASSIFICATIONS.txt",
+    "data/raw/digimap/docs/POI_GROUPS.txt",
+    "data/raw/digimap/docs/POI_PRODUCTINFO_v_4_3.pdf",
+    "data/raw/digimap/docs/POI_TECHSPEC_v_4_3.pdf",
+    "data/raw/digimap/docs/POSITIONAL_ACCURACY_LOOKUP.txt",
+    "data/raw/digimap/docs/PointX_Release_Notes_Sep26.pdf",
+    "data/raw/digimap/docs/RELEASE_REPORT_SEP26.pdf",
+    "data/raw/digimap/poi_6476197.gpkg",
+    "data/raw/geography/LAD_MAY_2025_UK_BGC_V2.gpkg",
+    "data/raw/geography/lad25_bgc_item.json",
+    "data/raw/geography/ons_licences.html",
+    "cities/Data tool 2026 dataset.xlsx",
+    "cities/PUA_LA_mapping_Centre_for_Cities_2022.xlsx",
+    "cities/PUA_LA_mapping_GB.csv"
+  ],
+  "geography": {
+    "mapping_path": "cities/PUA_LA_mapping_Centre_for_Cities_2022.xlsx",
+    "lad_path": "data/raw/geography/LAD_MAY_2025_UK_BGC_V2.gpkg",
+    "station_path": "data/raw/charging/UK_OCM_stations_with_connector_summary.csv",
+    "target_puas": [
+      "Aberdeen",
+      "Aldershot",
+      "Barnsley",
+      "Basildon",
+      "Birkenhead",
+      "Birmingham",
+      "Blackburn",
+      "Blackpool",
+      "Bournemouth",
+      "Bradford",
+      "Brighton",
+      "Bristol",
+      "Burnley",
+      "Cambridge",
+      "Cardiff",
+      "Chatham",
+      "Coventry",
+      "Crawley",
+      "Derby",
+      "Doncaster",
+      "Dundee",
+      "Edinburgh",
+      "Exeter",
+      "Glasgow",
+      "Gloucester",
+      "Huddersfield",
+      "Hull",
+      "Ipswich",
+      "Leeds",
+      "Leicester",
+      "Liverpool",
+      "London",
+      "Luton",
+      "Manchester",
+      "Mansfield",
+      "Middlesbrough",
+      "Milton Keynes",
+      "Newcastle",
+      "Newport",
+      "Northampton",
+      "Norwich",
+      "Nottingham",
+      "Oxford",
+      "Peterborough",
+      "Plymouth",
+      "Portsmouth",
+      "Preston",
+      "Reading",
+      "Sheffield",
+      "Slough",
+      "Southampton",
+      "Southend",
+      "Stoke",
+      "Sunderland",
+      "Swansea",
+      "Swindon",
+      "Telford",
+      "Wakefield",
+      "Warrington",
+      "Wigan",
+      "Worthing",
+      "York"
+    ],
+    "mapping_sheet": "GB_mapping",
+    "lad_layer": "LAD_MAY_2025_UK_BGC_V2",
+    "code_field": "LAD25CD",
+    "name_field": "LAD25NM",
+    "crosswalk": {
+      "Aberdeen": {
+        "lad_code": "S12000033",
+        "lad_name": "Aberdeen City",
+        "source_lad_code": "S12000033",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "explicit reviewed alias",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Rushmoor": {
+        "lad_code": "E07000092",
+        "lad_name": "Rushmoor",
+        "source_lad_code": "E07000092",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Surrey Heath": {
+        "lad_code": "E07000214",
+        "lad_name": "Surrey Heath",
+        "source_lad_code": "E07000214",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Barnsley": {
+        "lad_code": "E08000038",
+        "lad_name": "Barnsley",
+        "source_lad_code": "E08000016",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": true
+      },
+      "Basildon": {
+        "lad_code": "E07000066",
+        "lad_name": "Basildon",
+        "source_lad_code": "E07000066",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Wirral": {
+        "lad_code": "E08000015",
+        "lad_name": "Wirral",
+        "source_lad_code": "E08000015",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Birmingham": {
+        "lad_code": "E08000025",
+        "lad_name": "Birmingham",
+        "source_lad_code": "E08000025",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Dudley": {
+        "lad_code": "E08000027",
+        "lad_name": "Dudley",
+        "source_lad_code": "E08000027",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Sandwell": {
+        "lad_code": "E08000028",
+        "lad_name": "Sandwell",
+        "source_lad_code": "E08000028",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Solihull": {
+        "lad_code": "E08000029",
+        "lad_name": "Solihull",
+        "source_lad_code": "E08000029",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Walsall": {
+        "lad_code": "E08000030",
+        "lad_name": "Walsall",
+        "source_lad_code": "E08000030",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Wolverhampton": {
+        "lad_code": "E08000031",
+        "lad_name": "Wolverhampton",
+        "source_lad_code": "E08000031",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Blackburn with Darwen": {
+        "lad_code": "E06000008",
+        "lad_name": "Blackburn with Darwen",
+        "source_lad_code": "E06000008",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Blackpool": {
+        "lad_code": "E06000009",
+        "lad_name": "Blackpool",
+        "source_lad_code": "E06000009",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Fylde": {
+        "lad_code": "E07000119",
+        "lad_name": "Fylde",
+        "source_lad_code": "E07000119",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Dorset": {
+        "lad_code": "E06000059",
+        "lad_name": "Dorset",
+        "source_lad_code": "E06000059",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Bournemouth Christchurch and Poole": {
+        "lad_code": "E06000058",
+        "lad_name": "Bournemouth, Christchurch and Poole",
+        "source_lad_code": "E06000058",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "explicit reviewed alias",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Bradford": {
+        "lad_code": "E08000032",
+        "lad_name": "Bradford",
+        "source_lad_code": "E08000032",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Adur": {
+        "lad_code": "E07000223",
+        "lad_name": "Adur",
+        "source_lad_code": "E07000223",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Brighton and Hove": {
+        "lad_code": "E06000043",
+        "lad_name": "Brighton and Hove",
+        "source_lad_code": "E06000043",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "City of Bristol": {
+        "lad_code": "E06000023",
+        "lad_name": "Bristol, City of",
+        "source_lad_code": "E06000023",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "explicit reviewed alias",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "South Gloucestershire": {
+        "lad_code": "E06000025",
+        "lad_name": "South Gloucestershire",
+        "source_lad_code": "E06000025",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Burnley": {
+        "lad_code": "E07000117",
+        "lad_name": "Burnley",
+        "source_lad_code": "E07000117",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Pendle": {
+        "lad_code": "E07000122",
+        "lad_name": "Pendle",
+        "source_lad_code": "E07000122",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Cambridge": {
+        "lad_code": "E07000008",
+        "lad_name": "Cambridge",
+        "source_lad_code": "E07000008",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Cardiff": {
+        "lad_code": "W06000015",
+        "lad_name": "Cardiff",
+        "source_lad_code": "W06000015",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Medway": {
+        "lad_code": "E06000035",
+        "lad_name": "Medway",
+        "source_lad_code": "E06000035",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Coventry": {
+        "lad_code": "E08000026",
+        "lad_name": "Coventry",
+        "source_lad_code": "E08000026",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Crawley": {
+        "lad_code": "E07000226",
+        "lad_name": "Crawley",
+        "source_lad_code": "E07000226",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Derby": {
+        "lad_code": "E06000015",
+        "lad_name": "Derby",
+        "source_lad_code": "E06000015",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Doncaster": {
+        "lad_code": "E08000017",
+        "lad_name": "Doncaster",
+        "source_lad_code": "E08000017",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Dundee": {
+        "lad_code": "S12000042",
+        "lad_name": "Dundee City",
+        "source_lad_code": "S12000042",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "explicit reviewed alias",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Edinburgh": {
+        "lad_code": "S12000036",
+        "lad_name": "City of Edinburgh",
+        "source_lad_code": "S12000036",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "explicit reviewed alias",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Exeter": {
+        "lad_code": "E07000041",
+        "lad_name": "Exeter",
+        "source_lad_code": "E07000041",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "East Dunbartonshire": {
+        "lad_code": "S12000045",
+        "lad_name": "East Dunbartonshire",
+        "source_lad_code": "S12000045",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "East Renfrewshire": {
+        "lad_code": "S12000011",
+        "lad_name": "East Renfrewshire",
+        "source_lad_code": "S12000011",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Glasgow": {
+        "lad_code": "S12000049",
+        "lad_name": "Glasgow City",
+        "source_lad_code": "S12000049",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "explicit reviewed alias",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Renfrewshire": {
+        "lad_code": "S12000038",
+        "lad_name": "Renfrewshire",
+        "source_lad_code": "S12000038",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Gloucester": {
+        "lad_code": "E07000081",
+        "lad_name": "Gloucester",
+        "source_lad_code": "E07000081",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Kirklees": {
+        "lad_code": "E08000034",
+        "lad_name": "Kirklees",
+        "source_lad_code": "E08000034",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Kingston upon Hull": {
+        "lad_code": "E06000010",
+        "lad_name": "Kingston upon Hull, City of",
+        "source_lad_code": "E06000010",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "explicit reviewed alias",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Ipswich": {
+        "lad_code": "E07000202",
+        "lad_name": "Ipswich",
+        "source_lad_code": "E07000202",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Leeds": {
+        "lad_code": "E08000035",
+        "lad_name": "Leeds",
+        "source_lad_code": "E08000035",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Blaby": {
+        "lad_code": "E07000129",
+        "lad_name": "Blaby",
+        "source_lad_code": "E07000129",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Leicester": {
+        "lad_code": "E06000016",
+        "lad_name": "Leicester",
+        "source_lad_code": "E06000016",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Oadby and Wigston": {
+        "lad_code": "E07000135",
+        "lad_name": "Oadby and Wigston",
+        "source_lad_code": "E07000135",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Knowsley": {
+        "lad_code": "E08000011",
+        "lad_name": "Knowsley",
+        "source_lad_code": "E08000011",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Liverpool": {
+        "lad_code": "E08000012",
+        "lad_name": "Liverpool",
+        "source_lad_code": "E08000012",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Barking and Dagenham": {
+        "lad_code": "E09000002",
+        "lad_name": "Barking and Dagenham",
+        "source_lad_code": "E09000002",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Barnet": {
+        "lad_code": "E09000003",
+        "lad_name": "Barnet",
+        "source_lad_code": "E09000003",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Bexley": {
+        "lad_code": "E09000004",
+        "lad_name": "Bexley",
+        "source_lad_code": "E09000004",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Brent": {
+        "lad_code": "E09000005",
+        "lad_name": "Brent",
+        "source_lad_code": "E09000005",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Bromley": {
+        "lad_code": "E09000006",
+        "lad_name": "Bromley",
+        "source_lad_code": "E09000006",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Broxbourne": {
+        "lad_code": "E07000095",
+        "lad_name": "Broxbourne",
+        "source_lad_code": "E07000095",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Camden": {
+        "lad_code": "E09000007",
+        "lad_name": "Camden",
+        "source_lad_code": "E09000007",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "City of London": {
+        "lad_code": "E09000001",
+        "lad_name": "City of London",
+        "source_lad_code": "E09000001",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Croydon": {
+        "lad_code": "E09000008",
+        "lad_name": "Croydon",
+        "source_lad_code": "E09000008",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Dartford": {
+        "lad_code": "E07000107",
+        "lad_name": "Dartford",
+        "source_lad_code": "E07000107",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Ealing": {
+        "lad_code": "E09000009",
+        "lad_name": "Ealing",
+        "source_lad_code": "E09000009",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Elmbridge": {
+        "lad_code": "E07000207",
+        "lad_name": "Elmbridge",
+        "source_lad_code": "E07000207",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Enfield": {
+        "lad_code": "E09000010",
+        "lad_name": "Enfield",
+        "source_lad_code": "E09000010",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Epping Forest": {
+        "lad_code": "E07000072",
+        "lad_name": "Epping Forest",
+        "source_lad_code": "E07000072",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Epsom and Ewell": {
+        "lad_code": "E07000208",
+        "lad_name": "Epsom and Ewell",
+        "source_lad_code": "E07000208",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Gravesham": {
+        "lad_code": "E07000109",
+        "lad_name": "Gravesham",
+        "source_lad_code": "E07000109",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Greenwich": {
+        "lad_code": "E09000011",
+        "lad_name": "Greenwich",
+        "source_lad_code": "E09000011",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Hackney": {
+        "lad_code": "E09000012",
+        "lad_name": "Hackney",
+        "source_lad_code": "E09000012",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Hammersmith and Fulham": {
+        "lad_code": "E09000013",
+        "lad_name": "Hammersmith and Fulham",
+        "source_lad_code": "E09000013",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Haringey": {
+        "lad_code": "E09000014",
+        "lad_name": "Haringey",
+        "source_lad_code": "E09000014",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Harrow": {
+        "lad_code": "E09000015",
+        "lad_name": "Harrow",
+        "source_lad_code": "E09000015",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Havering": {
+        "lad_code": "E09000016",
+        "lad_name": "Havering",
+        "source_lad_code": "E09000016",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Hertsmere": {
+        "lad_code": "E07000098",
+        "lad_name": "Hertsmere",
+        "source_lad_code": "E07000098",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Hillingdon": {
+        "lad_code": "E09000017",
+        "lad_name": "Hillingdon",
+        "source_lad_code": "E09000017",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Hounslow": {
+        "lad_code": "E09000018",
+        "lad_name": "Hounslow",
+        "source_lad_code": "E09000018",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Islington": {
+        "lad_code": "E09000019",
+        "lad_name": "Islington",
+        "source_lad_code": "E09000019",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Kensington and Chelsea": {
+        "lad_code": "E09000020",
+        "lad_name": "Kensington and Chelsea",
+        "source_lad_code": "E09000020",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Kingston upon Thames": {
+        "lad_code": "E09000021",
+        "lad_name": "Kingston upon Thames",
+        "source_lad_code": "E09000021",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Lambeth": {
+        "lad_code": "E09000022",
+        "lad_name": "Lambeth",
+        "source_lad_code": "E09000022",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Lewisham": {
+        "lad_code": "E09000023",
+        "lad_name": "Lewisham",
+        "source_lad_code": "E09000023",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Merton": {
+        "lad_code": "E09000024",
+        "lad_name": "Merton",
+        "source_lad_code": "E09000024",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Newham": {
+        "lad_code": "E09000025",
+        "lad_name": "Newham",
+        "source_lad_code": "E09000025",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Redbridge": {
+        "lad_code": "E09000026",
+        "lad_name": "Redbridge",
+        "source_lad_code": "E09000026",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Richmond upon Thames": {
+        "lad_code": "E09000027",
+        "lad_name": "Richmond upon Thames",
+        "source_lad_code": "E09000027",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Runnymede": {
+        "lad_code": "E07000212",
+        "lad_name": "Runnymede",
+        "source_lad_code": "E07000212",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Southwark": {
+        "lad_code": "E09000028",
+        "lad_name": "Southwark",
+        "source_lad_code": "E09000028",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Spelthorne": {
+        "lad_code": "E07000213",
+        "lad_name": "Spelthorne",
+        "source_lad_code": "E07000213",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Sutton": {
+        "lad_code": "E09000029",
+        "lad_name": "Sutton",
+        "source_lad_code": "E09000029",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Three Rivers": {
+        "lad_code": "E07000102",
+        "lad_name": "Three Rivers",
+        "source_lad_code": "E07000102",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Tower Hamlets": {
+        "lad_code": "E09000030",
+        "lad_name": "Tower Hamlets",
+        "source_lad_code": "E09000030",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Waltham Forest": {
+        "lad_code": "E09000031",
+        "lad_name": "Waltham Forest",
+        "source_lad_code": "E09000031",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Wandsworth": {
+        "lad_code": "E09000032",
+        "lad_name": "Wandsworth",
+        "source_lad_code": "E09000032",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Watford": {
+        "lad_code": "E07000103",
+        "lad_name": "Watford",
+        "source_lad_code": "E07000103",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Westminster": {
+        "lad_code": "E09000033",
+        "lad_name": "Westminster",
+        "source_lad_code": "E09000033",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Woking": {
+        "lad_code": "E07000217",
+        "lad_name": "Woking",
+        "source_lad_code": "E07000217",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Luton": {
+        "lad_code": "E06000032",
+        "lad_name": "Luton",
+        "source_lad_code": "E06000032",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Bolton": {
+        "lad_code": "E08000001",
+        "lad_name": "Bolton",
+        "source_lad_code": "E08000001",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Bury": {
+        "lad_code": "E08000002",
+        "lad_name": "Bury",
+        "source_lad_code": "E08000002",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Manchester": {
+        "lad_code": "E08000003",
+        "lad_name": "Manchester",
+        "source_lad_code": "E08000003",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Oldham": {
+        "lad_code": "E08000004",
+        "lad_name": "Oldham",
+        "source_lad_code": "E08000004",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Rochdale": {
+        "lad_code": "E08000005",
+        "lad_name": "Rochdale",
+        "source_lad_code": "E08000005",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Salford": {
+        "lad_code": "E08000006",
+        "lad_name": "Salford",
+        "source_lad_code": "E08000006",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Stockport": {
+        "lad_code": "E08000007",
+        "lad_name": "Stockport",
+        "source_lad_code": "E08000007",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Tameside": {
+        "lad_code": "E08000008",
+        "lad_name": "Tameside",
+        "source_lad_code": "E08000008",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Trafford": {
+        "lad_code": "E08000009",
+        "lad_name": "Trafford",
+        "source_lad_code": "E08000009",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Ashfield": {
+        "lad_code": "E07000170",
+        "lad_name": "Ashfield",
+        "source_lad_code": "E07000170",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Mansfield": {
+        "lad_code": "E07000174",
+        "lad_name": "Mansfield",
+        "source_lad_code": "E07000174",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Middlesbrough": {
+        "lad_code": "E06000002",
+        "lad_name": "Middlesbrough",
+        "source_lad_code": "E06000002",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Redcar and Cleveland": {
+        "lad_code": "E06000003",
+        "lad_name": "Redcar and Cleveland",
+        "source_lad_code": "E06000003",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Stockton-on-Tees": {
+        "lad_code": "E06000004",
+        "lad_name": "Stockton-on-Tees",
+        "source_lad_code": "E06000004",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Milton Keynes": {
+        "lad_code": "E06000042",
+        "lad_name": "Milton Keynes",
+        "source_lad_code": "E06000042",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Gateshead": {
+        "lad_code": "E08000037",
+        "lad_name": "Gateshead",
+        "source_lad_code": "E08000037",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Newcastle upon Tyne": {
+        "lad_code": "E08000021",
+        "lad_name": "Newcastle upon Tyne",
+        "source_lad_code": "E08000021",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "North Tyneside": {
+        "lad_code": "E08000022",
+        "lad_name": "North Tyneside",
+        "source_lad_code": "E08000022",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "South Tyneside": {
+        "lad_code": "E08000023",
+        "lad_name": "South Tyneside",
+        "source_lad_code": "E08000023",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Newport": {
+        "lad_code": "W06000022",
+        "lad_name": "Newport",
+        "source_lad_code": "W06000022",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Torfaen": {
+        "lad_code": "W06000020",
+        "lad_name": "Torfaen",
+        "source_lad_code": "W06000020",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "West Northamptonshire": {
+        "lad_code": "E06000062",
+        "lad_name": "West Northamptonshire",
+        "source_lad_code": "E06000062",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Broadland": {
+        "lad_code": "E07000144",
+        "lad_name": "Broadland",
+        "source_lad_code": "E07000144",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Norwich": {
+        "lad_code": "E07000148",
+        "lad_name": "Norwich",
+        "source_lad_code": "E07000148",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Broxtowe": {
+        "lad_code": "E07000172",
+        "lad_name": "Broxtowe",
+        "source_lad_code": "E07000172",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Erewash": {
+        "lad_code": "E07000036",
+        "lad_name": "Erewash",
+        "source_lad_code": "E07000036",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Gedling": {
+        "lad_code": "E07000173",
+        "lad_name": "Gedling",
+        "source_lad_code": "E07000173",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Nottingham": {
+        "lad_code": "E06000018",
+        "lad_name": "Nottingham",
+        "source_lad_code": "E06000018",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Oxford": {
+        "lad_code": "E07000178",
+        "lad_name": "Oxford",
+        "source_lad_code": "E07000178",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Peterborough": {
+        "lad_code": "E06000031",
+        "lad_name": "Peterborough",
+        "source_lad_code": "E06000031",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Plymouth": {
+        "lad_code": "E06000026",
+        "lad_name": "Plymouth",
+        "source_lad_code": "E06000026",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Portsmouth": {
+        "lad_code": "E06000044",
+        "lad_name": "Portsmouth",
+        "source_lad_code": "E06000044",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Fareham": {
+        "lad_code": "E07000087",
+        "lad_name": "Fareham",
+        "source_lad_code": "E07000087",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Gosport": {
+        "lad_code": "E07000088",
+        "lad_name": "Gosport",
+        "source_lad_code": "E07000088",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Havant": {
+        "lad_code": "E07000090",
+        "lad_name": "Havant",
+        "source_lad_code": "E07000090",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Chorley": {
+        "lad_code": "E07000118",
+        "lad_name": "Chorley",
+        "source_lad_code": "E07000118",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Preston": {
+        "lad_code": "E07000123",
+        "lad_name": "Preston",
+        "source_lad_code": "E07000123",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "South Ribble": {
+        "lad_code": "E07000126",
+        "lad_name": "South Ribble",
+        "source_lad_code": "E07000126",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Reading": {
+        "lad_code": "E06000038",
+        "lad_name": "Reading",
+        "source_lad_code": "E06000038",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Wokingham": {
+        "lad_code": "E06000041",
+        "lad_name": "Wokingham",
+        "source_lad_code": "E06000041",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Rotherham": {
+        "lad_code": "E08000018",
+        "lad_name": "Rotherham",
+        "source_lad_code": "E08000018",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Sheffield": {
+        "lad_code": "E08000039",
+        "lad_name": "Sheffield",
+        "source_lad_code": "E08000019",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": true
+      },
+      "Slough": {
+        "lad_code": "E06000039",
+        "lad_name": "Slough",
+        "source_lad_code": "E06000039",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Eastleigh": {
+        "lad_code": "E07000086",
+        "lad_name": "Eastleigh",
+        "source_lad_code": "E07000086",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Southampton": {
+        "lad_code": "E06000045",
+        "lad_name": "Southampton",
+        "source_lad_code": "E06000045",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Castlepoint": {
+        "lad_code": "E07000069",
+        "lad_name": "Castle Point",
+        "source_lad_code": "E07000069",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "explicit reviewed alias",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Southend-on-Sea": {
+        "lad_code": "E06000033",
+        "lad_name": "Southend-on-Sea",
+        "source_lad_code": "E06000033",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Rochford": {
+        "lad_code": "E07000075",
+        "lad_name": "Rochford",
+        "source_lad_code": "E07000075",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Newcastle-under-Lyme": {
+        "lad_code": "E07000195",
+        "lad_name": "Newcastle-under-Lyme",
+        "source_lad_code": "E07000195",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Stoke-on-Trent": {
+        "lad_code": "E06000021",
+        "lad_name": "Stoke-on-Trent",
+        "source_lad_code": "E06000021",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Sunderland": {
+        "lad_code": "E08000024",
+        "lad_name": "Sunderland",
+        "source_lad_code": "E08000024",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Neath Port Talbot": {
+        "lad_code": "W06000012",
+        "lad_name": "Neath Port Talbot",
+        "source_lad_code": "W06000012",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Swansea": {
+        "lad_code": "W06000011",
+        "lad_name": "Swansea",
+        "source_lad_code": "W06000011",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Swindon": {
+        "lad_code": "E06000030",
+        "lad_name": "Swindon",
+        "source_lad_code": "E06000030",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Telford and Wrekin": {
+        "lad_code": "E06000020",
+        "lad_name": "Telford and Wrekin",
+        "source_lad_code": "E06000020",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Wakefield": {
+        "lad_code": "E08000036",
+        "lad_name": "Wakefield",
+        "source_lad_code": "E08000036",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Warrington": {
+        "lad_code": "E06000007",
+        "lad_name": "Warrington",
+        "source_lad_code": "E06000007",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Wigan": {
+        "lad_code": "E08000010",
+        "lad_name": "Wigan",
+        "source_lad_code": "E08000010",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "Worthing": {
+        "lad_code": "E07000229",
+        "lad_name": "Worthing",
+        "source_lad_code": "E07000229",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      },
+      "York": {
+        "lad_code": "E06000014",
+        "lad_name": "York",
+        "source_lad_code": "E06000014",
+        "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+        "name_rule": "exact name",
+        "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+        "code_change": false
+      }
+    },
+    "comparison_csv": "cities/PUA_LA_mapping_GB.csv",
+    "version_review": {
+      "definition_version": "Centre for Cities 2022 PUA table; GB_mapping, 62 PUAs / 154 relationships",
+      "boundary_version": "Local Authority Districts (May 2025) Boundaries UK BGC (V2)",
+      "whole_lad_members": true,
+      "evidence": "CfC original PDF labels Local authorities in PUA, corroborated by workbook summary and CSV; reviewed code/name table below and ONS correspondence evidence. Entire supplied May-2025 LAD members are used.",
+      "boundary_policy": "2022 member identities applied to whole May-2025 LAD geometries; no claim of historical geometry equality. Barnsley/Sheffield code changes explicitly bridged by ONS LAD24->LAD25.",
+      "aliases_reviewed": {
+        "Aberdeen": "Aberdeen City",
+        "Bournemouth Christchurch and Poole": "Bournemouth, Christchurch and Poole",
+        "City of Bristol": "Bristol, City of",
+        "Dundee": "Dundee City",
+        "Edinburgh": "City of Edinburgh",
+        "Glasgow": "Glasgow City",
+        "Kingston upon Hull": "Kingston upon Hull, City of",
+        "Castlepoint": "Castle Point"
+      },
+      "code_changes_reviewed": {
+        "Barnsley": {
+          "lad_code": "E08000038",
+          "lad_name": "Barnsley",
+          "source_lad_code": "E08000016",
+          "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+          "name_rule": "exact name",
+          "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+          "code_change": true
+        },
+        "Sheffield": {
+          "lad_code": "E08000039",
+          "lad_name": "Sheffield",
+          "source_lad_code": "E08000019",
+          "evidence": "CfC 2022 local-authority member; explicit name correspondence to ONS LAD22 names/codes; ONS LAD24->LAD25 lookup; current LAD25 GPKG code and name.",
+          "name_rule": "exact name",
+          "boundary_rule": "whole May-2025 LAD; not reconstructed 2022 geometry",
+          "code_change": true
+        }
+      },
+      "limitations": [
+        "LAD BGC is generalised at 20 m and clipped to Mean High Water.",
+        "PUA union of whole LADs is not a fine built-up-area outline; Bournemouth includes the whole Dorset LAD per source.",
+        "Current boundaries are used, not a reconstruction of 2022 boundaries.",
+        "Station coordinates use the fixed approximate offline seven-parameter operation; no boundary buffer/tolerance.",
+        "Geography eligibility is not entity cleaning, query eligibility or coverage completeness."
+      ]
+    }
+  },
+  "poi_path": "data/raw/digimap/poi_6476197.gpkg",
+  "poi_layer": "Points of Interest 2026_09",
+  "station_path": "data/raw/charging/UK_OCM_stations_with_connector_summary.csv",
+  "lad_path": "data/raw/geography/LAD_MAY_2025_UK_BGC_V2.gpkg",
+  "order_path": "data/raw/digimap/contents_order_3022550.txt",
+  "order_review": {
+    "crs": "EPSG:27700",
+    "units": "metre",
+    "axis_order": [
+      "easting",
+      "northing"
+    ],
+    "references": [
+      {
+        "source_path": "data/raw/digimap/docs/POI_TECHSPEC_v_4_3.pdf",
+        "locator": "sections 3.1, Feature Easting and Feature Northing",
+        "quote": "only available for Great Britain (England, Scotland and Wales); National Grid reference; resolution of 1 metre or better"
+      },
+      {
+        "source_path": "data/raw/digimap/docs/POI_PRODUCTINFO_v_4_3.pdf",
+        "locator": "coverage section",
+        "quote": "Coverage is Great Britain."
+      },
+      {
+        "source_path": "data/raw/digimap/citations_orders_3022550.txt",
+        "locator": "Points of Interest citation",
+        "quote": "Points of Interest [GeoPackage geospatial data], Scale 1:1250, Tiles: GB, Updated: 25 August 2026"
+      }
+    ]
+  },
+  "group_path": "data/raw/digimap/docs/POI_GROUPS.txt",
+  "category_path": "data/raw/digimap/docs/POI_CATEGORIES.txt",
+  "class_path": "data/raw/digimap/docs/POI_CLASSIFICATIONS.txt",
+  "accuracy_path": "data/raw/digimap/docs/POSITIONAL_ACCURACY_LOOKUP.txt",
+  "rules_config": "config/poi_research_rules_v3.yaml",
+  "review_provenance": "Parameters transcribed from steps 09/10 accepted reviews; see SPEC. Runtime uses only these versioned values and manifested inputs; no prior output directory is opened."
+}

@@ -1,6 +1,34 @@
 # Digimap POI 分析重写
 
-> **第 15 步当前状态（2026-10-12）：** **用户已正式验收**。418 项测试（新增 42、回归 376）通过；封存 12 站的总数/组成/半径汇总/Group 汇总为 24/4,260/4/36 行。独立 116,259 项断言通过，主键/字段差异均 0，最大份额差 5.55e-17。DuckDB 保留累计半径、零值/缺失、官方三层与两种总体份额。实施证据在 `outputs/step15-20261012T185128Z/`；用户随后回复“验收通过”，验收轮 181 项文件摘要与既有报告核对全部通过，未重跑测试或统计。实际资源、验收归档与 Git 提交标识见 PROGRESS；第 16 步未开始。下列第 14 步为历史验收记录。
+> **第 16—23 步连续实施：** 用户于 2026-10-12 授权一次性完成，无需逐步批准或人工验收。第 16—23 步现已**实现并验证（用户免逐步验收）**：460 项测试、新 64 站、全量 18,685 站、两份执行 notebook 和 24 站独立副本迁移均通过；详细实测状态见 PROGRESS。以下第 15 步及更早的“后续未开始”是当时的历史记录。
+
+本轮全量运行是数据根下 `outputs/steps16-23-full-01/`，报告在 `report/main/SUMMARY.md`，正式表在 `summarize/main/`。生成 21,721,649 对 1000 m 匹配（其中 500 m 内 6,058,882 对）、37,370 行站点半径总表和 6,988,998 行分类组成；独立核验 266,226,497 项断言通过。500/1000 m 完整覆盖站点分别为 16,889/15,060。全量用时 59.423 分钟，进程峰值 9.057 GiB。迁移和 notebook 证据在同一运行的 `checks/`；原始数据和全部运行产物不提交 Git。
+
+## 完整入口与运行保护
+
+`run.py` 支持 `inspect → prepare → match → summarize → report`，默认 `--stage all`。配置为 `config.yaml` 和版本化的 `config/study.json`；后者保存已审阅的 62 个 PUA、154 项对应、订单依据及独立必需来源，不依赖历史 outputs。数据根默认 `~/Work/analysis_Digimap_POI_v2`，迁移时可显式设置 `DIGIMAP_DATA_ROOT`，代码根由脚本位置确定。
+
+先在独立 Python 环境安装 `requirements.txt`。运行须使用新 run-id；以下名字仅为示例：
+
+```bash
+python -B run.py --check-config
+python -B run.py --stage test --run-id test_example_01
+python -B run.py --run-id smoke_example_01 --sample-stations 64 --seed 20261012
+python -B run.py --run-id full_example_01
+python -B run.py --run-id full_example_01 --stage verify
+python -B run.py --run-id full_example_01 --stage notebook
+python -B run.py --run-id full_example_01 --stage portability
+```
+
+单阶段调用使用同一 run-id 和 `--stage inspect/prepare/match/summarize/report`，只能顺序追加未尝试阶段。已尝试的阶段（包括失败）不可覆盖；配置、代码、依赖或输入改变需要新 run-id。仅部分阶段成功是 `partial`，任何阶段失败是 `failed`；五阶段和最终完整性检查通过才是 `success`。被拒绝的续跑不改写原有效状态。`verify` 仅检查文件完整性，不能代替独立统计算术验证。
+
+每次运行保存 `snapshot.json`、`run.json` 和分阶段目录。正式表在 `summarize/main/`，报告为 `report/main/SUMMARY.md`；其 `validation/` 保存逐单元核验和原始 POI/站点追溯，`review/` 保存样本 CSV 与 QGIS GeoPackage，`figures/` 保存两幅 PNG。原始数据与运行产物不进 Git。主展示半径默认 1000 m，两个累计半径均保留。
+
+notebook 模板是 `notebooks/01_review.ipynb`，`--stage notebook` 在 `checks/notebook-*/` 创建并执行副本；只读取已成功 run 的结果。手工打开模板时须提供 `DIGIMAP_CODE_ROOT`、`DIGIMAP_DATA_ROOT`、`DIGIMAP_RUN_ID`。迁移检查在数据盘复制真实输入和代码，从项目外运行最多 24 站，记录 Python 文件访问审计、子运行状态和日志后清理副本；它不是操作系统级隔离。
+
+`--sample-stations` 仅限制站点，输入审计和 POI 准备仍读取完整源文件。默认 DuckDB 内存参数为 `2GB`、线程数 1，可用 `--memory-limit` 和 `--threads` 显式修改并记录；该参数不是整个 Python 进程的内存上限。
+
+> **第 15 步验收历史（2026-10-12）：** **用户已正式验收**。418 项测试（新增 42、回归 376）通过；封存 12 站的总数/组成/半径汇总/Group 汇总为 24/4,260/4/36 行。独立 116,259 项断言通过，主键/字段差异均 0，最大份额差 5.55e-17。DuckDB 保留累计半径、零值/缺失、官方三层与两种总体份额。实施证据在 `outputs/step15-20261012T185128Z/`；用户随后回复“验收通过”，验收轮 181 项文件摘要与既有报告核对全部通过，未重跑测试或统计。实际资源、验收归档与 Git 提交标识见 PROGRESS；第 16 步未开始。下列第 14 步为历史验收记录。
 
 > **第 14 步验收历史记录（2026-10-12）：** **用户已正式验收**。376 项测试（新增 38、回归 338）全部通过；封存 12 站、11,266 候选生成 11,266 对匹配，500 m 内 3,749 对。独立枚举 135,192 个可能对，漏点/多点/重复/字段差异均 0、最大距离差 0 m；1 条 PUA 外候选和 792 条原功能组为空的候选均保留。用户于 2026-10-12 明确回复“验收通过”；验收轮 157 项文件摘要与既有报告核对通过，不重跑测试或分析。实施轮未提交 Git，验收后按协作约定保存本步提交；实际资源、证据与提交标识见 PROGRESS；该验收轮第 15 步尚未开始，本轮状态见上方。
 
@@ -34,11 +62,11 @@
 
 旧 v1 证据 `outputs/step11-20261011T145744Z-ef431140/`（272 项测试、2,111 项独立核对）和 v2/v3 表格核验均原样保留，不计作本轮新运行结果。
 
-第 10 步的显式入口为 `src.data.prepare_station_files()`，尚未接入完整 CLI。`src.spatial.prepare_stations()`/`station_radius_base()` 负责实体与资格，`src.geography.coverage_geometries()`/`boundary_distances()` 负责覆盖计算。文件入口要求完整源、已封存的第 06/09 步证据、固定 pipeline、独立必需来源列表及有出处的订单 review；先核对输入和上游，全部产物写入新的数据盘输出目录，失败文件不能继续消费。Parquet 依赖固定为 `pyarrow==23.0.1`。
+第 10 步的显式入口为 `src.data.prepare_station_files()`，现由五阶段 CLI 的 prepare 调用。`src.spatial.prepare_stations()`/`station_radius_base()` 负责实体与资格，`src.geography.coverage_geometries()`/`boundary_distances()` 负责覆盖计算。文件入口要求完整源、已封存的第 06/09 步证据、固定 pipeline、独立必需来源列表及有出处的订单 review；先核对输入和上游，全部产物写入新的数据盘输出目录，失败文件不能继续消费。Parquet 依赖固定为 `pyarrow==23.0.1`。
 
 成功目录包含 `stations.parquet`、逐源行 `station_audit.csv`、`station_radius_base.parquet`、GB/NI/数据覆盖 WKB、`coverage_definition.json` 和 `station_preparation_report.json`。WKB 必须与定义中的 CRS 一起读取。实体表保留范围外实体用于审计，基础表仅包含 selected 实体；字段含空值、列表和全部原因。完整覆盖标志以半径为单位，基础表没有 POI 数量。当前证据位于数据根 `outputs/step10-20261011T112022Z-dddcfc70/`，其中 `latest_full.json`、`latest_sample.json` 标明成功目录；复现使用保存的 request 和新的 output_dir，不能覆盖这些证据。
 
-第 09 步通过 `src/geography.py` 的 `prepare_pua_scope()` 显式调用，尚未串入完整 CLI。它要求目标清单、映射工作表/字段、已审阅 crosswalk 与版本依据、完整第 06 步审计、固定坐标转换和独立必需来源列表。主表为 `GB_mapping`，CSV 核对定义，指标工作簿只辅助核对城市名称；PUA 使用完整 May-2025 LAD 的 union，不声称是 2022 历史边界或精细建成区轮廓。8 项名称差异、Barnsley/Sheffield 两项代码变化及依据详见 `SPEC.md`。
+第 09 步通过 `src/geography.py` 的 `prepare_pua_scope()` 调用，现由五阶段 CLI 的 prepare 调度。它要求目标清单、映射工作表/字段、已审阅 crosswalk 与版本依据、完整第 06 步审计、固定坐标转换和独立必需来源列表。主表为 `GB_mapping`，CSV 核对定义，指标工作簿只辅助核对城市名称；PUA 使用完整 May-2025 LAD 的 union，不声称是 2022 历史边界或精细建成区轮廓。8 项名称差异、Barnsley/Sheffield 两项代码变化及依据详见 `SPEC.md`。
 
 成功目录包含 `scope_definition.json`、映射与问题表、`pua_geometries.csv`、`study_area.wkb`、全源 `station_pua_audit.csv`、候选 `stations_in_target_pua.csv` 和报告。空间判据为 covers；多重命中保留全部候选归属，但每个源行只写一次。CSV 三态字段为 `True`/`False`/空字段，原始字段、坐标、归属列表及全源问题使用 JSON 列。WKB 的 CRS 单独保存为 EPSG:27700；读取大型十六进制 WKB 时注意 CSV 字段长度上限。
 
@@ -215,7 +243,7 @@ report = inspect_dictionary(
 
 `dictionary_validation.json` 保存输入、前一轮审计产物及本次产物摘要、对账和质量摘要；`name_index.sqlite` 是本次磁盘索引。消费前须检查 `status=completed`、`validation_complete=true`。失败抛出 `DictionaryValidationError` 并保存原因，附近的部分产物不能视作成功结果。调用与验证继续在指定服务器执行，实际结果和命令见 `PROGRESS.md`；本步不新增完整阶段 CLI。
 
-第 14 步文件入口（不经 CLI）消费第 13 步准备目录及其绑定站点：
+第 14 步文件入口消费第 13 步准备目录及其绑定站点；现已接入 CLI，也可显式调用：
 
 ```python
 from run import CODE_ROOT, DATA_ROOT
@@ -231,7 +259,7 @@ report = match_files(
 
 只在 `matching_report.json` 为 `completed`、`validation_complete=true` 且产物摘要一致时消费 `matches.parquet`。一行一个 `(station_key, ref_no_type, ref_no_value)` 对，距离支持两个累计半径；输出包含完整来源、官方分类及原类型身份，空结果保持固定 schema。范围从准备报告绑定，不能把 12 站候选换接全站点；候选元数据/坐标/树仍整体进入内存。新的运行目录不得与上游或已有输出重叠。
 
-第 15 步正式统计入口消费封存的匹配目录及其绑定站点，不经过 CLI：
+第 15 步正式统计入口消费封存的匹配目录及其绑定站点；现已接入 CLI，也可显式调用：
 
 ```python
 from run import CODE_ROOT, DATA_ROOT
